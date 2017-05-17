@@ -1,0 +1,44 @@
+{
+  "development": {
+    "username": "root",
+    "password": "hello1234",
+    "database": "hellomoney",
+    "host": "hellomoney2.cj0dugpahfcd.ap-northeast-2.rds.amazonaws.com",
+    "dialect": "mysql",
+    "pool": {
+      "max": 20,
+      "min": 10,
+      "idle": 10000
+    },
+    "logging": false,
+    "migrationStorageTableName": "sequelize_migration_meta"
+  },
+  "test": {
+    "username": "root",
+    "password": "hello1234",
+    "database": "hellomoney",
+    "host": "hellomoney2.cj0dugpahfcd.ap-northeast-2.rds.amazonaws.com",
+    "dialect": "mysql",
+    "pool": {
+      "max": 20,
+      "min": 10,
+      "idle": 10000
+    },
+    "logging": false,
+    "migrationStorageTableName": "sequelize_migration_meta"
+  },
+  "production": {
+    "username": "root",
+    "password": "hello1234",
+    "database": "hellomoney",
+    "host": "hellomoney2.cj0dugpahfcd.ap-northeast-2.rds.amazonaws.com",
+    "dialect": "mysql",
+    "pool": {
+      "max": 20,
+      "min": 10,
+      "idle": 10000
+    },
+    "logging": false,
+    "migrationStorageTableName": "sequelize_migration_meta"
+  }
+}

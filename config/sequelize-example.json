@@ -1,0 +1,44 @@
+{
+  "development": {
+    "username": "",
+    "password": "",
+    "database": "",
+    "host": "",
+    "dialect": "mysql",
+    "pool": {
+      "max": 20,
+      "min": 0,
+      "idle": 10000
+    },
+    "logging": false,
+    "migrationStorageTableName": "sequelize_migration_meta"
+  },
+  "test": {
+    "username": "",
+    "password": "",
+    "database": "",
+    "host": "",
+    "dialect": "mysql",
+    "pool": {
+      "max": 20,
+      "min": 0,
+      "idle": 10000
+    },
+    "logging": false,
+    "migrationStorageTableName": "sequelize_migration_meta"
+  },
+  "production": {
+    "username": "",
+    "password": "",
+    "database": "",
+    "host": "",
+    "dialect": "mysql",
+    "pool": {
+      "max": 20,
+      "min": 0,
+      "idle": 10000
+    },
+    "logging": false,
+    "migrationStorageTableName": "sequelize_migration_meta"
+  }
+}
