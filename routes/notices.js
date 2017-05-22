@@ -64,7 +64,7 @@ function deleteNotice(req, res, next) {
     var noticeId = req.params.noticeId;
 
     Notices.deleteNotice(noticeId).then(results => {
-        res.send({msg: 'success', data: results});
+        res.send({msg: 'success'});
     }).catch(error => {
         res.send({msg: 'failed'});
     });
