@@ -12,81 +12,61 @@ router.route('/notices/:noticeId')
     .put(editNotice);
 
 function showNoticeList(req, res, next) {
-
     var page = parseInt(req.query.page) || 1;
     var count = parseInt(req.query.count) || 30;
     var keyword = req.query.keyword;
 
-    Notices.getNotices(page, count, keyword, function (err, results) {
-
-        if(err) {
-            return next(err);
-        }
-
-        res.send(results);
+    Notices.getNotices(page, count, keyword).then(results => {
+        res.send({msg: 'success', paging : results.paging, data: results.data});
+    }).catch(error => {
+        res.send({msg: 'failed'});
     });
 }
 
 function addNotice(req, res, next) {
-
     var body = req.body;
     var title = body.title;
     var content = body.content;
     var type = body.type;
 
-    Notices.addNotice(title, content, type, function (err, results) {
-
-        if(err) {
-            return next(err);
-        }
-
-        res.send(results);
+    Notices.addNotice(title, content, type).then(results => {
+        res.send({msg: 'success'});
+    }).catch(error => {
+        res.send({msg: 'failed'});
     });
 }
 
 function showNoticeDetail(req, res, next) {
-
     var noticeId = req.params.noticeId;
 
-    Notices.getNotice(noticeId, function (err, results) {
-
-        if(err) {
-            return next(err);
-        }
-
-        res.send(results);
-    });
-}
-
-function deleteNotice(req, res, next) {
-
-    var noticeId = req.params.noticeId;
-
-    Notices.deleteNotice(noticeId, function (err, results) {
-
-        if(err) {
-            return next(err);
-        }
-
-        res.send(results);
+    Notices.getNotice(noticeId).then(results => {
+        res.send({msg: 'success', data: results});
+    }).catch(error => {
+        res.send({msg: 'failed'});
     });
 }
 
 function editNotice(req, res, next) {
-
     var noticeId = req.params.noticeId;
     var body = req.body;
     var title = body.title;
     var content = body.content;
     var type = body.type;
 
-    Notices.updateNotice(noticeId, title, content, type, function (err, results) {
+    Notices.updateNotice(noticeId, title, content, type).then(results => {
+        res.send({msg: 'success'});
+    }).catch(error => {
+        res.send({msg: 'failed'});
+    });
+}
 
-        if(err) {
-            return next(err);
-        }
+function deleteNotice(req, res, next) {
+    var noticeId = req.params.noticeId;
 
-        res.send(results);
+    Notices.deleteNotice(noticeId).then(results => {
+        res.send({msg: 'success', data: results});
+    }).catch(error => {
+        res.send({msg: 'failed'});
     });
 }
 
