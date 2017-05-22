@@ -9,8 +9,6 @@ class Notices {
                 return callback(err);
             }
 
-            console.log(noticeId);
-
             var sql = 'SELECT * FROM notice WHERE notice_id = ?';
             conn.query(sql, [noticeId], function (err, results) {
                 if (err) {
