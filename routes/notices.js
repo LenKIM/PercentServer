@@ -30,7 +30,7 @@ function addNotice(req, res, next) {
     var type = body.type;
 
     Notices.addNotice(title, content, type).then(results => {
-        res.send({msg: 'success'});
+        res.send({msg: 'success', status: results});
     }).catch(error => {
         res.send({msg: 'failed'});
     });
@@ -54,7 +54,7 @@ function editNotice(req, res, next) {
     var type = body.type;
 
     Notices.updateNotice(noticeId, title, content, type).then(results => {
-        res.send({msg: 'success'});
+        res.send({msg: 'success', status: results});
     }).catch(error => {
         res.send({msg: 'failed'});
     });
@@ -64,7 +64,7 @@ function deleteNotice(req, res, next) {
     var noticeId = req.params.noticeId;
 
     Notices.deleteNotice(noticeId).then(results => {
-        res.send({msg: 'success'});
+        res.send({msg: 'success', status: results});
     }).catch(error => {
         res.send({msg: 'failed'});
     });
