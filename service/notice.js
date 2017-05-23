@@ -1,7 +1,6 @@
 const pool = require('../config/mysql');
 
 class Notice {
-
     getNotice(notice) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
