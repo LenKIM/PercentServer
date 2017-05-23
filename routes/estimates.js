@@ -7,10 +7,25 @@ router.route('/estimates').post(writeEstimate);
 router.route('/estimates/:estimateId').put(editEstimate);
 
 function writeEstimate(req, res, next) {
-    // todo : body-parsing
-    // var body = req.body;
-    // var something = body.something;
-    // var estimate = new Estimate();
+    var body = req.body;
+    var estimate = new Estimate(
+        null,
+        body.requestId,
+        body.agentId,
+        null,
+        body.itemBank,
+        body.itemName,
+        body.interestRate,
+        body.interestRateType,
+        body.repaymentType,
+        body.overdueInterestRate1,
+        body.overdueInterestRate2,
+        body.overdueInterestRate3,
+        body.overdueTime1,
+        body.overdueTime2,
+        body.overdueTime3,
+        body.earlyRepaymentFee
+    );
 
     estimateService.writeEstimate(estimate).then(results => {
         res.send({msg: 'success', status: results});
@@ -20,11 +35,25 @@ function writeEstimate(req, res, next) {
 }
 
 function editEstimate(req, res, next) {
-    // todo : uri, body-parsing
-    // var estimateId = req.params.estimateId;
-    // var body = req.body;
-    // var something = body.something;
-    // var estimate = new Estimate();
+    var body = req.body;
+    var estimate = new Estimate(
+        req.params.estimateId,
+        body.requestId,
+        body.agentId,
+        null,
+        body.itemBank,
+        body.itemName,
+        body.interestRate,
+        body.interestRateType,
+        body.repaymentType,
+        body.overdueInterestRate1,
+        body.overdueInterestRate2,
+        body.overdueInterestRate3,
+        body.overdueTime1,
+        body.overdueTime2,
+        body.overdueTime3,
+        body.earlyRepaymentFee
+    );
 
     estimateService.editEstimate(estimate).then(results => {
         res.send({msg: 'success', status: results});
