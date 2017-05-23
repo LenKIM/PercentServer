@@ -1,19 +1,12 @@
 const pool = require('../config/mysql');
 
-class Notices {
+class Notice {
 
-    constructor(noticeId, title, content, type) {
-        this.noticeId = noticeId;
-        this.title = title;
-        this.content = content;
-        this.type = type;
-    }
-
-    getNotice() {
+    getNotice(notice) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var sql = 'SELECT * FROM notice WHERE notice_id = ?';
-                conn.query(sql, [this.noticeId]).then(results => {
+                conn.query(sql, [notice.noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 });
@@ -23,29 +16,29 @@ class Notices {
         });
     }
 
-    getNotices(page, count, keyword) {
+    getNotices(pager) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var where = "";
-                if (keyword) {
-                    where += 'WHERE title LIKE "%' + keyword + '%"';
+                if (pager.keyword) {
+                    where += 'WHERE title LIKE "%' + pager.keyword + '%"';
                 }
 
                 var countSql = 'SELECT count(*) as count FROM notice ' + where;
                 conn.query(countSql).then(results => {
 
                     var totalCount = parseInt(results[0].count);
-                    var maxPage = Math.floor(totalCount / count);
-                    var offset = count * (page - 1);
+                    var maxPage = Math.floor(totalCount / pager.count);
+                    var offset = pager.count * (pager.page - 1);
 
                     var sql = 'SELECT * FROM notice ' + where + ' LIMIT ? OFFSET ?';
-                    conn.query(sql, [count, offset]).then(results => {
+                    conn.query(sql, [pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
                         var paging = {
                             total: totalCount,
                             maxPage: maxPage,
-                            page: page,
-                            count: count
+                            page: pager.page,
+                            count: pager.count
                         };
 
                         resolve({
@@ -60,11 +53,11 @@ class Notices {
         });
     }
 
-    addNotice() {
+    addNotice(notice) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'INSERT INTO notice (title, content, type) VALUES (?, ?, ?)';
-                conn.query(sql, [this.title, this.content, this.type]).then(results => {
+                conn.query(sql, [notice.title, notice.content, notice.type]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
@@ -74,11 +67,11 @@ class Notices {
         });
     }
 
-    updateNotice() {
+    updateNotice(notice) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'UPDATE notice SET title = ?, content = ?, type = ? WHERE notice_id = ?';
-                conn.query(sql, [this.title, this.content, this.type, this.noticeId]).then(results => {
+                conn.query(sql, [notice.title, notice.content, notice.type, notice.noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
@@ -88,11 +81,11 @@ class Notices {
         });
     }
 
-    deleteNotice() {
+    deleteNotice(notice) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'DELETE FROM notice WHERE notice_id = ?';
-                conn.query(sql, [this.noticeId]).then(results => {
+                conn.query(sql, [notice.noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
@@ -103,5 +96,5 @@ class Notices {
     }
 }
 
-module.exports = Notices;
+module.exports = new Notice();
 
