@@ -15,8 +15,9 @@ function showNoticeList(req, res, next) {
     var page = parseInt(req.query.page) || 1;
     var count = parseInt(req.query.count) || 30;
     var keyword = req.query.keyword;
+    var notices = new Notices();
 
-    Notices.getNotices(page, count, keyword).then(results => {
+    notices.getNotices(page, count, keyword).then(results => {
         res.send({msg: 'success', paging : results.paging, data: results.data});
     }).catch(error => {
         res.send({msg: 'failed'});
@@ -25,11 +26,14 @@ function showNoticeList(req, res, next) {
 
 function addNotice(req, res, next) {
     var body = req.body;
-    var title = body.title;
-    var content = body.content;
-    var type = body.type;
+    var notices = new Notices(
+        null,
+        body.title,
+        body.content,
+        body.type
+    );
 
-    Notices.addNotice(title, content, type).then(results => {
+    notices.addNotice().then(results => {
         res.send({msg: 'success', status: results});
     }).catch(error => {
         res.send({msg: 'failed'});
@@ -38,8 +42,9 @@ function addNotice(req, res, next) {
 
 function showNoticeDetail(req, res, next) {
     var noticeId = req.params.noticeId;
+    var notices = new Notices(noticeId);
 
-    Notices.getNotice(noticeId).then(results => {
+    notices.getNotice().then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
         res.send({msg: 'failed'});
@@ -47,13 +52,15 @@ function showNoticeDetail(req, res, next) {
 }
 
 function editNotice(req, res, next) {
-    var noticeId = req.params.noticeId;
     var body = req.body;
-    var title = body.title;
-    var content = body.content;
-    var type = body.type;
+    var notices = new Notices(
+        req.params.noticeId,
+        body.title,
+        body.content,
+        body.type
+    );
 
-    Notices.updateNotice(noticeId, title, content, type).then(results => {
+    notices.updateNotice().then(results => {
         res.send({msg: 'success', status: results});
     }).catch(error => {
         res.send({msg: 'failed'});
@@ -62,8 +69,9 @@ function editNotice(req, res, next) {
 
 function deleteNotice(req, res, next) {
     var noticeId = req.params.noticeId;
+    var notices = new Notices(noticeId);
 
-    Notices.deleteNotice(noticeId).then(results => {
+    notices.deleteNotice().then(results => {
         res.send({msg: 'success', status: results});
     }).catch(error => {
         res.send({msg: 'failed'});

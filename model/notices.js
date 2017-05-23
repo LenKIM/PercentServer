@@ -1,11 +1,19 @@
 const pool = require('../config/mysql');
 
 class Notices {
-    getNotice(noticeId) {
+
+    constructor(noticeId, title, content, type) {
+        this.noticeId = noticeId;
+        this.title = title;
+        this.content = content;
+        this.type = type;
+    }
+
+    getNotice() {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var sql = 'SELECT * FROM notice WHERE notice_id = ?';
-                conn.query(sql, [noticeId]).then(results => {
+                conn.query(sql, [this.noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 });
@@ -52,11 +60,11 @@ class Notices {
         });
     }
 
-    addNotice(title, content, type) {
+    addNotice() {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'INSERT INTO notice (title, content, type) VALUES (?, ?, ?)';
-                conn.query(sql, [title, content, type]).then(results => {
+                conn.query(sql, [this.title, this.content, this.type]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
@@ -66,11 +74,11 @@ class Notices {
         });
     }
 
-    updateNotice(noticeId, title, content, type) {
+    updateNotice() {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'UPDATE notice SET title = ?, content = ?, type = ? WHERE notice_id = ?';
-                conn.query(sql, [title, content, type, noticeId]).then(results => {
+                conn.query(sql, [this.title, this.content, this.type, this.noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
@@ -80,11 +88,11 @@ class Notices {
         });
     }
 
-    deleteNotice(noticeId) {
+    deleteNotice() {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'DELETE FROM notice WHERE notice_id = ?';
-                conn.query(sql, [noticeId]).then(results => {
+                conn.query(sql, [this.noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
@@ -95,5 +103,5 @@ class Notices {
     }
 }
 
-module.exports = new Notices();
+module.exports = Notices;
 
