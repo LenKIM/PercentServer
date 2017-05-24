@@ -53,9 +53,7 @@ class Review {
                     'WHERE ' +
                     'review.request_id = request.request_id ' +
                     'and request.selected_estimate_id = estimate.estimate_id ' +
-                    'and estimate.agent_id = agent.agent_id ' + 'where agent.agent_id =? LIMIT ? OFFSET ?';
-
-                console.log(sql);
+                    'and estimate.agent_id = agent.agent_id ' + 'and agent.agent_id =? LIMIT ? OFFSET ?';
 
                 conn.query(sql, [agent.agentId, pager.count, offset]).then(results => {
                     pool.releaseConnection(conn);
@@ -116,14 +114,6 @@ class Review {
             });
     }// End of getReviews
 
-    // 수정 이상함... 리뷰슈정시 쓴 사람의 번호가 없음.
-    // updateReview(review){
-    //     return new Promise((resolve, reject) => {
-    //         pool.getConnection().then(conn => {
-    //             var sql = 'UPDATE review SET '
-    //         })
-    //     })
-    // }
 }
 
 module.exports = new Review();
