@@ -1,3 +1,25 @@
-/**
- * Created by semistone on 2017-05-24.
- */
+const pool = require('../config/mysql');
+
+class Request {
+    writeRequest(request, customer) {
+
+    }
+
+    getRequests() {
+
+    }
+
+    getRequest() {
+
+    }
+
+    selectEstimate() {
+
+    }
+
+    updateRequestStatus() {
+
+    }
+}
+
+module.exports = new Request();
