@@ -42,8 +42,8 @@ function addReviews(req, res, next) {
 function showReviewDetailByAgent(req,res, next) {
     const agent_id = req.params.agentId;
     const agent = new Agent(agent_id);
-    const page = req.query.page;
-    const count = req.query.count;
+    const page = parseInt(req.query.page);
+    const count = parseInt(req.query.count);
     const pager = new Pager(page, count);
     console.log(count + " " + page);
     reviewService.getReviewByAgent(agent, pager).then(results => {

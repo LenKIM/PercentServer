@@ -1,5 +1,5 @@
 /**
- * Created by len on 2017. 5. 23..
+ * Reviews Model
  */
 
 class Review {

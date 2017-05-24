@@ -53,7 +53,7 @@ class Review {
                     'WHERE ' +
                     'review.request_id = request.request_id ' +
                     'and request.selected_estimate_id = estimate.estimate_id ' +
-                    'and estimate.agent_id = agent.agent_id ' + 'and agent.agent_id =? LIMIT ? OFFSET ?';
+                    'and estimate.agent_id = agent.agent_id ' + 'where agent.agent_id =? LIMIT ? OFFSET ?';
 
                 console.log(sql);
 

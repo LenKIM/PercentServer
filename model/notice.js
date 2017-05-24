@@ -1,3 +1,7 @@
+/**
+ * Notice Model
+ */
+
 class Notice {
     constructor(noticeId, title, content, type) {
         this.noticeId = noticeId;

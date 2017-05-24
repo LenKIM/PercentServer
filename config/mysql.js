@@ -1,9 +1,13 @@
+/**
+ * MySQL Config
+ */
+
 var mysql =  require('promise-mysql');
 
 var dbConfig = {
     host : 'localhost',
     user : 'root',
-    password : '123456',
+    password : '111111',
     port : '3306',
     database : 'hellomoney'
 };
