@@ -22,13 +22,47 @@ class Review {
         });
     }
 
+    getReviews(pager){
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+
+                var countSql = 'SELECT count(*) FROM review';
+
+                conn.query(countSql).then(results => {
+
+                    var totalCount = parseInt(results[0].count);
+                    var maxPage = Math.floor(totalCount / pager.count);
+                    var offset = pager.count * (pager.page - 1 );
+
+                    var sql = 'SELECT * FROM review LIMIT ? OFFSET ?';
+                    conn.query(sql, [pager.count, offset]).then(results => {
+                        pool.releaseConnection(conn);
+                        var paging = {
+                            total: totalCount,
+                            maxPage: maxPage,
+                            page: pager.page,
+                            count: pager.count
+                        };
+
+                        //content와 score 반환
+                        resolve({
+                            paging: paging,
+                            data: results
+                        });
+                    });
+                });
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
     getReviewByAgent(agent, pager){
         return new Promise((resolve, reject) => {
 
             pool.getConnection().then((conn) => {
 
             var where = '';
-            console.log(agent.agentId+ " ///");
             if(agent.agentId) {
                 where += 'and agent.agent_id =' + agent.agentId;
             }

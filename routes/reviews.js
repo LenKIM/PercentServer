@@ -78,7 +78,6 @@ function showReviewList(req, res, next) {
     }).catch(err => {
         res.send({msg: 'failed'})
     });
-    reviewService.reviewShowList()
 }
 
 module.exports= router;
