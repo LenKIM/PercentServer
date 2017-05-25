@@ -1,7 +1,6 @@
 /**
- *  페이지 관련 Model
+ * Pager Model
  */
-
 class Pager {
     constructor(page, count, keyword) {
         this.page = page;

@@ -1,20 +1,21 @@
-/**
- * Created by len on 2017. 5. 23..
- */
 const pool = require('../config/mysql');
-
+/**
+ * todo : 테스트
+ * Review Service
+ */
 class Review {
-
-    //review라는 모델을 넘겨줌.
-    addReview(review){
+    /**
+     * 리뷰 작성하기
+     * @param review
+     * @returns {Promise}
+     */
+    addReview(review) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                let sql = 'INSERT INTO review (request_id, content, score) VALUES (?,?,?)';
-                conn.query(sql, [review.requestsId,review.content, review.score]).then(results => {
-
+                const sql = 'INSERT INTO review (request_id, content, score) VALUES (?,?,?)';
+                conn.query(sql, [review.requestId, review.content, review.score]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
-
                 }).catch(err => {
                     reject(err);
                 });
@@ -22,29 +23,32 @@ class Review {
         });
     }
 
-    getReviews(pager){
+    /**
+     * 메인화면 리뷰 목록 불러오기
+     * @param pager
+     * @returns {Promise}
+     */
+    getReviews(pager) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
-                var countSql = 'SELECT count(*) FROM review';
-
+                const countSql = 'SELECT count(*) FROM review';
                 conn.query(countSql).then(results => {
 
-                    var totalCount = parseInt(results[0].count);
-                    var maxPage = Math.floor(totalCount / pager.count);
-                    var offset = pager.count * (pager.page - 1 );
+                    const totalCount = parseInt(results[0].count);
+                    const maxPage = Math.floor(totalCount / pager.count);
+                    const offset = pager.count * (pager.page - 1 );
 
-                    var sql = 'SELECT * FROM review LIMIT ? OFFSET ?';
+                    const sql = 'SELECT * FROM review LIMIT ? OFFSET ?';
                     conn.query(sql, [pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
-                        var paging = {
+                        const paging = {
                             total: totalCount,
                             maxPage: maxPage,
                             page: pager.page,
                             count: pager.count
                         };
 
-                        //content와 score 반환
                         resolve({
                             paging: paging,
                             data: results
@@ -57,97 +61,65 @@ class Review {
         });
     }
 
-    getReviewByAgent(agent, pager){
+    /**
+     * todo : 보여줄 데이터가 더 있지 않나?
+     * 특정 대출 모집인에 대한 리뷰 목록 불러오기
+     * @param agent
+     * @param pager
+     * @returns {Promise}
+     */
+    getReviewByAgent(agent, pager) {
         return new Promise((resolve, reject) => {
 
             pool.getConnection().then((conn) => {
+                const countSql = 'SELECT count(*) AS count FROM review, request, estimate, agent WHERE review.request_id = request.request_id and request.selected_estimate_id = estimate.estimate_id and estimate.agent_id = agent.agent_id and agent.agent_id = ?';
+                conn.query(countSql, [agent.agentId]).then(results => {
 
-            var where = '';
-            if(agent.agentId) {
-                where += 'and agent.agent_id =' + agent.agentId;
-            }
+                    const totalCount = parseInt(results[0].count);
+                    const maxPage = Math.floor(totalCount / pager.count);
+                    const offset = pager.count * (pager.page - 1 );
 
-            var countSql = 'SELECT count(*) AS count FROM review, request, estimate, agent WHERE ' +
-                'review.request_id = request.request_id ' +
-                'and request.selected_estimate_id = estimate.estimate_id ' +
-                'and estimate.agent_id = agent.agent_id ' + where;
-
-
-                conn.query(countSql).then(results => {
-
-                    console.log(results);
-
-                var totalCount = parseInt(results[0].count);
-                var maxPage = Math.floor(totalCount / pager.count);
-                var offset = pager.count * (pager.page - 1 );
-
-                var sql = 'SELECT ' +
-                    'review.content, review.score, review.register_time ' +
-                    'FROM review, request, estimate, agent ' +
-                    'WHERE ' +
-                    'review.request_id = request.request_id ' +
-                    'and request.selected_estimate_id = estimate.estimate_id ' +
-                    'and estimate.agent_id = agent.agent_id ' + 'and agent.agent_id =? LIMIT ? OFFSET ?';
-
-                conn.query(sql, [agent.agentId, pager.count, offset]).then(results => {
-                    pool.releaseConnection(conn);
-                    var paging = {
-                        total: totalCount,
-                        maxPage: maxPage,
-                        page: pager.page,
-                        count: pager.count
-                    };
-
-                    //content와 score 반환
-                    resolve({
-                        paging: paging,
-                        data: results
-                    });
-                });
-            });
-        }).catch((err) => {
-                reject(err);
-            });
-        });
-    }
-
-    getReviewByReviewId(review) {
-        return new Promise((resolve, reject) => {
-            pool.getConnection().then((conn) => {
-                let where = '';
-                // if(pager.keyword){
-                    where += 'WHERE review_id =?';
-                // }
-
-                // let countSql = 'SELECT count(*) as count FROM review ' + where;
-                // conn.query(countSql).then( results => {
-                //
-                //     const totalCount = parseInt(results[0].count);
-                //     const maxPage = Math.floor(totalCount / pager.count);
-                //     const offset = pager.count * (pager.page -1);
-
-                    // var sql = 'SELECT * FROM review ' + where + ' LIMIT ? OFFSET ?';
-                    var sql = 'SELECT * FROM review ' + where;
-                    conn.query(sql, [review.reviewId]).then(results => {
+                    const sql = 'SELECT review.content, review.score, review.register_time FROM review, request, estimate, agent WHERE review.request_id = request.request_id and request.selected_estimate_id = estimate.estimate_id and estimate.agent_id = agent.agent_id and agent.agent_id = ? LIMIT ? OFFSET ?';
+                    conn.query(sql, [agent.agentId, pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
-                        // let paging = {
-                        //     total : totalCount,
-                        //     maxPage: maxPage,
-                        //     page: pager.page,
-                        //     count: pager.count
-                        // };
+                        const paging = {
+                            total: totalCount,
+                            maxPage: maxPage,
+                            page: pager.page,
+                            count: pager.count
+                        };
 
-                        resolve(results
-                            // paging: paging,
-                            // data: results
-                        );
+                        resolve({
+                            paging: paging,
+                            data: results
+                        });
                     });
                 });
             }).catch((err) => {
                 reject(err);
             });
-    }// End of getReviews
+        });
+    }
 
+    /**
+     * todo : 보여줄 데이터가 더 있지 않나?
+     * 상세 리뷰 보기
+     * @param review
+     * @returns {Promise.<T>}
+     */
+    getReviewByReviewId(review) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                const sql = 'SELECT review.content, review.score, review.register_time FROM review, request, estimate, agent WHERE review.request_id = request.request_id and request.selected_estimate_id = estimate.estimate_id and estimate.agent_id = agent.agent_id and review.review_id = ?';
+                conn.query(sql, [review.reviewId]).then(results => {
+                    pool.releaseConnection(conn);
+                    resolve(results);
+                });
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
 }
 
 module.exports = new Review();

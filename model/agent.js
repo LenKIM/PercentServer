@@ -1,7 +1,6 @@
 /**
  * Agent Model
  */
-
 class Agent {
     constructor(agentId){
         this.agentId = agentId;
