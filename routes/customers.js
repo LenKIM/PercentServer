@@ -15,7 +15,8 @@ router.route('/customers/:customerId').get(getCustomer);
 function addCustomer(req, res, next) {
     const body = req.body;
     const customer = new Customer(
-        body.customerId,
+        null,
+        body.phoneNumber,
         null,
         null,
         null
@@ -36,7 +37,8 @@ function addCustomer(req, res, next) {
  */
 function getCustomer(req, res, next) {
     const customer = new Customer(
-        req.params.customerId,
+        null,
+        req.params.phoneNumber,
         null,
         null,
         null

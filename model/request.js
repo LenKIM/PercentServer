@@ -11,6 +11,7 @@ class Request {
                 overdueRecord,
                 interestRateType,
                 loanPeriod,
+                loanReason,
                 registerTime,
                 startTime,
                 endTime,
@@ -34,6 +35,7 @@ class Request {
         this.overdueRecord = overdueRecord;
         this.interestRateType = interestRateType;
         this.loanPeriod = loanPeriod;
+        this.loanReason = loanReason;
         this.registerTime = registerTime;
         this.startTime = startTime;
         this.endTime = endTime;

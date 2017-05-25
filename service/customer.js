@@ -9,10 +9,9 @@ class Customer {
     addCustomer(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = "INSERT INTO customer (customer_id) VALUES (?)";
+                var sql = "INSERT INTO customer (phone_number) VALUES (?)";
                 conn.query(sql, [
-                    customer.customerId,
-                    customer.customerId
+                    customer.phoneNumber
                 ]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
@@ -31,8 +30,8 @@ class Customer {
     getCustomer(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = "SELECT * FROM customer WHERE customer_id = ?";
-                conn.query(sql, [customer.customerId]).then(results => {
+                var sql = "SELECT * FROM customer WHERE phone_number = ?";
+                conn.query(sql, [customer.phoneNumber]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 });
