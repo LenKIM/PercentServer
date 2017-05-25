@@ -1,6 +1,66 @@
 const pool = require('../config/mysql');
 
 class Estimate {
+    /**
+     * 요청서 상세 화면에서
+     * 모집된 견적수와 평균 금리 불러오기
+     * @param request
+     * @returns {Promise}
+     */
+    getEstimatesCountAndAvgInterest(request) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                const sql = 'SELECT COUNT(*) AS estimate_count, AVG(interest_rate) AS avg_interest_rate FROM estimate WHERE request_id = ?';
+                conn.query(sql, [request.requestId]).then(results => {
+                    pool.releaseConnection(conn);
+                    resolve(results);
+                });
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
+    /**
+     * 요청서 상세 화면에서
+     * 모집된 견적서 목록보기
+     * @param request
+     * @returns {Promise}
+     */
+    getEstimatesByRequestId(request) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                const sql = 'SELECT * FROM estimate, agent WHERE estimate.agent_id = agent.agent_id AND estimate.request_id = ?';
+                conn.query(sql, [request.requestId]).then(results => {
+                    pool.releaseConnection(conn);
+                    resolve(results);
+                });
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
+    /**
+     * 요청서 상세 화면에서
+     * 모집된 견적서 목록 중
+     * 특정 견적서 상세보기
+     * @param estimate
+     */
+    getEstimateByEstimateId(estimate) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                const sql = 'SELECT * FROM estimate, agent WHERE estimate.agent_id = agent.agent_id AND estimate.estimate_id = ?';
+                conn.query(sql, [estimate.estimateId]).then(results => {
+                    pool.releaseConnection(conn);
+                    resolve(results);
+                });
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
     writeEstimate(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
