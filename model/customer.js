@@ -1,3 +1,6 @@
+/**
+ * Customer Model
+ */
 class Customer {
     constructor(customerId,
                 mainBank,

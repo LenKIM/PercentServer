@@ -6,6 +6,12 @@ const customerService = require('../service/customer');
 router.route('/customers').post(addCustomer);
 router.route('/customers/:customerId').get(getCustomer);
 
+/**
+ * 고객 추가하기
+ * @param req
+ * @param res
+ * @param next
+ */
 function addCustomer(req, res, next) {
     const body = req.body;
     const customer = new Customer(
@@ -22,6 +28,12 @@ function addCustomer(req, res, next) {
     });
 }
 
+/**
+ * 전화번호로 기등록자인지 확인하기
+ * @param req
+ * @param res
+ * @param next
+ */
 function getCustomer(req, res, next) {
     const customer = new Customer(
         req.params.customerId,

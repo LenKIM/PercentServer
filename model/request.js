@@ -1,3 +1,6 @@
+/**
+ * Request Model
+ */
 class Request {
     constructor(requestId,
                 customerId,

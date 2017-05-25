@@ -1,6 +1,11 @@
 const pool = require('../config/mysql');
 
 class Customer {
+    /**
+     * 고객 추가하기
+     * @param customer
+     * @returns {Promise}
+     */
     addCustomer(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
@@ -18,6 +23,11 @@ class Customer {
         });
     }
 
+    /**
+     * 전화번호로 기등록자인지 확인하기
+     * @param customer
+     * @returns {Promise}
+     */
     getCustomer(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
