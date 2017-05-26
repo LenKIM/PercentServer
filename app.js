@@ -13,6 +13,9 @@ var estimates = require('./routes/estimates');
 var companies = require('./routes/companies');
 var likes = require('./routes/likes');
 var customers = require('./routes/customers');
+var requests = require('./routes/requests');
+var agents = require('./routes/agents');
+var faqs = require('./routes/faqs');
 
 var app = express();
 
@@ -36,6 +39,9 @@ app.use(estimates);
 app.use(companies);
 app.use(likes);
 app.use(customers);
+app.use(requests);
+app.use(agents);
+app.use(faqs);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
