@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Pager = require('../model/pager');
 const Review = require('../model/review');
+const Request = require('../model/request');
 const Agent = require('../model/agent');
 const reviewService = require('../service/review');
 
@@ -12,7 +13,6 @@ router.route('/reviews')
 router.route('/reviews/agent/:agentId')
     .get(showReviewDetailByAgent);
 
-//TODO 
 router.route('/reviews/request/:requestId')
     .get(showReviewByRequestId);
 
@@ -22,6 +22,8 @@ router.route('/reviews/:reviewId')
 
 router.route('/reviews/calculator/:reviewId')
     .get(calculatorByReviewId);
+
+
 
 function calculatorByReviewId(req, res, next) {
 
@@ -122,17 +124,11 @@ function showReviewDetailByAgent(req, res, next) {
  * @param next
  */
 function showReviewByRequestId(req, res, next) {
-    const review = new Review(
-        req.params.reviewId
+    const request = new Request(
+        parseInt(req.params.requestId)
     );
 
-    const page = new Pager(
-        req.params.page,
-        req.params.count,
-        null
-    );
-
-    reviewService.getReviewsByReviewId(review, page).then(results => {
+    reviewService.getReviewByRequestId(request).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(err => {
         res.send({msg: 'failed'});

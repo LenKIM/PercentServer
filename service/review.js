@@ -1,6 +1,5 @@
 const pool = require('../config/mysql');
 /**
- * todo : 테스트
  * Review Service
  */
 class Review {
@@ -66,8 +65,7 @@ class Review {
      * 특정 대출 모집인에 대한 리뷰 목록 불러오기
      * @param agent
      * @param pager
-     * @returns { 아파트,사이즈,금액,연체이력,고정금리,대출사유,직업,대출, 실행 예정일
-     *              }
+     * @returns
      *
      */
     getReviewByAgent(agent, pager) {
@@ -81,7 +79,6 @@ class Review {
                     const maxPage = Math.floor(totalCount / pager.count);
                     const offset = pager.count * (pager.page - 1 );
 
-                    //대출 request 정보와 리뷰 정보를 보여줌.
                     const sql = 'SELECT ag.name, ag.company_name, ag.register_number,' +
                                 'req.loan_type, re.content, re.score, re.register_time, req.loan_period,' +
                                 'req.region_1, req.region_2, req.region_3, req.apt_name, req.apt_size_supply, req.apt_size_exclusive, req.loan_amount, ' +
@@ -112,7 +109,7 @@ class Review {
 
     /**
      *
-     * Request_id에 의한 모든 리뷰 정보 목록 가져오기
+     * Review_id에 의한 모든 리뷰 정보 목록 가져오기
      * @param review
      * @param pager
      * @returns {Promise.<T>}
@@ -155,39 +152,12 @@ class Review {
             });
         });
     }
-    // getAllReviews(review, pager){
-    //     return new Promise((resolve, reject) => {
-    //         pool.getConnection().then((conn) => {
-    //             const countAllReviews = 'SELECT count(*) AS count FROM review';
-    //             conn.query(countAllReviews).then(results => {
-    //
-    //                 const totalCount = parseInt(results[0].count);
-    //                 const maxPage = Math.floor(totalCount / pager.count);
-    //                 const offset = pager.count * (pager.page - 1 );
-    //
-    //                 const sql = 'SELECT * FROM review LIMIT ? OFFSET ?';
-    //                 conn.query(sql, [pager.count, offset]).then(results => {
-    //                     const paging = {
-    //                         total: totalCount,
-    //                         maxPage: maxPage,
-    //                         page: pager.page,
-    //                         count: pager.count
-    //                     };
-    //
-    //                     resolve({
-    //                         paging:paging,
-    //                         data: results
-    //                     });
-    //                 });
-    //             });
-    //         }).catch((err) => {
-    //             reject(err);
-    //         });
-    //     });
-    // };
 
     /**
+     * review_id에 의해
      * 모집된 견적 수 및 평균 금리 불러오기
+     * @param review
+     * @returns {Promise}
      */
     getEstimateCountAndAvrRate(review){
         return new Promise((resolve, reject) => {
@@ -211,8 +181,8 @@ class Review {
 
     /**
      * 리뷰 상세 불러오기
+     *
      */
-
     getReviewDetailed(review){
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
@@ -231,6 +201,33 @@ class Review {
             }).catch((err) => {
                     reject(err);
                 })
+        })
+    }
+
+    /**
+     * request_id에 해당하는 리뷰 불러오기
+     * @param request
+     * @returns {Promise}
+     */
+    getReviewByRequestId(request){
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+
+                const sql = 'SELECT ag.name, ag.company_name, ag.register_number,' +
+                    'req.region_1, req.region_2, req.region_3, req.loan_type,' +
+                    're.content, re.score, re.register_time ' +
+                    'FROM request AS req, agent AS ag, review AS re, estimate AS es ' +
+                    'WHERE re.request_id = req.request_id and req.selected_estimate_id = es.request_id and es.agent_id = ag.agent_id ' +
+                    'and req.request_id = ?';
+
+                conn.query(sql,[request.requestId]).then(results => {
+                    resolve({
+                        data: results
+                    });
+                });
+            }).catch((err) => {
+                reject(err);
+            })
         })
     }
 
