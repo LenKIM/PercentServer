@@ -1,14 +1,78 @@
-var express = require('express');
-var router = express.Router();
-var Estimate = require('../model/esimate');
-var estimateService = require('../service/estimate');
+const express = require('express');
+const router = express.Router();
+const Estimate = require('../model/esimate');
+const Request = require('../model/request');
+const estimateService = require('../service/estimate');
 
-router.route('/estimates').post(writeEstimate);
-router.route('/estimates/:estimateId').put(editEstimate);
+router.route('/estimates')
+    .get(getEstimatesByRequestId)
+    .post(writeEstimate);
+
+router.route('/estimates/calculate')
+    .get(getEstimatesCountAndAvgInterest);
+
+router.route('/estimates/:estimateId')
+    .get(getEstimateByEstimateId)
+    .put(editEstimate);
+
+/**
+ * 요청서 상세 화면에서
+ * 모집된 견적수와 평균 금리 불러오기
+ * @param req
+ * @param res
+ * @param next
+ */
+function getEstimatesCountAndAvgInterest(req, res, next) {
+    const requestId = parseInt(req.query.requestId);
+    const request = new Request(requestId);
+
+    estimateService.getEstimatesCountAndAvgInterest(request).then(results => {
+        res.send({msg: 'success', data: results});
+    }).catch(error => {
+        res.send({msg: 'failed'});
+    });
+}
+
+/**
+ * 요청서 상세 화면에서
+ * 모집된 견적서 목록보기
+ * @param req
+ * @param res
+ * @param next
+ */
+function getEstimatesByRequestId(req, res, next) {
+    const requestId = parseInt(req.query.requestId);
+    const request = new Request(requestId);
+
+    estimateService.getEstimatesByRequestId(request).then(results => {
+        res.send({msg: 'success', data: results});
+    }).catch(error => {
+        res.send({msg: 'failed'});
+    });
+}
+
+/**
+ * 요청서 상세 화면에서
+ * 모집된 견적서 목록 중
+ * 특정 견적서 상세보기
+ * @param req
+ * @param res
+ * @param next
+ */
+function getEstimateByEstimateId(req, res, next) {
+    const estimateId = parseInt(req.params.estimateId);
+    const estimate = new Estimate(estimateId);
+
+    estimateService.getEstimateByEstimateId(estimate).then(results => {
+        res.send({msg: 'success', data: results});
+    }).catch(error => {
+        res.send({msg: 'failed'});
+    });
+}
 
 function writeEstimate(req, res, next) {
-    var body = req.body;
-    var estimate = new Estimate(
+    const body = req.body;
+    const estimate = new Estimate(
         null,
         body.requestId,
         body.agentId,
@@ -35,8 +99,8 @@ function writeEstimate(req, res, next) {
 }
 
 function editEstimate(req, res, next) {
-    var body = req.body;
-    var estimate = new Estimate(
+    const body = req.body;
+    const estimate = new Estimate(
         req.params.estimateId,
         body.requestId,
         body.agentId,
