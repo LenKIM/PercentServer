@@ -8,8 +8,50 @@ router.route('/requests')
     .get(getRequestsByCustomerId)
     .post(writeRequest);
 
+router.route('/requests/calculate')
+    .get(getRequestCountAndStatusByCustomerId);
+
 router.route('/requests/:requestId')
     .get(getRequestByRequestId);
+
+router.route('/requests/:requestId/consult')
+    .put(requestConsultation);
+
+/**
+ * 상담 요청하기
+ * 1. 상태 변경
+ * 2. 견적서 채택
+ * @param req
+ * @param res
+ * @param next
+ */
+function requestConsultation(req, res, next) {
+    const body = req.body;
+    const request = new Request(
+        parseInt(req.params.requestId),
+        null,
+        parseInt(body.selectedEstimateId),
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        body.status
+    );
+
+    requestService.requestConsultation(request).then(results => {
+        res.send({msg: 'success', status: results});
+    }).catch(error => {
+        res.send({msg: 'failed'});
+    });
+}
 
 /**
  * 특정 요청서 상세보기
@@ -46,6 +88,23 @@ function getRequestsByCustomerId(req, res, next) {
     });
 }
 
+/**
+ * 드로어 레이아웃에서
+ * 특정 고객의 요청서 상태 및 수 보여주기
+ * @param req
+ * @param res
+ * @param next
+ */
+function getRequestCountAndStatusByCustomerId(req, res, next) {
+    const customerId = parseInt(req.query.customerId);
+    const customer = new Customer(customerId);
+
+    requestService.getRequestCountAndStatusByCustomerId(customer).then(results => {
+        res.send({msg: 'success', data: results});
+    }).catch(error => {
+        res.send({msg: 'failed'});
+    });
+}
 /**
  * TODO : 오류난다. 데이터 타입 확인 필요.
  * 요청서 작성하기
