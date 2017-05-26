@@ -34,7 +34,7 @@ class Estimate {
     editEstimate(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                var sql = 'UPDATE estimate SET item_bank = ?, item_name = ?, interest_rate = ?, interest_rate_type = ?, repayment_type = ?, overdue_interest_rate_1 = ?, overdue_interest_rate_2 = ?, overdue_interest_rate_3 = ?, overdue_time_1 = ?, overdue_time_2 = ?, overdue_time_3 = ?, early_repayment_fee = ? WHERE estimate_id = ?'
+                var sql = 'UPDATE estimate SET item_bank = ?, item_name = ?, interest_rate = ?, interest_rate_type = ?, repayment_type = ?, overdue_interest_rate_1 = ?, overdue_interest_rate_2 = ?, overdue_interest_rate_3 = ?, overdue_time_1 = ?, overdue_time_2 = ?, overdue_time_3 = ?, early_repayment_fee = ? WHERE estimate_id = ?';
                 conn.query(sql, [
                     estimate.itemBank,
                     estimate.itemName,
