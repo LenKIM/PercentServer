@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var Pager = require('../model/pager');
 var Notice = require('../model/notice');
-var noticeService = require('../service/notice');
 
 router.route('/notices')
     .get(showNoticeList)
@@ -19,7 +18,8 @@ function showNoticeList(req, res, next) {
     var keyword = req.query.keyword;
     var pager = new Pager(page, count, keyword);
 
-    noticeService.getNotices(pager).then(results => {
+    const notice = new Notice();
+    notice.getNotices(pager).then(results => {
         res.send({msg: 'success', paging : results.paging, data: results.data});
     }).catch(error => {
         res.send({msg: 'failed'});
@@ -35,7 +35,7 @@ function addNotice(req, res, next) {
         body.type
     );
 
-    noticeService.addNotice(notice).then(results => {
+    notice.addNotice().then(results => {
         res.send({msg: 'success', status: results});
     }).catch(error => {
         res.send({msg: 'failed'});
@@ -46,7 +46,7 @@ function showNoticeDetail(req, res, next) {
     var noticeId = req.params.noticeId;
     var notice = new Notice(noticeId);
 
-    noticeService.getNotice(notice).then(results => {
+    notice.getNotice().then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
         res.send({msg: 'failed'});
@@ -62,7 +62,7 @@ function editNotice(req, res, next) {
         body.type
     );
 
-    noticeService.updateNotice(notice).then(results => {
+    notice.updateNotice().then(results => {
         res.send({msg: 'success', status: results});
     }).catch(error => {
         res.send({msg: 'failed'});
@@ -73,7 +73,7 @@ function deleteNotice(req, res, next) {
     var noticeId = req.params.noticeId;
     var notice = new Notice(noticeId);
 
-    noticeService.deleteNotice(notice).then(results => {
+    notice.deleteNotice().then(results => {
         res.send({msg: 'success', status: results});
     }).catch(error => {
         res.send({msg: 'failed'});
