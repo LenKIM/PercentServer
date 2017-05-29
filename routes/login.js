@@ -1,6 +1,8 @@
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
+const Agent = require('../model/agent');
+const loginService = require('../service/login');
 const router = express.Router();
 
 const defaultUser = {
@@ -17,19 +19,21 @@ router.use(session({
 
 router.use(passport.initialize());
 router.use(passport.session());
+
 // Local Strategy
 const LocalStrategy = require('passport-local').Strategy;
-var strategy = new LocalStrategy({ passReqToCallback: true },
+var strategy = new LocalStrategy({passReqToCallback: true},
     function (req, username, password, done) {
-        console.log(username + " " + password);
-        if (username == defaultUser.id && password == defaultUser.password) {
-            console.log('로그인 성공');
-            return done(null, defaultUser);
-        }
-        console.log('로그인 실패');
-        return done(null, false, { message: '로그인 실패' });
+        const agent = new Agent(username, password);
+        loginService.tryLogin(agent).then(results => {
+            return done(null, {msg: 'success', data: results});
+        }).catch(error => {
+            // TODO : 이거 메시지... 출력 어캐?
+            return done(null, false, {msg: error});
+        });
     }
 );
+
 passport.use(strategy);
 
 // 세션에 기록하기
@@ -48,7 +52,7 @@ passport.deserializeUser(function (user, done) {
 // 로그인 페이지
 router.get('/login', function (req, res) {
     console.log('authorized : ', req.isAuthenticated());
-    res.status(200).send('authorized : '+ req.isAuthenticated());
+    res.status(200).send('authorized : ' + req.isAuthenticated());
 });
 
 // 로그인 요청
@@ -56,7 +60,7 @@ router.post('/login', passport.authenticate('local'));
 
 router.get('/myHome', isAuthenticated, function (req, res) {
     // 인증된 상태이므로 myHome 템플릿 페이지 렌더링
-    res.render('myHome', { user: req.user });
+    res.render('myHome', {user: req.user});
 });
 
 function isAuthenticated(req, res, next) {
