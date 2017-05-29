@@ -17,12 +17,16 @@ router.route('/agents/:agentId/reviews')
  */
 function getReviewsByAgentId(req, res, next) {
     const agentId = parseInt(req.params.agentId);
+    if (typeof agentId != 'number' || isNaN(agentId)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
     const agent = new Agent(agentId);
 
     agentService.getReviewsByAgentId(agent).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 
@@ -34,12 +38,16 @@ function getReviewsByAgentId(req, res, next) {
  */
 function getAgentByAgentId(req, res, next) {
     const agentId = parseInt(req.params.agentId);
+    if (typeof agentId != 'number' || isNaN(agentId)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
     const agent = new Agent(agentId);
 
     agentService.getAgentByAgentId(agent).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 

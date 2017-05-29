@@ -10,11 +10,11 @@ class Customer {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var sql = "INSERT INTO customer (phone_number) VALUES (?)";
-                conn.query(sql, [
-                    customer.phoneNumber
-                ]).then(results => {
+                conn.query(sql, [customer.phoneNumber]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
+                }).catch(error => {
+                    reject("fail");
                 });
             }).catch(error => {
                 reject(error);
@@ -33,6 +33,12 @@ class Customer {
                 var sql = "SELECT * FROM customer WHERE phone_number = ?";
                 conn.query(sql, [customer.phoneNumber]).then(results => {
                     pool.releaseConnection(conn);
+
+                    if(results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+
                     resolve(results);
                 });
             }).catch(error => {

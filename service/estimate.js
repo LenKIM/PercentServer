@@ -13,6 +13,12 @@ class Estimate {
                 const sql = 'SELECT COUNT(*) AS estimate_count, AVG(interest_rate) AS avg_interest_rate FROM estimate WHERE request_id = ?';
                 conn.query(sql, [request.requestId]).then(results => {
                     pool.releaseConnection(conn);
+
+                    if (results[0].estimate_count == 0) {
+                        reject("no data");
+                        return;
+                    }
+
                     resolve(results);
                 });
             }).catch((err) => {
@@ -33,6 +39,12 @@ class Estimate {
                 const sql = 'SELECT * FROM estimate, agent WHERE estimate.agent_id = agent.agent_id AND estimate.request_id = ?';
                 conn.query(sql, [request.requestId]).then(results => {
                     pool.releaseConnection(conn);
+
+                    if(results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+
                     resolve(results);
                 });
             }).catch((err) => {
@@ -53,11 +65,19 @@ class Estimate {
                 const sql = 'SELECT * FROM estimate, agent, request WHERE estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
                 conn.query(sql, [estimate.estimateId]).then(results => {
                     pool.releaseConnection(conn);
+
+                    if(results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+
                     this.getRepaymentPerMonth(results[0]).then(ret => {
                         console.log(ret);
                         results[0]["repayment_amount_per_month"] = ret;
                         resolve(results);
                     });
+                }).catch((err) => {
+                    reject(err);
                 });
             }).catch((err) => {
                 reject(err);
@@ -65,6 +85,7 @@ class Estimate {
         });
     }
 
+    /*
     writeEstimate(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
@@ -122,6 +143,7 @@ class Estimate {
             });
         });
     }
+     */
 
     /**
      * 원리금 균등 상환

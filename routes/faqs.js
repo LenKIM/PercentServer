@@ -9,7 +9,7 @@ function showFAQList(req, res, next) {
     faqService.getFAQs().then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 

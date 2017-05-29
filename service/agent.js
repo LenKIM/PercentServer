@@ -12,6 +12,12 @@ class Agent {
                 const sql = 'SELECT * FROM estimate, request, review WHERE estimate.estimate_id = request.selected_estimate_id AND request.request_id = review.request_id AND estimate.agent_id = ?';
                 conn.query(sql, [agent.agentId]).then(results => {
                     pool.releaseConnection(conn);
+
+                    if(results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+
                     resolve(results);
                 });
             }).catch((err) => {
@@ -31,6 +37,12 @@ class Agent {
                 const sql = 'SELECT * FROM agent WHERE agent_id = ?';
                 conn.query(sql, [agent.agentId]).then(results => {
                     pool.releaseConnection(conn);
+
+                    if(results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+
                     resolve(results);
                 });
             }).catch((err) => {

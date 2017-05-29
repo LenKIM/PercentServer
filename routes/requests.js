@@ -27,12 +27,19 @@ router.route('/requests/:requestId/consult')
  */
 function requestConsultation(req, res, next) {
     const body = req.body;
+    const requestId = parseInt(req.params.requestId);
+    const selectedEstimatedId = parseInt(body.selectedEstimateId);
+    const status = body.status;
+
+    if (typeof requestId != 'number' || isNaN(requestId) ||
+        typeof selectedEstimatedId != 'number' || isNaN(selectedEstimatedId)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
     const request = new Request(
-        parseInt(req.params.requestId),
+        requestId,
         null,
-        parseInt(body.selectedEstimateId),
-        null,
-        null,
+        selectedEstimatedId,
         null,
         null,
         null,
@@ -43,13 +50,15 @@ function requestConsultation(req, res, next) {
         null,
         null,
         null,
-        body.status
+        null,
+        null,
+        status
     );
 
     requestService.requestConsultation(request).then(results => {
-        res.send({msg: 'success', status: results});
+        res.send({msg: 'success'});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 
@@ -61,12 +70,17 @@ function requestConsultation(req, res, next) {
  */
 function getRequestByRequestId(req, res, next) {
     const requestId = parseInt(req.params.requestId);
+    if (typeof requestId != 'number' || isNaN(requestId)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+
     const request = new Request(requestId);
 
     requestService.getRequestByRequestId(request).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 
@@ -79,12 +93,17 @@ function getRequestByRequestId(req, res, next) {
  */
 function getRequestsByCustomerId(req, res, next) {
     const customerId = parseInt(req.query.customerId);
+    if (typeof customerId != 'number' || isNaN(customerId)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+
     const customer = new Customer(customerId);
 
     requestService.getRequestsByCustomerId(customer).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 
@@ -97,16 +116,19 @@ function getRequestsByCustomerId(req, res, next) {
  */
 function getRequestCountAndStatusByCustomerId(req, res, next) {
     const customerId = parseInt(req.query.customerId);
+    if (typeof customerId != 'number' || isNaN(customerId)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
     const customer = new Customer(customerId);
 
     requestService.getRequestCountAndStatusByCustomerId(customer).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 /**
- * TODO : 오류난다. 데이터 타입 확인 필요.
  * 요청서 작성하기
  * @param req
  * @param res
@@ -114,12 +136,27 @@ function getRequestCountAndStatusByCustomerId(req, res, next) {
  */
 function writeRequest(req, res, next) {
     const body = req.body;
+    const customerId = parseInt(body.customerId);
+    const loanAmount = parseInt(body.loanAmount);
+    const aptPrice = parseInt(body.aptPrice);
+    const aptSizeSupply = parseFloat(body.aptSizeSupply);
+    const aptSizeExclusive = parseFloat(body.aptSizeExclusive);
+
+    if (typeof customerId != 'number' || isNaN(customerId) ||
+        typeof loanAmount != 'number' || isNaN(loanAmount) ||
+        typeof aptPrice != 'number' || isNaN(aptPrice) ||
+        typeof aptSizeSupply != 'number' || isNaN(aptSizeSupply) ||
+        typeof aptSizeExclusive != 'number' || isNaN(aptSizeExclusive)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+
     const request = new Request(
         null,
-        parseInt(body.customerId),
+        customerId,
         null,
         body.loanType,
-        parseInt(body.loanAmount),
+        loanAmount,
         body.scheduledTime,
         null,
         body.interestRateType,
@@ -136,9 +173,9 @@ function writeRequest(req, res, next) {
         body.region3,
         body.aptName,
         body.aptKBId,
-        parseInt(body.aptPrice),
-        parseFloat(body.aptSizeSupply),
-        parseFloat(body.aptSizeExclusive)
+        aptPrice,
+        aptSizeSupply,
+        aptSizeExclusive
     );
 
     /*
@@ -150,9 +187,9 @@ function writeRequest(req, res, next) {
     );
 
     requestService.writeRequest(request).then(results => {
-        res.send({msg: 'success', status: results});
+        res.send({msg: 'success'});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 

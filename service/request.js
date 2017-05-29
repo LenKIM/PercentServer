@@ -15,6 +15,8 @@ class Request {
                 conn.query(sql, [request.selectedEstimateId, request.status, request.requestId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
+                }).catch(err => {
+                    reject("fail");
                 });
             }).catch(err => {
                 reject(err);
@@ -50,6 +52,8 @@ class Request {
                 ]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
+                }).catch(err => {
+                    reject("fail");
                 });
             }).catch(err => {
                 reject(err);
@@ -68,6 +72,12 @@ class Request {
                 var sql = 'SELECT * FROM request WHERE request_id = ?';
                 conn.query(sql, [request.requestId]).then(results => {
                     pool.releaseConnection(conn);
+
+                    if(results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+
                     resolve(results);
                 });
             }).catch((err) => {
@@ -87,6 +97,12 @@ class Request {
                 var sql = 'SELECT * FROM request WHERE customer_id = ?';
                 conn.query(sql, [customer.customerId]).then(results => {
                     pool.releaseConnection(conn);
+
+                    if(results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+
                     resolve(results);
                 });
             }).catch((err) => {
@@ -107,6 +123,12 @@ class Request {
                     var sql = 'SELECT status, count(status) as count FROM request WHERE customer_id = ? group by status';
                 conn.query(sql, [customer.customerId]).then(results => {
                     pool.releaseConnection(conn);
+
+                    if(results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+
                     resolve(results);
                 });
             }).catch((err) => {

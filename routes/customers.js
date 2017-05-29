@@ -3,8 +3,9 @@ const router = express.Router();
 const Customer = require('../model/customer');
 const customerService = require('../service/customer');
 
-router.route('/customers').post(addCustomer);
-router.route('/customers/:customerId').get(getCustomer);
+router.route('/customers')
+    .get(getCustomer)
+    .post(addCustomer);
 
 /**
  * 고객 추가하기
@@ -23,9 +24,9 @@ function addCustomer(req, res, next) {
     );
 
     customerService.addCustomer(customer).then(results => {
-        res.send({msg: 'success', status: results});
+        res.send({msg: 'success'});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 
@@ -38,7 +39,7 @@ function addCustomer(req, res, next) {
 function getCustomer(req, res, next) {
     const customer = new Customer(
         null,
-        req.params.phoneNumber,
+        req.query.phoneNumber,
         null,
         null,
         null
@@ -47,7 +48,7 @@ function getCustomer(req, res, next) {
     customerService.getCustomer(customer).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 
