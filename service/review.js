@@ -31,14 +31,14 @@ class Review {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
-                const countSql = 'SELECT count(*) FROM review';
+                const countSql = 'SELECT count(*) FROM review AS re, agent AS ag, estimate AS es, request AS req WHERE re.request_id = req.request_id AND req.selected_estimate_id = es.request_id AND es.agent_id = ag.agent_id';
                 conn.query(countSql).then(results => {
 
                     const totalCount = parseInt(results[0].count);
                     const maxPage = Math.floor(totalCount / pager.count);
                     const offset = pager.count * (pager.page - 1 );
 
-                    const sql = 'SELECT * FROM review LIMIT ? OFFSET ?';
+                    const sql = 'SELECT * FROM review AS re, agent AS ag, estimate AS es, request AS req WHERE re.request_id = req.request_id AND req.selected_estimate_id = es.request_id AND es.agent_id = ag.agent_id LIMIT ? OFFSET ?';
                     conn.query(sql, [pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
                         const paging = {
@@ -231,6 +231,24 @@ class Review {
         })
     }
 
+    getCollectedReviews(review){
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+
+                const sql = 'SELECT es.interest_rate ' +
+                    'FROM estimate AS es, request AS req, review AS re ' +
+                    'WHERE es.request_id = req.selected_estimate_id AND req.request_id = re.request_id AND re.review_id =?';
+
+                conn.query(sql,[review.reviewId]).then(results => {
+                    resolve({
+                        data: results
+                    });
+                });
+            }).catch((err) => {
+                reject(err);
+            })
+        })
+    }
 }
 
 module.exports = new Review();

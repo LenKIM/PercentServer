@@ -10,20 +10,45 @@ router.route('/reviews')
     .put(addReview)
     .get(showReviewList);
 
-router.route('/reviews/agent/:agentId')
-    .get(showReviewDetailByAgent);
+
+//클라이언트가 리뷰화면에서 보여지는 부분
+router.route('/reviews/agent/:requestId')
+    .get(showReviewByRequestId);
 
 router.route('/reviews/request/:requestId')
     .get(showReviewByRequestId);
 
-//메인화면에서
+//메인화면에서 리뷰 상세 불러오기
 router.route('/reviews/:reviewId')
     .get(showReviewByReviewId);
+
+
+router.route('/reviews/collected/:reviewId')
+    .get(showCollectedReview);
 
 router.route('/reviews/calculator/:reviewId')
     .get(calculatorByReviewId);
 
+function showCollectedReview(req, res, next) {
+    var reviewId = parseInt(req.params.reviewId);
+    if(typeof reviewId !== 'number' || isNaN(reviewId)){
+        res.send({msg : 'wrong parameters'});
+        return;
+    }
 
+    const review = new Review(
+        reviewId,
+        null,
+        null,
+        null,
+        null
+    );
+    reviewService.getCollectedReviews(review).then(results => {
+        res.send({msg : 'success', data: results.data})
+    }).catch(err => {
+        res.send({msg : 'error', error : err})
+    });
+}
 
 function calculatorByReviewId(req, res, next) {
 
@@ -34,19 +59,24 @@ function calculatorByReviewId(req, res, next) {
         null,
         null
     );
-
     reviewService.getEstimateCountAndAvrRate(review).then(results => {
         res.send({msg : 'success', data: results.data})
     }).catch(err => {
-        res.send({msg : 'failed', error : err})
+        res.send({msg : 'error', error : err})
     });
 }
 
-
 function showReviewByReviewId(req, res, next) {
 
+    let reviewId = parseInt(req.params.reviewId);
+
+    if(typeof reviewId !== 'number' || isNaN(reviewId)){
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+
     const review = new Review(
-        req.params.reviewId,
+        reviewId,
         null,
         null,
         null,
@@ -61,13 +91,9 @@ function showReviewByReviewId(req, res, next) {
 
     // review.getEstimateCountAndAvrRate(review).then()
     reviewService.getReviewsByReviewId(review, pager).then(results => {
-        console.log(req.query.page  + "// " + req.query.count);
         res.send({msg: 'success', paging: results.paging, data: results.data});
-
     }).catch(err => {
-
         res.send({msg: 'failed', error : err})
-
     });
 }
 
@@ -79,18 +105,33 @@ function showReviewByReviewId(req, res, next) {
  */
 function addReview(req, res, next) {
     const body = req.body;
+    let requestId = parseInt(body.requestId);
+    let content = body.content;
+    let score = parseInt(body.score);
+
+    if(typeof requestId != 'number' || isNaN(requestId)){
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+
+    if(typeof score != 'number' || isNaN(score)){
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+
+
     const review = new Review(
         null,
-        body.requestId,
-        body.content,
-        body.score,
+        requestId,
+        content,
+        score,
         null
     );
 
     reviewService.addReview(review).then((results) => {
         res.send({msg: 'success', status: results});
     }).catch(err => {
-        res.send({meg: 'failed', error: err});
+        res.send({error: err});
     });
 }
 
@@ -101,8 +142,15 @@ function addReview(req, res, next) {
  * @param next
  */
 function showReviewDetailByAgent(req, res, next) {
+    var agentId = parseInt(req.params.agentId);
+
+    if (typeof agentId !== 'number' || isNaN(agentId)){
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+
     const agent = new Agent(
-        req.params.agentId
+        agentId
     );
     const pager = new Pager(
         parseInt(req.query.page) || 1,
@@ -113,7 +161,7 @@ function showReviewDetailByAgent(req, res, next) {
     reviewService.getReviewByAgent(agent, pager).then(results => {
         res.send({msg: 'success', paging: results.paging, data: results.data});
     }).catch(err => {
-        res.send({msg: 'failed'});
+        res.send({error: err});
     });
 }
 
@@ -124,14 +172,21 @@ function showReviewDetailByAgent(req, res, next) {
  * @param next
  */
 function showReviewByRequestId(req, res, next) {
+    var requestId = parseInt(req.params.requestId);
+
+    if(typeof requestId != 'number' || isNaN(requestId)){
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+
     const request = new Request(
-        parseInt(req.params.requestId)
+        requestId
     );
 
     reviewService.getReviewByRequestId(request).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(err => {
-        res.send({msg: 'failed'});
+        res.send({msg: err});
     });
 }
 
@@ -150,7 +205,7 @@ function showReviewList(req, res, next) {
     reviewService.getReviews(pager).then(results => {
         res.send({msg: 'success', paging: results.paging, data: results.data});
     }).catch(err => {
-        res.send({msg: 'failed'})
+        res.send({msg: err})
     });
 }
 

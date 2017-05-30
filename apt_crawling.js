@@ -9,7 +9,6 @@ const schedule = require('node-schedule');
 "use strict";
 
 
-
 function getMiddle(big) {
     return new Promise((resolve, reject) => {
 
@@ -192,9 +191,9 @@ rule.dayOfWeek = [0];
 rule.hour = 1;
 rule.minute = 0;
 
-var j = schedule.scheduleJob(rule, function () {
-    doIt();
-});
+// var j = schedule.scheduleJob(rule, function () {
+//
+// });
 
 async function doIt() {
 
@@ -248,3 +247,4 @@ async function doIt() {
         throw err;
     }
 }
+doIt();
