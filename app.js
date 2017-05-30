@@ -16,6 +16,7 @@ var customers = require('./routes/customers');
 var requests = require('./routes/requests');
 var agents = require('./routes/agents');
 var faqs = require('./routes/faqs');
+var apts = require('./routes/apts');
 
 var app = express();
 
@@ -42,6 +43,7 @@ app.use(customers);
 app.use(requests);
 app.use(agents);
 app.use(faqs);
+app.use(apts);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

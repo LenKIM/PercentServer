@@ -247,4 +247,3 @@ async function doIt() {
         throw err;
     }
 }
-doIt();
