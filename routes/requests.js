@@ -8,24 +8,67 @@ router.route('/requests')
     .get(getRequestsByCustomerId)
     .post(writeRequest);
 
+router.route('/requests/:requestId')
+    .get(getRequestByRequestId)
+    .put(editRequestStatus)
+    .post(reWriteRequest);
+
 router.route('/requests/calculate')
     .get(getRequestCountAndStatusByCustomerId);
 
-router.route('/requests/:requestId')
-    .get(getRequestByRequestId);
+/**
+ * 요청 다시하기
+ * (특정 요청서와 같은 내용의 요청서를
+ * 똑같이 하나 더 만들기)
+ * @param res
+ * @param req
+ * @param next
+ */
+function reWriteRequest(req, res, next) {
+    const status = req.body.status;
+    const requestId = parseInt(req.params.requestId);
+    if (typeof requestId != 'number' || isNaN(requestId)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
 
-router.route('/requests/:requestId/consult')
-    .put(requestConsultation);
+    const request = new Request(
+        requestId,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        status
+    );
+
+    requestService.reWriteRequest(request).then(results => {
+        res.send({msg: 'success'});
+    }).catch(error => {
+        res.send({msg: error});
+    });
+}
 
 /**
- * 상담 요청하기
- * 1. 상태 변경
- * 2. 견적서 채택
+ * 요청서 상태 변경하기
+ * (상태와 채택된 견적서 ID 변경)
+ * EX) 
+ * 1. 고객이 상담 요청
+ * 2. 고객이 상담 취소
  * @param req
  * @param res
  * @param next
  */
-function requestConsultation(req, res, next) {
+function editRequestStatus(req, res, next) {
     const body = req.body;
     const requestId = parseInt(req.params.requestId);
     const selectedEstimatedId = parseInt(body.selectedEstimateId);
@@ -55,7 +98,7 @@ function requestConsultation(req, res, next) {
         status
     );
 
-    requestService.requestConsultation(request).then(results => {
+    requestService.editRequestStatus(request).then(results => {
         res.send({msg: 'success'});
     }).catch(error => {
         res.send({msg: error});

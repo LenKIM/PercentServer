@@ -2,17 +2,45 @@ const pool = require('../config/mysql');
 
 class Request {
     /**
-     * 상담 요청하기
-     * 1. 상태 변경
-     * 2. 견적서 채택
+     * 요청서 상태 변경하기
+     * (상태와 채택된 견적서 ID 변경)
+     * EX)
+     * 1. 고객이 상담 요청
+     * 2. 고객이 상담 취소
      * @param request
      * @returns {Promise}
      */
-    requestConsultation(request) {
+    editRequestStatus(request) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'UPDATE request SET selected_estimate_id = ?, status = ? WHERE request_id = ?';
                 conn.query(sql, [request.selectedEstimateId, request.status, request.requestId]).then(results => {
+                    pool.releaseConnection(conn);
+                    resolve(results);
+                }).catch(err => {
+                    reject("fail");
+                });
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    /**
+     * 요청 다시하기
+     * (특정 요청서와 같은 내용의 요청서를
+     * 똑같이 하나 더 만들기)
+     * @param request
+     * @returns {Promise}
+     */
+    reWriteRequest(request) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then(conn => {
+                var sql = 'INSERT INTO request (customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, start_time, end_time, status, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive) SELECT customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, NOW(), NOW() + INTERVAL 3 HOUR, ?, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive FROM request where request_id = ?';
+                conn.query(sql, [
+                    request.status,
+                    request.requestId
+                ]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
@@ -32,7 +60,7 @@ class Request {
     writeRequest(request) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                var sql = 'INSERT INTO request (customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, status, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                var sql = 'INSERT INTO request (customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, start_time, end_time, status, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW() + INTERVAL 3 HOUR, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
                 conn.query(sql, [
                     request.customerId,
                     request.loanType,
