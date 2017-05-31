@@ -46,6 +46,28 @@ class Customer {
             });
         });
     }
+
+    /**
+     * 요청서 작성 시
+     * 고객 수정하기
+     * @param customer
+     * @returns {Promise}
+     */
+    editCustomer(customer) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                var sql = 'UPDATE customer SET phone_number = ? WHERE customer_id = ?';
+                conn.query(sql, [customer.phoneNumber, customer.customerId]).then(results => {
+                    pool.releaseConnection(conn);
+                    resolve(results);
+                }).catch(error => {
+                    reject("fail");
+                });
+            }).catch(error => {
+                reject(error);
+            });
+        });
+    }
 }
 
 module.exports = new Customer();

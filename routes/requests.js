@@ -3,6 +3,7 @@ const router = express.Router();
 const Customer = require('../model/customer');
 const Request = require('../model/request');
 const requestService = require('../service/request');
+const customerService = require('../service/customer');
 
 router.route('/requests')
     .get(getRequestsByCustomerId)
@@ -167,7 +168,7 @@ function getRequestCountAndStatusByCustomerId(req, res, next) {
  * @param res
  * @param next
  */
-function writeRequest(req, res, next) {
+async function writeRequest(req, res, next) {
     const body = req.body;
     const customerId = body.customerId;
     const loanAmount = parseInt(body.loanAmount);
@@ -210,17 +211,20 @@ function writeRequest(req, res, next) {
         aptSizeExclusive
     );
 
-    // TODO : 트랜잭션으로 같이 넣어줘야 한다.
     const customer = new Customer(
         body.customerId,
         body.phoneNumber
     );
 
-    requestService.writeRequest(request).then(results => {
+    
+    // TODO : 트랜잭션
+    try {
+        const ret1 = await requestService.writeRequest(request);
+        const ret2 = await customerService.editCustomer(customer);
         res.send({msg: 'success'});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 module.exports = router;
