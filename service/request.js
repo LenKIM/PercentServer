@@ -97,7 +97,7 @@ class Request {
     getRequestByRequestId(request) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = 'SELECT * FROM request WHERE request_id = ?';
+                var sql = 'SELECT * FROM request left join estimate on request.selected_estimate_id = estimate.estimate_id WHERE 1=1 AND request.request_id = ?';
                 conn.query(sql, [request.requestId]).then(results => {
                     pool.releaseConnection(conn);
 
