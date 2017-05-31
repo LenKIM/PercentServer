@@ -6,12 +6,14 @@ class Customer {
                 phoneNumber,
                 mainBank,
                 firstTime,
-                lastTime) {
+                lastTime,
+                fcmToken) {
         this.customerId = customerId;
         this.phoneNumber = phoneNumber;
         this.mainBank = mainBank;
         this.firstTime = firstTime;
         this.lastTime = lastTime;
+        this.fcmToken = fcmToken;
     }
 }
 

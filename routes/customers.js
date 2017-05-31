@@ -4,11 +4,14 @@ const Customer = require('../model/customer');
 const customerService = require('../service/customer');
 
 router.route('/customers')
-    .get(getCustomer)
     .post(addCustomer);
+
+router.route('/customers/:customerId')
+    .get(getCustomer);
 
 /**
  * 고객 추가하기
+ * UUID와 FCM 토큰 추가
  * @param req
  * @param res
  * @param next
@@ -16,11 +19,12 @@ router.route('/customers')
 function addCustomer(req, res, next) {
     const body = req.body;
     const customer = new Customer(
+        body.customerId,
         null,
-        body.phoneNumber,
         null,
         null,
-        null
+        null,
+        body.fcmToken
     );
 
     customerService.addCustomer(customer).then(results => {
@@ -31,18 +35,14 @@ function addCustomer(req, res, next) {
 }
 
 /**
- * 전화번호로 기등록자인지 확인하기
+ * UUID로 기등록자인지 확인하기
  * @param req
  * @param res
  * @param next
  */
 function getCustomer(req, res, next) {
     const customer = new Customer(
-        null,
-        req.query.phoneNumber,
-        null,
-        null,
-        null
+        req.params.customerId
     );
 
     customerService.getCustomer(customer).then(results => {

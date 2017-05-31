@@ -9,8 +9,8 @@ class Customer {
     addCustomer(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = "INSERT INTO customer (phone_number) VALUES (?)";
-                conn.query(sql, [customer.phoneNumber]).then(results => {
+                var sql = "INSERT INTO customer (customer_id, fcm_token) VALUES (?, ?)";
+                conn.query(sql, [customer.customerId, customer.fcmToken]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
@@ -23,15 +23,15 @@ class Customer {
     }
 
     /**
-     * 전화번호로 기등록자인지 확인하기
+     * UUID로 기등록자인지 확인하기
      * @param customer
      * @returns {Promise}
      */
     getCustomer(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = "SELECT * FROM customer WHERE phone_number = ?";
-                conn.query(sql, [customer.phoneNumber]).then(results => {
+                var sql = "SELECT * FROM customer WHERE customer_id = ?";
+                conn.query(sql, [customer.customerId]).then(results => {
                     pool.releaseConnection(conn);
 
                     if(results.length == 0) {

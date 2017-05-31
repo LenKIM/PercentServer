@@ -11,7 +11,8 @@ class Agent {
                 registerNumber,
                 region1,
                 region2,
-                registerTime) {
+                registerTime,
+                fcmToken) {
         this.agentId = agentId;
         this.password = password;
         this.name = name;
@@ -22,6 +23,7 @@ class Agent {
         this.region1 = region1;
         this.region2 = region2;
         this.registerTime = registerTime;
+        this.fcmToken = fcmToken;
     }
 }
 

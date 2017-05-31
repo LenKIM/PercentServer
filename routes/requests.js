@@ -13,6 +13,7 @@ router.route('/requests/:requestId')
     .put(editRequestStatus)
     .post(reWriteRequest);
 
+// TODO : 문제있음 라우팅...
 router.route('/requests/calculate')
     .get(getRequestCountAndStatusByCustomerId);
 
@@ -135,13 +136,7 @@ function getRequestByRequestId(req, res, next) {
  * @param next
  */
 function getRequestsByCustomerId(req, res, next) {
-    const customerId = parseInt(req.query.customerId);
-    if (typeof customerId != 'number' || isNaN(customerId)) {
-        res.send({msg: 'wrong parameters'});
-        return;
-    }
-
-    const customer = new Customer(customerId);
+    const customer = new Customer(req.query.customerId);
 
     requestService.getRequestsByCustomerId(customer).then(results => {
         res.send({msg: 'success', data: results});
@@ -158,12 +153,7 @@ function getRequestsByCustomerId(req, res, next) {
  * @param next
  */
 function getRequestCountAndStatusByCustomerId(req, res, next) {
-    const customerId = parseInt(req.query.customerId);
-    if (typeof customerId != 'number' || isNaN(customerId)) {
-        res.send({msg: 'wrong parameters'});
-        return;
-    }
-    const customer = new Customer(customerId);
+    const customer = new Customer(req.query.customerId);
 
     requestService.getRequestCountAndStatusByCustomerId(customer).then(results => {
         res.send({msg: 'success', data: results});
@@ -179,14 +169,13 @@ function getRequestCountAndStatusByCustomerId(req, res, next) {
  */
 function writeRequest(req, res, next) {
     const body = req.body;
-    const customerId = parseInt(body.customerId);
+    const customerId = body.customerId;
     const loanAmount = parseInt(body.loanAmount);
     const aptPrice = parseInt(body.aptPrice);
     const aptSizeSupply = parseFloat(body.aptSizeSupply);
     const aptSizeExclusive = parseFloat(body.aptSizeExclusive);
 
-    if (typeof customerId != 'number' || isNaN(customerId) ||
-        typeof loanAmount != 'number' || isNaN(loanAmount) ||
+    if (typeof loanAmount != 'number' || isNaN(loanAmount) ||
         typeof aptPrice != 'number' || isNaN(aptPrice) ||
         typeof aptSizeSupply != 'number' || isNaN(aptSizeSupply) ||
         typeof aptSizeExclusive != 'number' || isNaN(aptSizeExclusive)) {
@@ -221,9 +210,7 @@ function writeRequest(req, res, next) {
         aptSizeExclusive
     );
 
-    /*
-     TODO : 이미 저장되어있는 정보라 굳이 필요하지 않을 것 같은데 회의해볼 필요가 있음.
-     */
+    // TODO : 트랜잭션으로 같이 넣어줘야 한다.
     const customer = new Customer(
         body.customerId,
         body.phoneNumber

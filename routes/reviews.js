@@ -10,7 +10,6 @@ router.route('/reviews')
     .put(addReview)
     .get(showReviewList);
 
-
 //클라이언트가 리뷰화면에서 보여지는 부분
 router.route('/reviews/agent/:requestId')
     .get(showReviewByRequestId);
@@ -142,16 +141,10 @@ function addReview(req, res, next) {
  * @param next
  */
 function showReviewDetailByAgent(req, res, next) {
-    var agentId = parseInt(req.params.agentId);
-
-    if (typeof agentId !== 'number' || isNaN(agentId)){
-        res.send({msg: 'wrong parameters'});
-        return;
-    }
-
     const agent = new Agent(
-        agentId
+        req.params.agentId
     );
+
     const pager = new Pager(
         parseInt(req.query.page) || 1,
         parseInt(req.query.count) || 30,

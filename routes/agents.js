@@ -16,12 +16,7 @@ router.route('/agents/:agentId/reviews')
  * @param next
  */
 function getReviewsByAgentId(req, res, next) {
-    const agentId = parseInt(req.params.agentId);
-    if (typeof agentId != 'number' || isNaN(agentId)) {
-        res.send({msg: 'wrong parameters'});
-        return;
-    }
-    const agent = new Agent(agentId);
+    const agent = new Agent(req.params.agentId);
 
     agentService.getReviewsByAgentId(agent).then(results => {
         res.send({msg: 'success', data: results});
@@ -37,12 +32,7 @@ function getReviewsByAgentId(req, res, next) {
  * @param next
  */
 function getAgentByAgentId(req, res, next) {
-    const agentId = parseInt(req.params.agentId);
-    if (typeof agentId != 'number' || isNaN(agentId)) {
-        res.send({msg: 'wrong parameters'});
-        return;
-    }
-    const agent = new Agent(agentId);
+    const agent = new Agent(req.params.agentId);
 
     agentService.getAgentByAgentId(agent).then(results => {
         res.send({msg: 'success', data: results});
