@@ -5,6 +5,7 @@ const Review = require('../model/review');
 const Request = require('../model/request');
 const Agent = require('../model/agent');
 const reviewService = require('../service/review');
+const fcm = require('../config/fcm');
 
 router.route('/reviews')
     .put(addReview)
@@ -128,6 +129,17 @@ function addReview(req, res, next) {
     );
 
     reviewService.addReview(review).then((results) => {
+        fcm.send({
+            // TODO: 모집인 토큰, 요청서 정보로 바꾸기
+            to: 'fg9wuQbqBoc:APA91bGSlmEX0isMf-u5JM9T5UKSfR-GQpFDMDvFjn3htkRrhUD_g7GIjdL_CPwqoBPupwkBsuV3PIlIqEDr8KE1ABSGgux8JEyBDq1MEmS7uXbodsSOwvU5fzbQDjzrBU1bD8tQSF2T',
+            notification: {
+                title: 'ㄴㅇㄹㄴㅇㄹㄴㅇㄹ?',
+                body: '내용을 이래'
+            }}, (err, res) => {
+            if(err) {
+                console.log("fcm has gone wrong");
+            }
+        });
         res.send({msg: 'success', status: results});
     }).catch(err => {
         res.send({error: err});

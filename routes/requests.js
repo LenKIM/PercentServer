@@ -4,6 +4,7 @@ const Customer = require('../model/customer');
 const Request = require('../model/request');
 const requestService = require('../service/request');
 const customerService = require('../service/customer');
+const fcm = require('../config/fcm');
 
 router.route('/requests')
     .get(getRequestsByCustomerId)
@@ -100,6 +101,17 @@ function editRequestStatus(req, res, next) {
     );
 
     requestService.editRequestStatus(request).then(results => {
+        fcm.send({
+            // TODO: 모집인 토큰, 요청서 정보로 바꾸기
+            to: 'fg9wuQbqBoc:APA91bGSlmEX0isMf-u5JM9T5UKSfR-GQpFDMDvFjn3htkRrhUD_g7GIjdL_CPwqoBPupwkBsuV3PIlIqEDr8KE1ABSGgux8JEyBDq1MEmS7uXbodsSOwvU5fzbQDjzrBU1bD8tQSF2T',
+            notification: {
+                title: '상태를 취소했을까?',
+                body: '내용을 이래'
+            }}, (err, res) => {
+            if(err) {
+                console.log("fcm has gone wrong");
+            }
+        });
         res.send({msg: 'success'});
     }).catch(error => {
         res.send({msg: error});
