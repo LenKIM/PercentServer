@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const Pager = require('../model/pager');
-const Review = require('../model/review');
-const Request = require('../model/request');
-const Agent = require('../model/agent');
-const reviewService = require('../service/review');
+const Pager = require('../../model/pager');
+const Review = require('../../model/review');
+const Request = require('../../model/request');
+const Agent = require('../../model/agent');
+const reviewService = require('../../service/review');
 
 router.route('/reviews')
     .put(addReview)

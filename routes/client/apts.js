@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Apt = require('../model/apt');
-const aptService = require('../service/apt');
+const Apt = require('../../model/apt');
+const aptService = require('../../service/apt');
 
 router.route('/apts/regions1/')
     .get(getRegions1);

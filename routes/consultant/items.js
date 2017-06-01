@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const Agent = require('../model/agent');
-const Pager = require('../model/pager');
-const Item = require('../model/item');
-const itemService = require('../service/item');
+const Agent = require('../../model/agent');
+const Pager = require('../../model/pager');
+const Item = require('../../model/item');
+const itemService = require('../../service/item');
 
 router.route('/agents/:agentId/items')
     .get(showItemList)

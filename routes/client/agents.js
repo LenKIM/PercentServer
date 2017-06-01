@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Agent = require('../model/agent');
-const agentService = require('../service/agent');
+const Agent = require('../../model/agent');
+const agentService = require('../../service/agent');
 
 router.route('/agents/:agentId')
     .get(getAgentByAgentId);

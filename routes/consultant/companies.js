@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var Company = require('../model/company');
-var companyService = require('../service/company');
+var Company = require('../../model/company');
+var companyService = require('../../service/company');
 
 router.route('/companies').get(showCompanyList);
 router.route('/companies/:companyId').get(showCompanyDetail);

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../model/customer');
-const customerService = require('../service/customer');
+const Customer = require('../../model/customer');
+const customerService = require('../../service/customer');
 
 router.route('/customers')
     .post(addCustomer);

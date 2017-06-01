@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var faqService = require('../service/faq');
+var faqService = require('../../service/faq');
 
 router.route('/faqs')
     .get(showFAQList);

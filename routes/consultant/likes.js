@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var Like = require('../model/like');
-var likeService = require('../service/like');
+var Like = require('../../model/like');
+var likeService = require('../../service/like');
 
 router.route('/likes/agents/:agentId/requests/:requestId')
     .post(LikeRequest)

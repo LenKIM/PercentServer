@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const Estimate = require('../model/esimate');
-const Request = require('../model/request');
-const estimateService = require('../service/estimate');
+const Estimate = require('../../model/esimate');
+const Request = require('../../model/request');
+const estimateService = require('../../service/estimate');
 
 router.route('/estimates')
     .get(getEstimatesByRequestId);

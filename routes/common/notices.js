@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var Pager = require('../model/pager');
-var Notice = require('../model/notice');
-var noticeService = require('../service/notice');
+var Pager = require('../../model/pager');
+var Notice = require('../../model/notice');
+var noticeService = require('../../service/notice');
 
 router.route('/notices')
     .get(showNoticeList)

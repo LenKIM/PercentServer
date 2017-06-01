@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../model/customer');
-const Request = require('../model/request');
-const requestService = require('../service/request');
-const customerService = require('../service/customer');
+const Customer = require('../../model/customer');
+const Request = require('../../model/request');
+const requestService = require('../../service/request');
+const customerService = require('../../service/customer');
 
 router.route('/requests')
     .get(getRequestsByCustomerId)

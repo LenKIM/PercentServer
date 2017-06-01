@@ -1,4 +1,4 @@
-class Item{
+class Item {
     constructor(itemId,
                 itemBank,
                 itemName,
@@ -10,9 +10,7 @@ class Item{
                 overdueTime01,
                 overdueTime02,
                 overdueTime03,
-                earlyRepaymentFee,
-                )
-    {
+                earlyRepaymentFee) {
         this.itemId = itemId;
         //agent_id 외래키로 존재한다.
         this.itemBank = itemBank;
@@ -29,3 +27,6 @@ class Item{
     }
 
 }
+
+
+module.exports = Item;
