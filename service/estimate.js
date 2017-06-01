@@ -58,11 +58,33 @@ class Estimate {
      * 모집된 견적서 목록 중
      * 특정 견적서 상세보기
      * @param estimate
+     *
+     * [FUNC_REPAYMENT_AMOUNT_PER_MONTH]
+     * 원리금 균등 상환
+     * 매월 상환액 계산하기
+     * A = 대출원금
+     * b = 대출이자율, 즉 연이자율/12
+     * n = 상환기간, 즉 실제상환개월수
+     * 참고 : DB에서 쿼리로 정의 해줘야 사용할 수 있습니다.
+     *
+     * DELIMITER $$
+     * DROP FUNCTION IF EXISTS hellomoney.FUNC_REPAYMENT_AMOUNT_PER_MONTH$$
+     * CREATE FUNCTION hellomoney.FUNC_REPAYMENT_AMOUNT_PER_MONTH(loan_amount INT, interest_rate FLOAT, loan_period INT) RETURNS FLOAT
+     * BEGIN
+     * DECLARE results FLOAT DEFAULT -1;
+     * SET @A = loan_amount;
+     * SET @b = (( interest_rate / 100) / 12);
+     * SET @n = loan_period*12;
+     * SET @ret = @A*@b*POW(1+@b,@n) / (POW(1+@b,@n)-1);
+     * SELECT @ret INTO results;
+     * RETURN results;
+     * END $$
+     * DELIMITER ;
      */
     getEstimateByEstimateId(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const sql = 'SELECT * FROM estimate, agent, request WHERE estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
+                const sql = 'SELECT FUNC_REPAYMENT_AMOUNT_PER_MONTH(request.loan_amount, estimate.interest_rate, request.loan_period) as repayment_amount_per_month, estimate.*, agent.*, request.* FROM estimate, agent, request WHERE 1=1 AND estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
                 conn.query(sql, [estimate.estimateId]).then(results => {
                     pool.releaseConnection(conn);
 
@@ -71,11 +93,7 @@ class Estimate {
                         return;
                     }
 
-                    this.getRepaymentPerMonth(results[0]).then(ret => {
-                        console.log(ret);
-                        results[0]["repayment_amount_per_month"] = ret;
-                        resolve(results);
-                    });
+                    resolve(results);
                 }).catch((err) => {
                     reject(err);
                 });
@@ -144,25 +162,6 @@ class Estimate {
         });
     }
      */
-
-    /**
-     * 원리금 균등 상환
-     * 매월 상환액 계산하기
-     * A = 대출원금
-     * b = 대출이자율, 즉 연이자율/12
-     * n = 상환기간, 즉 실제상환개월수
-     * @param estimate
-     * @returns {Promise}
-     */
-    getRepaymentPerMonth(estimate) {
-        return new Promise((resolve, reject) => {
-            const A = parseInt(estimate.loan_amount);
-            const b = (parseFloat(estimate.interest_rate) / 100) / 12;
-            const n = parseInt(estimate.loan_period) * 12;
-            const ret = A * b * Math.pow(1 + b, n) / (Math.pow(1 + b, n) - 1);
-            resolve(ret);
-        });
-    }
 }
 
 module.exports = new Estimate();

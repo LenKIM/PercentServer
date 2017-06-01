@@ -76,7 +76,6 @@ function getEstimateByEstimateId(req, res, next) {
         return;
     }
 
-    console.log(estimateId);
     const estimate = new Estimate(estimateId);
 
     estimateService.getEstimateByEstimateId(estimate).then(results => {
