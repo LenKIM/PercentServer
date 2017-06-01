@@ -27,19 +27,38 @@ class Review {
      * @param pager
      * @returns {Promise}
      */
+
     getReviews(pager) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
-                const countSql = 'SELECT count(*) FROM review AS re, agent AS ag, estimate AS es, request AS req WHERE re.request_id = req.request_id AND req.selected_estimate_id = es.request_id AND es.agent_id = ag.agent_id';
-                conn.query(countSql).then(results => {
+                const countSql = 'SELECT count(*) AS count FROM review AS re, agent AS ag, estimate AS es, request AS req WHERE re.request_id = req.request_id AND req.selected_estimate_id = es.request_id AND es.agent_id = ag.agent_id';
+                conn.query(countSql).then(results1 => {
 
-                    const totalCount = parseInt(results[0].count);
+                    const totalCount = parseInt(results1[0].count);
                     const maxPage = Math.floor(totalCount / pager.count);
                     const offset = pager.count * (pager.page - 1 );
 
-                    const sql = 'SELECT * FROM review AS re, agent AS ag, estimate AS es, request AS req WHERE re.request_id = req.request_id AND req.selected_estimate_id = es.request_id AND es.agent_id = ag.agent_id LIMIT ? OFFSET ?';
-                    conn.query(sql, [pager.count, offset]).then(results => {
+                    const AvrSql = 'SELECT '+
+                        'request.loan_amount * (' +
+                        '(SELECT AVG(es.interest_rate) ' +
+                        'FROM estimate es, request rq ' +
+                        'WHERE es.request_id = rq.request_id ' +
+                        'AND rq.request_id = request.request_id) - ' +
+                        '(SELECT es.interest_rate ' +
+                        'FROM estimate es, request rq ' +
+                        'WHERE es.estimate_id = rq.selected_estimate_id ' +
+                        'AND rq.request_id = request.request_id)) AS benefit, ' +
+                        'estimate.*,' +
+                        'request.*,' +
+                        'review.* ' +
+                        'FROM estimate, request, review ' +
+                        'WHERE estimate.estimate_id = request.selected_estimate_id ' +
+                        'AND request.request_id = review.request_id LIMIT ? OFFSET ?';
+
+                    const sql = " "
+
+                    conn.query(AvrSql, [pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
                         const paging = {
                             total: totalCount,
@@ -47,12 +66,14 @@ class Review {
                             page: pager.page,
                             count: pager.count
                         };
-
                         resolve({
                             paging: paging,
                             data: results
                         });
+
+
                     });
+
                 });
             }).catch((err) => {
                 reject(err);
@@ -240,9 +261,7 @@ class Review {
                     'WHERE es.request_id = req.selected_estimate_id AND req.request_id = re.request_id AND re.review_id =?';
 
                 conn.query(sql,[review.reviewId]).then(results => {
-                    resolve({
-                        data: results
-                    });
+                    resolve(results);
                 });
             }).catch((err) => {
                 reject(err);
