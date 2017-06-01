@@ -14,7 +14,6 @@ router.route('/requests/:requestId')
     .put(editRequestStatus)
     .post(reWriteRequest);
 
-// TODO : 문제있음 라우팅...
 router.route('/requests/calculate')
     .get(getRequestCountAndStatusByCustomerId);
 
