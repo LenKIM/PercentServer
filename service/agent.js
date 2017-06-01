@@ -50,6 +50,31 @@ class Agent {
             });
         });
     }
+
+    /**
+     * 요청서의 선택된 견적서를 작성한 모집인 토큰 가져오기
+     * @param agent
+     * @returns {Promise}
+     */
+    getAgentTokenByRequestId(requestId) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                const sql = 'SELECT agent.fcm_token FROM estimate, request, agent WHERE request.selected_estimate_id = estimate.estimate_id AND estimate.agent_id = agent.agent_id AND request.request_id = ?';
+                conn.query(sql, [requestId]).then(results => {
+                    pool.releaseConnection(conn);
+
+                    if(results.length == 0) {
+                        reject("no proper fcm token");
+                        return;
+                    }
+
+                    resolve(results[0].fcm_token);
+                });
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
 }
 
 module.exports = new Agent();

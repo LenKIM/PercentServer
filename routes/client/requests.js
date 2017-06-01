@@ -4,6 +4,8 @@ const Customer = require('../../model/customer');
 const Request = require('../../model/request');
 const requestService = require('../../service/request');
 const customerService = require('../../service/customer');
+const agentService = require('../../service/agent');
+const fcm = require('../../config/fcm');
 
 router.route('/requests')
     .get(getRequestsByCustomerId)
@@ -60,16 +62,16 @@ function reWriteRequest(req, res, next) {
 }
 
 /**
- * 요청서 상태 변경하기
+ * 요청서 상태 변경하기 & 해당되는 모집인에게 푸시보내기
  * (상태와 채택된 견적서 ID 변경)
- * EX) 
+ * EX)
  * 1. 고객이 상담 요청
  * 2. 고객이 상담 취소
  * @param req
  * @param res
  * @param next
  */
-function editRequestStatus(req, res, next) {
+async function editRequestStatus(req, res, next) {
     const body = req.body;
     const requestId = parseInt(req.params.requestId);
     const selectedEstimatedId = parseInt(body.selectedEstimateId);
@@ -80,30 +82,17 @@ function editRequestStatus(req, res, next) {
         res.send({msg: 'wrong parameters'});
         return;
     }
-    const request = new Request(
-        requestId,
-        null,
-        selectedEstimatedId,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        status
-    );
 
-    requestService.editRequestStatus(request).then(results => {
+    try {
+        const editResult = await requestService.editRequestStatus(requestId, selectedEstimatedId, status);
+        console.log(editResult);
+        const agentToken = await agentService.getAgentTokenByRequestId(requestId);
+        const fcmResult = await fcm.sendNotification(agentToken, "상담사님, 알려드립니다.",requestId+"번 요청서가 " + status + " 상태가 되었습니다.");
+        console.log(fcmResult);
         res.send({msg: 'success'});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+    } catch (err) {
+        res.send({msg: err});
+    }
 }
 
 /**
@@ -215,7 +204,6 @@ async function writeRequest(req, res, next) {
         body.phoneNumber
     );
 
-    
     // TODO : 트랜잭션
     try {
         const ret1 = await requestService.writeRequest(request);

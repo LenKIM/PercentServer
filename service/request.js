@@ -10,11 +10,11 @@ class Request {
      * @param request
      * @returns {Promise}
      */
-    editRequestStatus(request) {
+    editRequestStatus(requestId, selectedEstimateId, status) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'UPDATE request SET selected_estimate_id = ?, status = ? WHERE request_id = ?';
-                conn.query(sql, [request.selectedEstimateId, request.status, request.requestId]).then(results => {
+                conn.query(sql, [selectedEstimateId, status, requestId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
