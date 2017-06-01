@@ -56,8 +56,6 @@ class Review {
                         'WHERE estimate.estimate_id = request.selected_estimate_id ' +
                         'AND request.request_id = review.request_id LIMIT ? OFFSET ?';
 
-                    const sql = " "
-
                     conn.query(AvrSql, [pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
                         const paging = {
