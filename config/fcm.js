@@ -16,6 +16,6 @@ FCM.prototype.sendNotification = function (targetToken, notiTitle, notiBody) {
             err ? reject(err) : resolve(res);
         });
     });
-}
+};
 
 module.exports = fcm;

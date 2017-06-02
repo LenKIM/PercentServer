@@ -75,6 +75,30 @@ class Agent {
             });
         });
     }
+
+    /**
+     * 상담사의 아이디를 통해 토큰을 가져오기
+     * @param agentId
+     * @returns {Promise}
+     */
+    getAgentTokenByAgentID(agentId) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                const sql = 'SELECT agent.fcm_token FROM agent WHERE agent_id = ?';
+                conn.query(sql, [agentId]).then(results => {
+                    pool.releaseConnection(conn);
+                    if(results.length === 0) {
+                        reject("no proper fcm token");
+                        return;
+                    }
+                    console.log(results);
+                    resolve(results[0].fcm_token);
+                });
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
 }
 
 module.exports = new Agent();

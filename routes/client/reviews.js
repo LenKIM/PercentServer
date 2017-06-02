@@ -5,6 +5,9 @@ const Review = require('../../model/review');
 const Request = require('../../model/request');
 const Agent = require('../../model/agent');
 const reviewService = require('../../service/review');
+const FCM = require('../../config/fcm');
+const agentService = require('../../service/agent');
+
 
 router.route('/reviews')
     .put(addReview)
@@ -102,7 +105,7 @@ function showReviewByReviewId(req, res, next) {
  * @param res
  * @param next
  */
-function addReview(req, res, next) {
+async function addReview(req, res, next) {
     const body = req.body;
     let requestId = parseInt(body.requestId);
     let content = body.content;
@@ -117,8 +120,6 @@ function addReview(req, res, next) {
         res.send({msg: 'wrong parameters'});
         return;
     }
-
-
     const review = new Review(
         null,
         requestId,
@@ -127,11 +128,21 @@ function addReview(req, res, next) {
         null
     );
 
-    reviewService.addReview(review).then((results) => {
-        res.send({msg: 'success', status: results});
-    }).catch(err => {
-        res.send({error: err});
-    });
+try {
+    const getToken = await agentService.getAgentTokenByRequestId(review.requestId);
+    console.log(getToken);
+    const results = await reviewService.addReview(review);
+    res.send({
+        msg : results,
+        status : 'success'});
+    const reviewReceived =  await FCM.sendNotification(getToken, "리뷰 도착", "채택된 견적서에 리뷰가 도착했습니다.");
+
+    res.send({msg : '리뷰 작성 완료 및 푸시 리뷰 전송 완료'});
+    console.log(reviewReceived);
+}catch (err){
+    console.log(err);
+}
+
 }
 
 /**
