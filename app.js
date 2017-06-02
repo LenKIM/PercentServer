@@ -9,6 +9,8 @@ var clients = require('./routes/clients');
 var commons = require('./routes/commons');
 var consultants = require('./routes/consultants');
 
+var passport = require('passport');
+
 var app = express();
 
 // view engine setup
@@ -26,6 +28,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/clients', clients);
 app.use('/commons', commons);
 app.use('/consultants', consultants);
+
+
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+
+require('./config/passport')(passport);
+require('./routes/consultant/login')(app, passport);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
