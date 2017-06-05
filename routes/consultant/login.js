@@ -4,7 +4,7 @@ module.exports = function (app, passport) {
     /**
      * passport 설정
      */
-    app.post('/agent/login',
+    app.post('/login',
         passport.authenticate('local-login',
             {
                 failureFlash: true
@@ -14,7 +14,7 @@ module.exports = function (app, passport) {
             res.status(202).send({msg:"Success Log-in"})
         });
 
-    app.post('/agent/signup',
+    app.post('/signup',
         passport.authenticate('local-signUp',
             {
                 failureFlash: true
@@ -22,7 +22,7 @@ module.exports = function (app, passport) {
             res.status(202).send({msg : "Success Sign-up"})
         });
 
-    app.get('/agent/logout', function (req, res) {
+    app.get('/logout', function (req, res) {
         req.logout();
         res.send({msg : "Logout."})
     })
