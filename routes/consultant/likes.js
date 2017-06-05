@@ -6,7 +6,7 @@ router.route('/likes/agents/:agentId/requests/:requestId')
     .post(LikeRequest)
     .delete(unLikeRequest);
 
-function LikeRequest(req, res, next) {
+async function LikeRequest(req, res, next) {
     const agentId = req.params.agentId;
     const requestId = parseInt(req.params.requestId);
 
@@ -15,14 +15,15 @@ function LikeRequest(req, res, next) {
         return;
     }
 
-    likeService.LikeRequest(agentId, requestId).then(results => {
+    try {
+        const results = await likeService.LikeRequest(agentId, requestId);
         res.send({msg: 'success'});
-    }).catch(error => {
+    } catch (error) {
         res.send({msg: error});
-    });
+    }
 }
 
-function unLikeRequest(req, res, next) {
+async function unLikeRequest(req, res, next) {
     const agentId = req.params.agentId;
     const requestId = parseInt(req.params.requestId);
 
@@ -30,11 +31,13 @@ function unLikeRequest(req, res, next) {
         res.send({msg: 'wrong parameters'});
         return;
     }
-    likeService.unLikeRequest(agentId, requestId).then(results => {
+
+    try {
+        const results = await likeService.unLikeRequest(agentId, requestId);
         res.send({msg: 'success'});
-    }).catch(error => {
+    } catch (error) {
         res.send({msg: error});
-    });
+    }
 }
 
 module.exports = router;
