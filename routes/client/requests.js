@@ -11,14 +11,13 @@ router.route('/requests')
     .get(getRequestsByCustomerId)
     .post(writeRequest);
 
+router.route('/requests/calculate')
+    .get(getRequestCountAndStatusByCustomerId);
+
 router.route('/requests/:requestId')
     .get(getRequestByRequestId)
     .put(editRequestStatus)
     .post(reWriteRequest);
-
-router.route('/requests/calculate')
-    .get(getRequestCountAndStatusByCustomerId);
-
 /**
  * 요청 다시하기
  * (특정 요청서와 같은 내용의 요청서를
@@ -210,7 +209,7 @@ async function writeRequest(req, res, next) {
         const ret2 = await customerService.editCustomer(customer);
         res.send({msg: 'success'});
     } catch (err) {
-        console.log(err);
+        res.send({msg: err});
     }
 }
 
