@@ -46,7 +46,7 @@ function showCollectedReview(req, res, next) {
         null
     );
     reviewService.getCollectedReviews(review).then(results => {
-        res.send({msg : 'success', data: results.data})
+        res.send({msg : 'success', data: results})
     }).catch(err => {
         res.send({msg : 'error', error : err})
     });
@@ -111,12 +111,12 @@ async function addReview(req, res, next) {
     let content = body.content;
     let score = parseInt(body.score);
 
-    if(typeof requestId != 'number' || isNaN(requestId)){
+    if(typeof requestId !== 'number' || isNaN(requestId)){
         res.send({msg: 'wrong parameters'});
         return;
     }
 
-    if(typeof score != 'number' || isNaN(score)){
+    if(typeof score !== 'number' || isNaN(score)){
         res.send({msg: 'wrong parameters'});
         return;
     }
@@ -133,8 +133,9 @@ try {
     console.log(getToken);
     const results = await reviewService.addReview(review);
     res.send({
-        msg : results,
-        status : 'success'});
+        msg : 'success',
+        data : results
+        });
     const reviewReceived =  await FCM.sendNotification(getToken, "리뷰 도착", "채택된 견적서에 리뷰가 도착했습니다.");
 
     res.send({msg : '리뷰 작성 완료 및 푸시 리뷰 전송 완료'});

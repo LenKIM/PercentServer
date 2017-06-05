@@ -241,9 +241,9 @@ class Review {
                     'and req.request_id = ?';
 
                 conn.query(sql,[request.requestId]).then(results => {
-                    resolve({
-                        data: results
-                    });
+                    resolve(
+                        results
+                    );
                 });
             }).catch((err) => {
                 reject(err);
