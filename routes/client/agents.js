@@ -16,9 +16,9 @@ router.route('/agents/:agentId/reviews')
  * @param next
  */
 function getReviewsByAgentId(req, res, next) {
-    const agent = new Agent(req.params.agentId);
+    const agentId = req.params.agentId;
 
-    agentService.getReviewsByAgentId(agent).then(results => {
+    agentService.getReviewsByAgentId(agentId).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
         res.send({msg: error});
@@ -32,9 +32,9 @@ function getReviewsByAgentId(req, res, next) {
  * @param next
  */
 function getAgentByAgentId(req, res, next) {
-    const agent = new Agent(req.params.agentId);
+    const agentId = req.params.agentId;
 
-    agentService.getAgentByAgentId(agent).then(results => {
+    agentService.getAgentByAgentId(agentId).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
         res.send({msg: error});

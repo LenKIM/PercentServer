@@ -22,7 +22,7 @@ function showNoticeList(req, res, next) {
     noticeService.getNotices(pager).then(results => {
         res.send({msg: 'success', paging : results.paging, data: results.data});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: 'fail'});
     });
 }
 
@@ -38,7 +38,7 @@ function addNotice(req, res, next) {
     noticeService.addNotice(notice).then(results => {
         res.send({msg: 'success', status: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: 'fail'});
     });
 }
 
@@ -49,7 +49,7 @@ function showNoticeDetail(req, res, next) {
     noticeService.getNotice(notice).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: 'fail'});
     });
 }
 
@@ -65,7 +65,7 @@ function editNotice(req, res, next) {
     noticeService.updateNotice(notice).then(results => {
         res.send({msg: 'success', status: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: 'fail'});
     });
 }
 
@@ -76,7 +76,7 @@ function deleteNotice(req, res, next) {
     noticeService.deleteNotice(notice).then(results => {
         res.send({msg: 'success', status: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: 'fail'});
     });
 }
 
