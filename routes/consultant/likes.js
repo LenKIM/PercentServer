@@ -1,38 +1,39 @@
-var express = require('express');
-var router = express.Router();
-var Like = require('../../model/like');
-var likeService = require('../../service/like');
+const express = require('express');
+const router = express.Router();
+const likeService = require('../../service/like');
 
 router.route('/likes/agents/:agentId/requests/:requestId')
     .post(LikeRequest)
     .delete(unLikeRequest);
 
 function LikeRequest(req, res, next) {
-    var body = req.body;
-    var like = new Like(
-        body.agentId,
-        body.requestId,
-        null
-    );
+    const agentId = req.params.agentId;
+    const requestId = parseInt(req.params.requestId);
 
-    likeService.LikeRequest(like).then(results => {
-        res.send({msg: 'success', status: results});
+    if (typeof requestId != 'number' || isNaN(requestId)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+
+    likeService.LikeRequest(agentId, requestId).then(results => {
+        res.send({msg: 'success'});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 
 function unLikeRequest(req, res, next) {
-    var like = new Like(
-        req.params.agentId,
-        req.params.requestId,
-        null
-    );
+    const agentId = req.params.agentId;
+    const requestId = parseInt(req.params.requestId);
 
-    likeService.unLikeRequest(like).then(results => {
-        res.send({msg: 'success', status: results});
+    if (typeof requestId != 'number' || isNaN(requestId)) {
+        res.send({msg: 'wrong parameters'});
+        return;
+    }
+    likeService.unLikeRequest(agentId, requestId).then(results => {
+        res.send({msg: 'success'});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        res.send({msg: error});
     });
 }
 
