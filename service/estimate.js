@@ -66,6 +66,8 @@ class Estimate {
      * b = 대출이자율, 즉 연이자율/12
      * n = 상환기간, 즉 실제상환개월수
      * 참고 : DB에서 쿼리로 정의 해줘야 사용할 수 있습니다.
+     * SET GLOBAL log_bin_trust_function_creators = 1;
+     * AWS에서는 Parameter Groups에서 값을 변경해야 한다.
      *
      * DELIMITER $$
      * DROP FUNCTION IF EXISTS hellomoney.FUNC_REPAYMENT_AMOUNT_PER_MONTH$$
