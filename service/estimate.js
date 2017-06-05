@@ -54,6 +54,32 @@ class Estimate {
     }
 
     /**
+     * 상담사 자신이 견적한
+     * 견적서 목록보기
+     * @param request
+     * @returns {Promise}
+     */
+    getEstimatesByAgentId(agentId) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                const sql = 'SELECT * FROM estimate WHERE estimate.agent_id = ?';
+                conn.query(sql, [agentId]).then(results => {
+                    pool.releaseConnection(conn);
+                    if(results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+                    resolve(results);
+                }).catch(err => {
+                    reject("query error");
+                });
+            }).catch((err) => {
+                reject("connection error");
+            });
+        });
+    }
+
+    /**
      * 요청서 상세 화면에서
      * 모집된 견적서 목록 중
      * 특정 견적서 상세보기
@@ -83,24 +109,22 @@ class Estimate {
      * END $$
      * DELIMITER ;
      */
-    getEstimateByEstimateId(estimate) {
+    getEstimateByEstimateId(estimateId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 const sql = 'SELECT FUNC_REPAYMENT_AMOUNT_PER_MONTH(request.loan_amount, estimate.interest_rate, request.loan_period) as repayment_amount_per_month, estimate.*, agent.*, request.* FROM estimate, agent, request WHERE 1=1 AND estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
-                conn.query(sql, [estimate.estimateId]).then(results => {
+                conn.query(sql, [estimateId]).then(results => {
                     pool.releaseConnection(conn);
-
                     if(results.length == 0) {
                         reject("no data");
                         return;
                     }
-
                     resolve(results);
                 }).catch((err) => {
-                    reject(err);
+                    reject("query error");
                 });
             }).catch((err) => {
-                reject(err);
+                reject("connection error");
             });
         });
     }
