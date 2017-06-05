@@ -26,6 +26,22 @@ class Request {
         });
     }
 
+    finishRequest(requestId, status) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then(conn => {
+                var sql = 'UPDATE request SET status = ? WHERE request_id = ?';
+                conn.query(sql, [status, requestId]).then(results => {
+                    pool.releaseConnection(conn);
+                    resolve(results);
+                }).catch(err => {
+                    reject("fail");
+                });
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
     /**
      * 요청 다시하기
      * (특정 요청서와 같은 내용의 요청서를
@@ -36,8 +52,10 @@ class Request {
     reWriteRequest(request) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                var sql = 'INSERT INTO request (customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, start_time, end_time, status, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive) SELECT customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, NOW(), NOW() + INTERVAL 3 HOUR, ?, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive FROM request where request_id = ?';
+                var sql = 'INSERT INTO request (customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, start_time, end_time, status, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive) SELECT customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, ?, ?, ?, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive FROM request where request_id = ?';
                 conn.query(sql, [
+                    request.startTime,
+                    request.endTime,
                     request.status,
                     request.requestId
                 ]).then(results => {
@@ -60,7 +78,7 @@ class Request {
     writeRequest(request) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                var sql = 'INSERT INTO request (customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, start_time, end_time, status, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW() + INTERVAL 3 HOUR, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                var sql = 'INSERT INTO request (customer_id, loan_type, loan_amount, scheduled_time, interest_rate_type, job_type, start_time, end_time, status, region_1, region_2, region_3, apt_name, apt_kb_id, apt_price, apt_size_supply, apt_size_exclusive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
                 conn.query(sql, [
                     request.customerId,
                     request.loanType,
@@ -68,6 +86,8 @@ class Request {
                     request.scheduledTime,
                     request.interestRateType,
                     request.jobType,
+                    request.startTime,
+                    request.endTime,
                     request.status,
                     request.region1,
                     request.region2,
