@@ -14,11 +14,12 @@ router.route('/agents/:agentId')
 async function getAgentByAgentId(req, res, next) {
     const agentId = req.params.agentId;
 
-    agentService.getAgentByAgentId(agentId).then(results => {
+    try {
+        const results = await agentService.getAgentByAgentId(agentId);
         res.send({msg: 'success', data: results});
-    }).catch(error => {
+    } catch (error) {
         res.send({msg: error});
-    });
+    }
 }
 
 module.exports = router;
