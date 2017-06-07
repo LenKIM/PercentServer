@@ -2,15 +2,12 @@ const pool = require('../config/mysql');
 
 class Request {
     /**
-     * 요청서 상태 변경하기
+     * 고객이 특정 견적서를 보고 상담을 요청하기
      * (상태와 채택된 견적서 ID 변경)
-     * EX)
-     * 1. 고객이 상담 요청
-     * 2. 고객이 상담 취소
      * @param request
      * @returns {Promise}
      */
-    editRequestStatus(requestId, selectedEstimateId, status) {
+    editRequestStatusByRequestId(requestId, selectedEstimateId, status) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'UPDATE request SET selected_estimate_id = ?, status = ? WHERE request_id = ?';
@@ -18,10 +15,58 @@ class Request {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
-                    reject("fail");
+                    reject("query fail");
                 });
             }).catch(err => {
-                reject(err);
+                reject("connection fail");
+            });
+        });
+    }
+
+    /**
+     * 견적서ID로 선택된 견적서에 해당하는 요청서를 쓴
+     * 고객의 FCM_TOKEN을 가져온다.
+     * @param estimateId
+     * @returns {Promise}
+     */
+    getCustomerTokenByEstimateId(estimateId) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then(conn => {
+                var sql = 'SELECT customer.fcm_token FROM customer WHERE customer.customer_id = (SELECT customer_id FROM request WHERE selected_estimate_id = ?)';
+                conn.query(sql, [estimateId]).then(results => {
+                    pool.releaseConnection(conn);
+                    if (results.length == 0) {
+                        reject("no data");
+                        return;
+                    }
+                    resolve(results[0].fcm_token);
+                }).catch(err => {
+                    reject("query fail");
+                })
+            }).catch(err => {
+                reject("connection fail");
+            })
+        })
+    }
+
+    /**
+     * 상담사가 고객의 상담 요청을 받고
+     * 확인하기 ( 상담 중 상태)
+     * @param request
+     * @returns {Promise}
+     */
+    editRequestStatusByEstimateId(estimateId, status) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then(conn => {
+                var sql = 'UPDATE request SET status = ? WHERE selected_estimate_id = ?';
+                conn.query(sql, [status, estimateId]).then(results => {
+                    pool.releaseConnection(conn);
+                    resolve(results);
+                }).catch(err => {
+                    reject("query fail");
+                });
+            }).catch(err => {
+                reject("connection fail");
             });
         });
     }
@@ -121,7 +166,7 @@ class Request {
                 conn.query(sql, [request.requestId]).then(results => {
                     pool.releaseConnection(conn);
 
-                    if(results.length == 0) {
+                    if (results.length == 0) {
                         reject("no data");
                         return;
                     }
@@ -146,7 +191,7 @@ class Request {
                 conn.query(sql, [customer.customerId]).then(results => {
                     pool.releaseConnection(conn);
 
-                    if(results.length == 0) {
+                    if (results.length == 0) {
                         reject("no data");
                         return;
                     }
@@ -168,11 +213,11 @@ class Request {
     getRequestCountAndStatusByCustomerId(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                    var sql = 'SELECT status, count(status) as count FROM request WHERE customer_id = ? group by status';
+                var sql = 'SELECT status, count(status) as count FROM request WHERE customer_id = ? group by status';
                 conn.query(sql, [customer.customerId]).then(results => {
                     pool.releaseConnection(conn);
 
-                    if(results.length == 0) {
+                    if (results.length == 0) {
                         reject("no data");
                         return;
                     }

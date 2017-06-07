@@ -18,7 +18,7 @@ router.route('/requests/calculate')
 
 router.route('/requests/:requestId')
     .get(getRequestByRequestId)
-    .put(editRequestStatus)
+    .put(editRequestStatusByRequestId)
     .post(reWriteRequest);
 /**
  * 요청 다시하기
@@ -85,7 +85,7 @@ async function reWriteRequest(req, res, next) {
  * @param res
  * @param next
  */
-async function editRequestStatus(req, res, next) {
+async function editRequestStatusByRequestId(req, res, next) {
     const body = req.body;
     const requestId = parseInt(req.params.requestId);
     const selectedEstimatedId = parseInt(body.selectedEstimateId);
@@ -98,11 +98,9 @@ async function editRequestStatus(req, res, next) {
     }
 
     try {
-        const editResult = await requestService.editRequestStatus(requestId, selectedEstimatedId, status);
-        console.log(editResult);
+        const editResult = await requestService.editRequestStatusByRequestId(requestId, selectedEstimatedId, status);
         const agentToken = await agentService.getAgentTokenByRequestId(requestId);
         const fcmResult = await fcm.sendNotification(agentToken, "상담사님, 알려드립니다.", requestId + "번 요청서가 상담을 원합니다.");
-        console.log(fcmResult);
         res.send({msg: 'success'});
     } catch (err) {
         res.send({msg: err});
@@ -220,7 +218,6 @@ async function writeRequest(req, res, next) {
         body.phoneNumber
     );
 
-    // TODO : 1번 2번 트랜잭션
     try {
         const ret1 = await requestService.writeRequest(request);
         const ret2 = await customerService.editCustomer(customer);
