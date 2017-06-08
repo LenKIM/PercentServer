@@ -22,21 +22,18 @@ router.route('/estimates/:estimateId')
 async function editRequestStatusByEstimateId(req, res, next) {
     const status = req.body.status;
     const estimateId = parseInt(req.params.estimateId);
-    if (typeof estimateId != 'number' || isNaN(estimateId)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof estimateId !== 'number' || isNaN(estimateId)) {
+        next('wrong parameters');
         return;
     }
 
     try {
         const editResult = await requestService.editRequestStatusByEstimateId(estimateId, status);
-        console.log(editResult);
         const customerToken = await requestService.getCustomerTokenByEstimateId(estimateId);
-        console.log(customerToken);
         const fcmResult = await fcm.sendNotification(customerToken, "고객님 알려드립니다.", "상담사께서 고객의 상담요청을 받았습니다. 전화번호가 곧 공개됩니다.");
-        console.log(fcmResult);
         res.send({msg: "success"});
-    } catch (e) {
-        res.send({msg: e});
+    } catch (error) {
+        next(error);
     }
 }
 
@@ -53,7 +50,7 @@ async function getEstimatesByAgentId(req, res, next) {
         const results = await estimateService.getEstimatesByAgentId(agentId);
         res.send({msg: 'success', data: results});
     } catch (error) {
-        res.send({msg: error});
+        next(error);
     }
 }
 
@@ -65,8 +62,8 @@ async function getEstimatesByAgentId(req, res, next) {
  */
 async function getEstimateByEstimateId(req, res, next) {
     const estimateId = parseInt(req.params.estimateId);
-    if (typeof estimateId != 'number' || isNaN(estimateId)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof estimateId !== 'number' || isNaN(estimateId)) {
+        next('wrong parameters');
         return;
     }
 
@@ -74,7 +71,7 @@ async function getEstimateByEstimateId(req, res, next) {
         const results = await estimateService.getEstimateByEstimateId(estimateId);
         res.send({msg: 'success', data: results});
     } catch (error) {
-        res.send({msg: error});
+        next(error);
     }
 }
 
