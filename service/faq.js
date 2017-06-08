@@ -11,9 +11,12 @@ class FAQ {
                 var sql = 'SELECT * FROM faq';
                 conn.query(sql).then(results => {
                     pool.releaseConnection(conn);
+
                     if(results.length == 0) {
                         reject("no data");
+                        return;
                     }
+
                     resolve(results);
                 });
             }).catch((err) => {

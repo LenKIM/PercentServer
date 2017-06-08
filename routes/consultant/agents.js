@@ -18,7 +18,7 @@ async function getAgentByAgentId(req, res, next) {
         const results = await agentService.getAgentByAgentId(agentId);
         res.send({msg: 'success', data: results});
     } catch (error) {
-        next(error);
+        res.send({msg: error});
     }
 }
 

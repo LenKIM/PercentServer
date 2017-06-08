@@ -11,9 +11,12 @@ class Apt {
                 const sql = 'SELECT distinct(region_1) FROM apt';
                 conn.query(sql, []).then(results => {
                     pool.releaseConnection(conn);
+
                     if (results.length == 0) {
                         reject("no data");
+                        return;
                     }
+
                     resolve(results);
                 }).catch((err) => {
                     reject("sql err");
@@ -35,9 +38,12 @@ class Apt {
                 const sql = 'SELECT distinct(region_2) FROM apt WHERE region_1 = ?';
                 conn.query(sql, [apt.region1]).then(results => {
                     pool.releaseConnection(conn);
+
                     if (results.length == 0) {
                         reject("no data");
+                        return;
                     }
+
                     resolve(results);
                 }).catch((err) => {
                     reject("sql err");
@@ -59,9 +65,12 @@ class Apt {
                 const sql = 'SELECT distinct(region_3) FROM apt WHERE region_1 = ? AND region_2 = ?';
                 conn.query(sql, [apt.region1, apt.region2]).then(results => {
                     pool.releaseConnection(conn);
+
                     if (results.length == 0) {
                         reject("no data");
+                        return;
                     }
+
                     resolve(results);
                 }).catch((err) => {
                     reject("sql err");
@@ -83,9 +92,12 @@ class Apt {
                 const sql = 'SELECT distinct(apt_name) FROM apt WHERE region_1 = ? AND region_2 = ? AND region_3 = ?';
                 conn.query(sql, [apt.region1, apt.region2, apt.region3]).then(results => {
                     pool.releaseConnection(conn);
+
                     if (results.length == 0) {
                         reject("no data");
+                        return;
                     }
+
                     resolve(results);
                 }).catch((err) => {
                     reject("sql err");
@@ -107,9 +119,12 @@ class Apt {
                 const sql = 'SELECT * FROM apt WHERE region_1 = ? AND region_2 = ? AND region_3 = ? AND apt_name = ?';
                 conn.query(sql, [apt.region1, apt.region2, apt.region3, apt.aptName]).then(results => {
                     pool.releaseConnection(conn);
+
                     if (results.length == 0) {
                         reject("no data");
+                        return;
                     }
+
                     resolve(results);
                 }).catch((err) => {
                     reject("sql err");
