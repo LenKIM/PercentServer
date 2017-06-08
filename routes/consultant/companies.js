@@ -1,31 +1,30 @@
-var express = require('express');
-var router = express.Router();
-var Company = require('../../model/company');
-var companyService = require('../../service/company');
+const express = require('express');
+const router = express.Router();
+const companyService = require('../../service/company');
 
 router.route('/companies').get(showCompanyList);
 router.route('/companies/:companyId').get(showCompanyDetail);
 
-function showCompanyList(req, res, next) {
-    var type = req.query.type;
-    var company = new Company(null, null, type);
+async function showCompanyList(req, res, next) {
+    const type = req.query.type;
 
-    companyService.getCompanies(company).then(results => {
+    try {
+        const results = await companyService.getCompanies(type);
         res.send({msg: 'success', total: results.count, data: results.data});
-    }).catch(error => {
-        res.send({msg: 'failed'});
-    });
+    } catch (error) {
+        next(error);
+    }
 }
 
-function showCompanyDetail(req, res, next) {
-    var companyId = req.params.companyId;
-    var company = new Company(companyId);
+async function showCompanyDetail(req, res, next) {
+    const companyId = req.params.companyId;
 
-    companyService.getCompany(company).then(results => {
+    try {
+        const results = await companyService.getCompany(companyId);
         res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: 'failed'});
-    });
+    } catch (error) {
+        next(error);
+    }
 }
 
 module.exports = router;
