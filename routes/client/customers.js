@@ -30,7 +30,7 @@ function addCustomer(req, res, next) {
     customerService.addCustomer(customer).then(results => {
         res.send({msg: 'success'});
     }).catch(error => {
-        res.send({msg: error});
+        next(error);
     });
 }
 
@@ -48,7 +48,7 @@ function getCustomer(req, res, next) {
     customerService.getCustomer(customer).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error)
     });
 }
 

@@ -12,7 +12,7 @@ class FAQ {
                 conn.query(sql).then(results => {
                     pool.releaseConnection(conn);
 
-                    if(results.length == 0) {
+                    if(results.length === 0) {
                         reject("no data");
                         return;
                     }

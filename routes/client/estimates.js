@@ -24,12 +24,14 @@ router.route('/estimates/:estimateId')
  */
 function getEstimatesCountAndAvgInterest(req, res, next) {
     const requestId = parseInt(req.query.requestId);
-    if (typeof requestId != 'number' || isNaN(requestId)) {
+    if (typeof requestId !== 'number' || isNaN(requestId)) {
         res.send({msg: 'wrong parameters'});
         return;
     }
 
-    const request = new Request(requestId);
+    const request = new Request(
+        requestId
+    );
 
     estimateService.getEstimatesCountAndAvgInterest(request).then(results => {
         res.send({msg: 'success', data: results});
@@ -47,7 +49,7 @@ function getEstimatesCountAndAvgInterest(req, res, next) {
  */
 function getEstimatesByRequestId(req, res, next) {
     const requestId = parseInt(req.query.requestId);
-    if (typeof requestId != 'number' || isNaN(requestId)) {
+    if (typeof requestId !== 'number' || isNaN(requestId)) {
         res.send({msg: 'wrong parameters'});
         return;
     }
@@ -71,7 +73,7 @@ function getEstimatesByRequestId(req, res, next) {
  */
 function getEstimateByEstimateId(req, res, next) {
     const estimateId = parseInt(req.params.estimateId);
-    if (typeof estimateId != 'number' || isNaN(estimateId)) {
+    if (typeof estimateId !== 'number' || isNaN(estimateId)) {
         res.send({msg: 'wrong parameters'});
         return;
     }

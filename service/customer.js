@@ -9,12 +9,12 @@ class Customer {
     addCustomer(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = "INSERT INTO customer (customer_id, fcm_token) VALUES (?, ?)";
+                const sql = "INSERT INTO customer (customer_id, fcm_token) VALUES (?, ?)";
                 conn.query(sql, [customer.customerId, customer.fcmToken]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
-                    reject("fail");
+                    reject("fail to insert userInfo" + "detailed : " +error);
                 });
             }).catch(error => {
                 reject(error);
@@ -30,12 +30,12 @@ class Customer {
     getCustomer(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = "SELECT * FROM customer WHERE customer_id = ?";
+                const sql = "SELECT * FROM customer WHERE customer_id = ?";
                 conn.query(sql, [customer.customerId]).then(results => {
                     pool.releaseConnection(conn);
 
-                    if(results.length == 0) {
-                        reject("no data");
+                    if(results.length === 0) {
+                        reject("There is no data");
                         return;
                     }
 
@@ -56,12 +56,12 @@ class Customer {
     editCustomer(customer) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = 'UPDATE customer SET phone_number = ? WHERE customer_id = ?';
+                const sql = 'UPDATE customer SET phone_number = ? WHERE customer_id = ?';
                 conn.query(sql, [customer.phoneNumber, customer.customerId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
-                    reject("fail");
+                    reject("fail to edit customerInfo");
                 });
             }).catch(error => {
                 reject(error);

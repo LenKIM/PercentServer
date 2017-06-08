@@ -20,6 +20,7 @@ router.route('/requests/:requestId')
     .get(getRequestByRequestId)
     .put(editRequestStatusByRequestId)
     .post(reWriteRequest);
+
 /**
  * 요청 다시하기
  * (특정 요청서와 같은 내용의 요청서를
@@ -31,7 +32,7 @@ router.route('/requests/:requestId')
 async function reWriteRequest(req, res, next) {
     const status = req.body.status;
     const requestId = parseInt(req.params.requestId);
-    if (typeof requestId != 'number' || isNaN(requestId)) {
+    if (typeof requestId !== 'number' || isNaN(requestId)) {
         res.send({msg: 'wrong parameters'});
         return;
     }
@@ -66,9 +67,9 @@ async function reWriteRequest(req, res, next) {
         const customerFCMToken = ret3[0].fcm_token;
 
         winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감됩니다.');
-        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function(token, requestId) {
-            fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
-            requestService.finishRequest(requestId, "견적마감");
+        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, async function(token, requestId) {
+            await fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
+            await requestService.finishRequest(requestId, "견적마감");
             winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감되었습니다.');
         }.bind(null, customerFCMToken, insertRequestId));
         res.send({msg: 'success'});
@@ -91,8 +92,8 @@ async function editRequestStatusByRequestId(req, res, next) {
     const selectedEstimatedId = parseInt(body.selectedEstimateId);
     const status = body.status;
 
-    if (typeof requestId != 'number' || isNaN(requestId) ||
-        typeof selectedEstimatedId != 'number' || isNaN(selectedEstimatedId)) {
+    if (typeof requestId !== 'number' || isNaN(requestId) ||
+        typeof selectedEstimatedId !== 'number' || isNaN(selectedEstimatedId)) {
         res.send({msg: 'wrong parameters'});
         return;
     }
@@ -115,8 +116,9 @@ async function editRequestStatusByRequestId(req, res, next) {
  */
 function getRequestByRequestId(req, res, next) {
     const requestId = parseInt(req.params.requestId);
-    if (typeof requestId != 'number' || isNaN(requestId)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof requestId !== 'number' || isNaN(requestId)) {
+        //res.send({msg: 'wrong parameters'});
+        next('wrong parameters');
         return;
     }
 
@@ -125,7 +127,7 @@ function getRequestByRequestId(req, res, next) {
     requestService.getRequestByRequestId(request).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error);
     });
 }
 
@@ -142,7 +144,7 @@ function getRequestsByCustomerId(req, res, next) {
     requestService.getRequestsByCustomerId(customer).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error);
     });
 }
 
@@ -159,7 +161,7 @@ function getRequestCountAndStatusByCustomerId(req, res, next) {
     requestService.getRequestCountAndStatusByCustomerId(customer).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error)
     });
 }
 /**
@@ -176,11 +178,11 @@ async function writeRequest(req, res, next) {
     const aptSizeSupply = parseFloat(body.aptSizeSupply);
     const aptSizeExclusive = parseFloat(body.aptSizeExclusive);
 
-    if (typeof loanAmount != 'number' || isNaN(loanAmount) ||
-        typeof aptPrice != 'number' || isNaN(aptPrice) ||
-        typeof aptSizeSupply != 'number' || isNaN(aptSizeSupply) ||
-        typeof aptSizeExclusive != 'number' || isNaN(aptSizeExclusive)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof loanAmount !== 'number' || isNaN(loanAmount) ||
+        typeof aptPrice !== 'number' || isNaN(aptPrice) ||
+        typeof aptSizeSupply !== 'number' || isNaN(aptSizeSupply) ||
+        typeof aptSizeExclusive !== 'number' || isNaN(aptSizeExclusive)) {
+        next('wrong parameters');
         return;
     }
 
@@ -281,7 +283,7 @@ function getElapsedTimeInOfficeHours(startHour, endHour, elapseHour) {
     } else if (currentTime > todayThresholdTime) {
         // 3시간 뒤 시간이 오늘 업무 마감 시간을 넘어서면
         // 차이만큼을 내일 시작업무시간부터 더해서 반환
-        var diff = todayEndTime.getTime() - currentTime.getTime();
+        const diff = todayEndTime.getTime() - currentTime.getTime();
         ret = tomorrowStartTime.getTime() - diff;
         ret = new Date(ret);
     }

@@ -12,6 +12,11 @@ class Review {
     addReview(review) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
+
+                if(typeof review.requestId !== 'number' && review.requestId !== null){
+                    reject('No Request ID Here')
+                }
+
                 const sql = 'INSERT INTO review (request_id, content, score) VALUES (?,?,?)';
                 conn.query(sql, [review.requestId, review.content, review.score]).then(results => {
                     pool.releaseConnection(conn);
@@ -32,7 +37,6 @@ class Review {
     getReviews(pager) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-
                 const countSql = 'SELECT count(*) AS count FROM review AS re, agent AS ag, estimate AS es, request AS req WHERE re.request_id = req.request_id AND req.selected_estimate_id = es.request_id AND es.agent_id = ag.agent_id';
                 conn.query(countSql).then(results1 => {
 
@@ -69,10 +73,7 @@ class Review {
                             paging: paging,
                             data: results
                         });
-
-
                     });
-
                 });
             }).catch((err) => {
                 reject(err);
@@ -104,8 +105,6 @@ class Review {
                                 'req.region_1, req.region_2, req.region_3, req.apt_name, req.apt_size_supply, req.apt_size_exclusive, req.loan_amount, ' +
                                 'req.overdue_record, req.interest_rate_type, req.loan_reason, req.job_type, req.scheduled_time, req.extra ' +
                                 'FROM review AS re, request AS req, estimate AS es, agent AS ag WHERE re.request_id = req.request_id and req.selected_estimate_id = es.estimate_id and es.agent_id = ag.agent_id and ag.agent_id = ? LIMIT ? OFFSET ?';
-
-                    console.log(sql);
                     conn.query(sql, [agent.agentId, pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
                         const paging = {
@@ -151,7 +150,6 @@ class Review {
                         'req.region_1, req.region_2, req.region_3, req.apt_name, req.apt_size_supply, req.apt_size_exclusive, req.loan_amount, ' +
                         'req.overdue_record, req.interest_rate_type, req.loan_reason, req.job_type, req.scheduled_time, req.extra ' +
                         'FROM review AS re, request AS req, estimate AS es, agent AS ag WHERE re.request_id = req.request_id and req.selected_estimate_id = es.estimate_id and es.agent_id = ag.agent_id and re.review_id = ? LIMIT ? OFFSET ?';
-                        console.log(sql);
                     conn.query(sql, [review.reviewId, pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
                         const paging = {
@@ -187,12 +185,9 @@ class Review {
                                     'WHERE req.selected_estimate_id = es.estimate_id and re.request_id = req.request_id and re.review_id = ?';
 
                 conn.query(countAndAvr, [review.reviewId]).then(results => {
-                    resolve({
-                        data: results
-                        });
+                    resolve(results);
                     });
-                }).catch((err) =>
-            {
+                }).catch((err) => {
                     reject(err);
             });
         })
@@ -214,9 +209,7 @@ class Review {
                             'and re.review_id = ?';
 
                 conn.query(sql,[review.reviewId]).then(results => {
-                    resolve({
-                        data: results
-                    });
+                    resolve(results);
                 });
             }).catch((err) => {
                     reject(err);
@@ -241,9 +234,7 @@ class Review {
                     'and req.request_id = ?';
 
                 conn.query(sql,[request.requestId]).then(results => {
-                    resolve(
-                        results
-                    );
+                    resolve(results);
                 });
             }).catch((err) => {
                 reject(err);

@@ -114,7 +114,7 @@ function deleteItem(req, res, next) {
 
     const itemId = req.params.itemId;
 
-    itemService.deleteitem(itemId).then(results => {
+    itemService.deleteItem(itemId).then(results => {
         res.send({msg: 'success', status: results});
     }).catch(err => {
         res.send({

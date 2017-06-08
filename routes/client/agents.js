@@ -21,7 +21,7 @@ function getReviewsByAgentId(req, res, next) {
     agentService.getReviewsByAgentId(agentId).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error)
     });
 }
 
@@ -37,7 +37,7 @@ function getAgentByAgentId(req, res, next) {
     agentService.getAgentByAgentId(agentId).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error);
     });
 }
 

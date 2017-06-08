@@ -13,7 +13,7 @@ router.route('/reviews')
     .put(addReview)
     .get(showReviewList);
 
-//클라이언트가 리뷰화면에서 보여지는 부분
+//클라이언트가 리뷰화면에서 보여지는 API
 router.route('/reviews/agent/:requestId')
     .get(showReviewByRequestId);
 
@@ -31,10 +31,16 @@ router.route('/reviews/collected/:reviewId')
 router.route('/reviews/calculator/:reviewId')
     .get(calculatorByReviewId);
 
+/**
+ * 수집된 리뷰들을 보여주는 API
+ * @param req
+ * @param res
+ * @param next
+ */
 function showCollectedReview(req, res, next) {
-    var reviewId = parseInt(req.params.reviewId);
+    let reviewId = parseInt(req.params.reviewId);
     if(typeof reviewId !== 'number' || isNaN(reviewId)){
-        res.send({msg : 'wrong parameters'});
+        next('wrong parameters');
         return;
     }
 
@@ -48,7 +54,7 @@ function showCollectedReview(req, res, next) {
     reviewService.getCollectedReviews(review).then(results => {
         res.send({msg : 'success', data: results})
     }).catch(err => {
-        res.send({msg : 'error', error : err})
+        next(err);
     });
 }
 
@@ -62,9 +68,9 @@ function calculatorByReviewId(req, res, next) {
         null
     );
     reviewService.getEstimateCountAndAvrRate(review).then(results => {
-        res.send({msg : 'success', data: results.data})
+        res.send({msg : 'success', data: results})
     }).catch(err => {
-        res.send({msg : 'error', error : err})
+         next(err);
     });
 }
 
@@ -73,7 +79,7 @@ function showReviewByReviewId(req, res, next) {
     let reviewId = parseInt(req.params.reviewId);
 
     if(typeof reviewId !== 'number' || isNaN(reviewId)){
-        res.send({msg: 'wrong parameters'});
+        next('wrong parameters');
         return;
     }
 
@@ -91,11 +97,10 @@ function showReviewByReviewId(req, res, next) {
         null
     );
 
-    // review.getEstimateCountAndAvrRate(review).then()
     reviewService.getReviewsByReviewId(review, pager).then(results => {
         res.send({msg: 'success', paging: results.paging, data: results.data});
     }).catch(err => {
-        res.send({msg: 'failed', error : err})
+        next(err)
     });
 }
 
@@ -130,18 +135,23 @@ async function addReview(req, res, next) {
 
 try {
     const getToken = await agentService.getAgentTokenByRequestId(review.requestId);
-    console.log(getToken);
+
+    if ( typeof getToken !== 'undefined' && getToken !== null )
+    {
+        next('No Token, So, Cannot send Push Alarm')
+    }
+
     const results = await reviewService.addReview(review);
     res.send({
         msg : 'success',
         data : results
         });
-    const reviewReceived =  await FCM.sendNotification(getToken, "리뷰 도착", "채택된 견적서에 리뷰가 도착했습니다.");
+    await FCM.sendNotification(getToken, "리뷰 도착", "채택된 견적서에 리뷰가 도착했습니다.");
 
     res.send({msg : '리뷰 작성 완료 및 푸시 리뷰 전송 완료'});
-    console.log(reviewReceived);
 }catch (err){
-    console.log(err);
+
+    next(err);
 }
 
 }
@@ -166,7 +176,7 @@ function showReviewDetailByAgent(req, res, next) {
     reviewService.getReviewByAgent(agent, pager).then(results => {
         res.send({msg: 'success', paging: results.paging, data: results.data});
     }).catch(err => {
-        res.send({error: err});
+        next(err);
     });
 }
 
@@ -179,7 +189,7 @@ function showReviewDetailByAgent(req, res, next) {
 function showReviewByRequestId(req, res, next) {
     var requestId = parseInt(req.params.requestId);
 
-    if(typeof requestId != 'number' || isNaN(requestId)){
+    if(typeof requestId !== 'number' || isNaN(requestId)){
         res.send({msg: 'wrong parameters'});
         return;
     }
@@ -191,7 +201,7 @@ function showReviewByRequestId(req, res, next) {
     reviewService.getReviewByRequestId(request).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(err => {
-        res.send({msg: err});
+        next(err);
     });
 }
 
@@ -210,7 +220,7 @@ function showReviewList(req, res, next) {
     reviewService.getReviews(pager).then(results => {
         res.send({msg: 'success', paging: results.paging, data: results.data});
     }).catch(err => {
-        res.send({msg: err})
+        next(err);
     });
 }
 

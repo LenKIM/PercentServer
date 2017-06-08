@@ -166,9 +166,8 @@ class Request {
                 conn.query(sql, [request.requestId]).then(results => {
                     pool.releaseConnection(conn);
 
-                    if (results.length == 0) {
-                        reject("no data");
-                        return;
+                    if (results.length === 0) {
+                        reject("No data");
                     }
 
                     resolve(results);
@@ -191,11 +190,9 @@ class Request {
                 conn.query(sql, [customer.customerId]).then(results => {
                     pool.releaseConnection(conn);
 
-                    if (results.length == 0) {
-                        reject("no data");
-                        return;
+                    if (results.length === 0) {
+                        reject("No data");
                     }
-
                     resolve(results);
                 });
             }).catch((err) => {
@@ -217,9 +214,8 @@ class Request {
                 conn.query(sql, [customer.customerId]).then(results => {
                     pool.releaseConnection(conn);
 
-                    if (results.length == 0) {
-                        reject("no data");
-                        return;
+                    if (results.length === 0) {
+                        reject("No data");
                     }
 
                     resolve(results);
@@ -299,8 +295,7 @@ class Request {
                     pool.releaseConnection(conn);
 
                     if(results.length === 0){
-                        reject({msg: "No date"});
-                        return;
+                        reject("No date");
                     }
                     console.log( estimate.agentId +"가 " + estimate.requestId +"에 대한 견적서 작성 완료");
                     resolve(results);
@@ -349,8 +344,7 @@ class Request {
                     pool.releaseConnection(conn);
 
                     if(results.length === 0){
-                        reject("no data");
-                        return;
+                        reject("No data");
                     }
 
                     resolve(results);
@@ -375,14 +369,10 @@ class Request {
                     resolve(results)
                 })
             }).catch((err) => {
-
-                reject({err:err});
-
-                }
-            )
-        })
+                reject(err);
+                });
+        });
     }
-
 }
 
 

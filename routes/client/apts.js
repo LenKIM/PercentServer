@@ -28,7 +28,7 @@ function getRegions1(req, res, next) {
     aptService.getRegions1().then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error);
     });
 }
 
@@ -43,7 +43,7 @@ function getRegions2(req, res, next) {
     aptService.getRegions2(apt).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error);
     });
 }
 
@@ -58,7 +58,7 @@ function getRegions3(req, res, next) {
     aptService.getRegions3(apt).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error);
     });
 }
 
@@ -73,7 +73,7 @@ function getAptNames(req, res, next) {
     aptService.getAptNames(apt).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error);
     });
 }
 
@@ -88,7 +88,7 @@ function getAptInfo(req, res, next) {
     aptService.getAptInfo(apt).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(error => {
-        res.send({msg: error});
+        next(error);
     });
 }
 

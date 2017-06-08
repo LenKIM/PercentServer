@@ -4,7 +4,7 @@ class Notice {
     getNotice(notice) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = 'SELECT * FROM notice WHERE notice_id = ?';
+                const sql = 'SELECT * FROM notice WHERE notice_id = ?';
                 conn.query(sql, [notice.noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
@@ -18,22 +18,22 @@ class Notice {
     getNotices(pager) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var where = "";
+                let where = "";
                 if (pager.keyword) {
                     where += 'WHERE title LIKE "%' + pager.keyword + '%"';
                 }
 
-                var countSql = 'SELECT count(*) as count FROM notice ' + where;
+                const countSql = 'SELECT count(*) as count FROM notice ' + where;
                 conn.query(countSql).then(results => {
 
-                    var totalCount = parseInt(results[0].count);
-                    var maxPage = Math.floor(totalCount / pager.count);
-                    var offset = pager.count * (pager.page - 1);
+                    let totalCount = parseInt(results[0].count);
+                    let maxPage = Math.floor(totalCount / pager.count);
+                    let offset = pager.count * (pager.page - 1);
 
-                    var sql = 'SELECT * FROM notice ' + where + ' LIMIT ? OFFSET ?';
+                    const sql = 'SELECT * FROM notice ' + where + ' LIMIT ? OFFSET ?';
                     conn.query(sql, [pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
-                        var paging = {
+                        let paging = {
                             total: totalCount,
                             maxPage: maxPage,
                             page: pager.page,
@@ -55,7 +55,7 @@ class Notice {
     addNotice(notice) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                var sql = 'INSERT INTO notice (title, content, type) VALUES (?, ?, ?)';
+                const sql = 'INSERT INTO notice (title, content, type) VALUES (?, ?, ?)';
                 conn.query(sql, [notice.title, notice.content, notice.type]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
@@ -69,7 +69,7 @@ class Notice {
     updateNotice(notice) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                var sql = 'UPDATE notice SET title = ?, content = ?, type = ? WHERE notice_id = ?';
+                const sql = 'UPDATE notice SET title = ?, content = ?, type = ? WHERE notice_id = ?';
                 conn.query(sql, [notice.title, notice.content, notice.type, notice.noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
@@ -83,7 +83,7 @@ class Notice {
     deleteNotice(notice) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                var sql = 'DELETE FROM notice WHERE notice_id = ?';
+                const sql = 'DELETE FROM notice WHERE notice_id = ?';
                 conn.query(sql, [notice.noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);

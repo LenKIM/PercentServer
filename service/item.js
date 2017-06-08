@@ -98,8 +98,8 @@ class Item{
                     item.overdueInterestRate03, item.overdueTime01, item.overdueTime02, item.overdueTime03,
                     item.earlyRepaymentFee , item.itemId ]).then(results => {
 
-
                     resolve(results);
+
                 }).catch(err => {
                     reject(err);
                 });
@@ -107,7 +107,7 @@ class Item{
         });
     }
 
-    deleteitem(itemId){
+    deleteItem(itemId){
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 const sql = 'DELETE FROM item WHERE item_id =?';
