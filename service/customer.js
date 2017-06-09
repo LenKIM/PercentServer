@@ -53,11 +53,11 @@ class Customer {
      * @param customer
      * @returns {Promise}
      */
-    editCustomer(customer) {
+    editCustomer(customerId, phoneNumber) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var sql = 'UPDATE customer SET phone_number = ? WHERE customer_id = ?';
-                conn.query(sql, [customer.phoneNumber, customer.customerId]).then(results => {
+                conn.query(sql, [phoneNumber, customerId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {

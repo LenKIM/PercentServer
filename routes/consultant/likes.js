@@ -37,7 +37,6 @@ async function unLikeRequest(req, res, next) {
         res.send('SUCCESS');
     } catch (error) {
         next(error)
-
     }
 }
 

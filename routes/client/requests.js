@@ -64,10 +64,12 @@ async function reWriteRequest(req, res, next) {
         const customerId = ret2.customer_id;
         const ret3 = await customerService.getCustomer(new Customer(customerId));
         const customerFCMToken = ret3.fcm_token;
+        const agentsFCMTokenArray = agentService.getAgentsToken();
+        const ret4 = await fcm.sendMulticastNotification(agentsFCMTokenArray, '새로운 견적요청이 있습니다.', '확인해보세요.');
 
         winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감됩니다.');
         var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function (token, requestId) {
-            fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
+            fcm.sendNotification(token, "견적등록이 마감되었습니다.", "결과를 확인해보세요.");
             requestService.finishRequest(requestId, '선택대기중');
             winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감되었습니다.');
         }.bind(null, customerFCMToken, insertRequestId));
@@ -100,7 +102,7 @@ async function editRequestStatusByRequestId(req, res, next) {
     try {
         const editResult = await requestService.editRequestStatusByRequestId(requestId, selectedEstimatedId, status);
         const agentToken = await agentService.getAgentTokenByRequestId(requestId);
-        const fcmResult = await fcm.sendNotification(agentToken, "상담사님, 알려드립니다.", requestId + "번 요청서가 상담을 원합니다.");
+        const fcmResult = await fcm.sendNotification(agentToken, "고객이 상담을 요청했습니다.", "확인해보세요.");
         res.send({msg: 'SUCCESS'});
     } catch (error) {
         next(error);
@@ -222,13 +224,16 @@ async function writeRequest(req, res, next) {
 
     try {
         const ret1 = await requestService.writeRequest(request);
-        const ret2 = await customerService.editCustomer(customer);
-        const ret3 = await customerService.getCustomer(customer);
+        const ret2 = await customerService.editCustomer(body.customerId, body.phoneNumber);
+        const ret3 = await customerService.getCustomer(body.customerId);
         const insertRequestId = ret1.insertId;
         const customerFCMToken = ret3.fcm_token;
+        const agentsFCMTokenArray = await agentService.getAgentsToken();
+        const ret4 = await fcm.sendMulticastNotification(agentsFCMTokenArray, '새로운 견적요청이 있습니다.', '확인해보세요.');
+
         winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감됩니다.');
         var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function (token, requestId) {
-            fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
+            fcm.sendNotification(token, "견적등록이 마감되었습니다.", "결과를 확인해보세요.");
             requestService.finishRequest(requestId, '선택대기중');
             winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감되었습니다.');
         }.bind(null, customerFCMToken, insertRequestId));

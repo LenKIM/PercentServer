@@ -12,6 +12,7 @@ router.route('/estimates/:estimateId')
     .put(editRequestStatusByEstimateId);
 
 /**
+ * TODO : 필요없는듯
  * 상담사가 고객의 상담 요청을 확인하기.
  * 요청서 상태를 변경하고 해당 고객에게 푸시 보내기.
  * @param req
