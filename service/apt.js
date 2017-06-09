@@ -13,6 +13,7 @@ class Apt {
                     pool.releaseConnection(conn);
                     if(results.length == 0) {
                         reject("NO_DATA");
+                        return;
                     }
                     resolve(results);
                 }).catch(error => {
@@ -37,6 +38,7 @@ class Apt {
                     pool.releaseConnection(conn);
                     if(results.length == 0) {
                         reject("NO_DATA");
+                        return;
                     }
                     resolve(results);
                 }).catch(error => {
@@ -61,6 +63,7 @@ class Apt {
                     pool.releaseConnection(conn);
                     if(results.length == 0) {
                         reject("NO_DATA");
+                        return;
                     }
                     resolve(results);
                 }).catch(error => {
@@ -85,6 +88,7 @@ class Apt {
                     pool.releaseConnection(conn);
                     if(results.length == 0) {
                         reject("NO_DATA");
+                        return;
                     }
                     resolve(results);
                 }).catch(error => {
@@ -109,6 +113,7 @@ class Apt {
                     pool.releaseConnection(conn);
                     if(results.length == 0) {
                         reject("NO_DATA");
+                        return;
                     }
                     resolve(results);
                 }).catch(error => {

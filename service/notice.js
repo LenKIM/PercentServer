@@ -1,95 +1,110 @@
 const pool = require('../config/mysql');
 
 class Notice {
-    getNotice(notice) {
+    getNotice(noticeId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var sql = 'SELECT * FROM notice WHERE notice_id = ?';
-                conn.query(sql, [notice.noticeId]).then(results => {
+                conn.query(sql, [noticeId]).then(results => {
                     pool.releaseConnection(conn);
-                    resolve(results);
+                    resolve(results[0]);
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
-                reject(err);
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
 
-    getNotices(pager) {
+    getNotices(page, count, keyword) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var where = "";
-                if (pager.keyword) {
-                    where += 'WHERE title LIKE "%' + pager.keyword + '%"';
+                if (keyword) {
+                    where += 'WHERE title LIKE "%' + keyword + '%"';
                 }
 
                 var countSql = 'SELECT count(*) as count FROM notice ' + where;
                 conn.query(countSql).then(results => {
 
                     var totalCount = parseInt(results[0].count);
-                    var maxPage = Math.floor(totalCount / pager.count);
-                    var offset = pager.count * (pager.page - 1);
+                    var maxPage = Math.floor(totalCount / count);
+                    var offset = count * (page - 1);
 
                     var sql = 'SELECT * FROM notice ' + where + ' LIMIT ? OFFSET ?';
-                    conn.query(sql, [pager.count, offset]).then(results => {
+                    conn.query(sql, [count, offset]).then(results => {
                         pool.releaseConnection(conn);
+                        if (results.length == 0) {
+                            reject("NO_DATA");
+                            return;
+                        }
                         var paging = {
                             total: totalCount,
                             maxPage: maxPage,
-                            page: pager.page,
-                            count: pager.count
+                            page: page,
+                            count: count
                         };
-
                         resolve({
                             paging: paging,
                             data: results
                         });
+                    }).catch(error => {
+                        reject('QUERY_ERR');
                     });
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch(err => {
-                reject(err);
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
 
-    addNotice(notice) {
+    addNotice(title, content, type) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'INSERT INTO notice (title, content, type) VALUES (?, ?, ?)';
-                conn.query(sql, [notice.title, notice.content, notice.type]).then(results => {
+                conn.query(sql, [title, content, type]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
-                }).catch(err => {
-                    reject(err);
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
 
-    updateNotice(notice) {
+    updateNotice(noticeId, title, content, type) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'UPDATE notice SET title = ?, content = ?, type = ? WHERE notice_id = ?';
-                conn.query(sql, [notice.title, notice.content, notice.type, notice.noticeId]).then(results => {
+                conn.query(sql, [title, content, type, noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
-                }).catch(err => {
-                    reject(err);
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
 
-    deleteNotice(notice) {
+    deleteNotice(noticeId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 var sql = 'DELETE FROM notice WHERE notice_id = ?';
-                conn.query(sql, [notice.noticeId]).then(results => {
+                conn.query(sql, [noticeId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
-                }).catch(err => {
-                    reject(err);
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }

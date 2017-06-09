@@ -11,16 +11,16 @@ class FAQ {
                 var sql = 'SELECT * FROM faq';
                 conn.query(sql).then(results => {
                     pool.releaseConnection(conn);
-
                     if(results.length == 0) {
-                        reject("no data");
+                        reject("NO_DATA");
                         return;
                     }
-
                     resolve(results);
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
-                reject(err);
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }

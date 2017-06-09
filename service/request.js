@@ -14,11 +14,11 @@ class Request {
                 conn.query(sql, [selectedEstimateId, status, requestId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
-                }).catch(err => {
-                    reject("query fail");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch(err => {
-                reject("connection fail");
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -78,11 +78,11 @@ class Request {
                 conn.query(sql, [status, requestId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
-                }).catch(err => {
-                    reject("fail");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch(err => {
-                reject(err);
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -106,11 +106,11 @@ class Request {
                 ]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
-                }).catch(err => {
-                    reject("fail");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch(err => {
-                reject(err);
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -145,11 +145,11 @@ class Request {
                 ]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
-                }).catch(err => {
-                    reject("fail");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch(err => {
-                reject(err);
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -159,22 +159,22 @@ class Request {
      * @param request
      * @returns {Promise}
      */
-    getRequestByRequestId(request) {
+    getRequestByRequestId(requestId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var sql = 'SELECT * FROM request left join estimate on request.selected_estimate_id = estimate.estimate_id WHERE 1=1 AND request.request_id = ?';
-                conn.query(sql, [request.requestId]).then(results => {
+                conn.query(sql, [requestId]).then(results => {
                     pool.releaseConnection(conn);
-
                     if (results.length == 0) {
-                        reject("no data");
+                        reject("NO_DATA");
                         return;
                     }
-
-                    resolve(results);
+                    resolve(results[0]);
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
-                reject(err);
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -188,19 +188,21 @@ class Request {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 let additionalWhere = ' ';
-                if(exceptCompletedRequest) {
+                if (exceptCompletedRequest) {
                     additionalWhere += 'AND STATUS != "대출실행완료"';
                 }
-                var sql = 'SELECT * FROM request WHERE customer_id = ?' + additionalWhere;
+                var sql = 'SELECT count(estimate.estimate_id) AS estimate_count, request.* FROM request LEFT JOIN estimate ON request.request_id = estimate.request_id WHERE request.customer_id = ? ' + additionalWhere + ' GROUP BY estimate.request_id';
                 conn.query(sql, [customerId]).then(results => {
                     pool.releaseConnection(conn);
-                    if(results.length == 0) {
+                    if (results.length == 0) {
                         reject("NO_DATA");
+                        return;
                     }
                     resolve(results);
                 }).catch(error => {
                     reject('QUERY_ERR');
-                });;
+                });
+                ;
             }).catch(error => {
                 reject('CONNECTION_ERR');
             });
@@ -213,22 +215,23 @@ class Request {
      * @param customer
      * @returns {Promise}
      */
-    getRequestCountAndStatusByCustomerId(customer) {
+    getRequestCountAndStatusByCustomerId(customerId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = 'SELECT status, count(status) as count FROM request WHERE customer_id = ? group by status';
-                conn.query(sql, [customer.customerId]).then(results => {
+                var sql = 'SELECT (SELECT count(status) as count FROM request WHERE status = "대출실행완료" AND customer_id = ? ) AS completed_count, (SELECT count(status) as count FROM request WHERE status != "대출실행완료" AND customer_id = ? ) AS uncompleted_count';
+                conn.query(sql, [customerId, customerId]).then(results => {
                     pool.releaseConnection(conn);
-
-                    if (results.length == 0) {
-                        reject("no data");
+                    if (results[0].completed_count == 0 && results[0].uncompleted_count == 0) {
+                        reject("NO_DATA");
                         return;
                     }
-
-                    resolve(results);
+                    resolve(results[0]);
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
-                reject(err);
+                ;
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -251,29 +254,29 @@ class Request {
      * @returns {Promise}
      * @param agentId
      */
-    getRequestConsultantRequestByStatus(agentId){
+    getRequestConsultantRequestByStatus(agentId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
-                const sql = 'select '+
-                'count(estimate.estimate_id) as count,' +
-                'if((select' +
+                const sql = 'select ' +
+                    'count(estimate.estimate_id) as count,' +
+                    'if((select' +
                     ' like_request.register_time' +
-                ' from like_request ' +
-                'where 1=1 ' +
-                'and like_request.agent_id = ? ' +
-                'and like_request.request_id = request.request_id), 1, 0) as favorite, ' +
-                'request.*, ' +
-                'estimate.* ' +
-                'from request, estimate ' +
-                'where 1=1 ' +
-                'and request.request_id = estimate.request_id ' +
-                'group by request.request_id ';
+                    ' from like_request ' +
+                    'where 1=1 ' +
+                    'and like_request.agent_id = ? ' +
+                    'and like_request.request_id = request.request_id), 1, 0) as favorite, ' +
+                    'request.*, ' +
+                    'estimate.* ' +
+                    'from request, estimate ' +
+                    'where 1=1 ' +
+                    'and request.request_id = estimate.request_id ' +
+                    'group by request.request_id ';
 
                 conn.query(sql, [agentId]).then((results) => {
                     pool.releaseConnection(conn);
 
-                    if(results.length === 0){
+                    if (results.length === 0) {
                         reject("no data");
                         return;
                     }
@@ -285,11 +288,11 @@ class Request {
         })
     }
 
-    addEstimateIntoRequest(estimate){
+    addEstimateIntoRequest(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
-                const sql= "INSERT INTO estimate (request_id, agent_id, item_bank," +
+                const sql = "INSERT INTO estimate (request_id, agent_id, item_bank," +
                     "item_name, interest_rate, interest_rate_type, repayment_type, " +
                     "overdue_interest_rate_1, overdue_inertest_rate_2, overdue_inertest_rate_3," +
                     "overdue_time_1,overdue_time_2,overdue_time_3,early_repayment_fee) " +
@@ -301,11 +304,11 @@ class Request {
                     estimate.overdueInterestRate03, estimate.overdueTime01, estimate.overdueTime02, estimate.overdueTime03, estimate.earlyRepaymentFee]).then((results) => {
                     pool.releaseConnection(conn);
 
-                    if(results.length === 0){
+                    if (results.length === 0) {
                         reject({msg: "No date"});
                         return;
                     }
-                    console.log( estimate.agentId +"가 " + estimate.requestId +"에 대한 견적서 작성 완료");
+                    console.log(estimate.agentId + "가 " + estimate.requestId + "에 대한 견적서 작성 완료");
                     resolve(results);
                 })
             });
@@ -320,38 +323,38 @@ class Request {
      * @param agentId
      * @returns {Promise}
      */
-    getRequestConsultantByRequestID(requestId, agentId ){
+    getRequestConsultantByRequestID(requestId, agentId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
-                const sql =  'select ' +
-                'count(estimate.estimate_id) as estimate_count,' +
+                const sql = 'select ' +
+                    'count(estimate.estimate_id) as estimate_count,' +
                     '(select count(ag.company_name)' +
-                'from agent ag, estimate es ' +
-                'where 1=1 ' +
-                'and ag.company_name = (select a.company_name from agent a where a.agent_id = ?) ' +
-                'and ag.agent_id = es.agent_id ' +
-                'and es.request_id = request.request_id group by ag.company_name ' +
-                ') as bank_count, ' +
-                'if((select ' +
+                    'from agent ag, estimate es ' +
+                    'where 1=1 ' +
+                    'and ag.company_name = (select a.company_name from agent a where a.agent_id = ?) ' +
+                    'and ag.agent_id = es.agent_id ' +
+                    'and es.request_id = request.request_id group by ag.company_name ' +
+                    ') as bank_count, ' +
+                    'if((select ' +
                     'like_request.register_time ' +
-                'from like_request ' +
-                'where 1=1 ' +
-                'and like_request.agent_id = ? ' +
-                'and like_request.request_id = request.request_id), 1, 0 ' +
-                ') as favorite, ' +
-                'request.*, ' +
-                'estimate.* ' +
-                'from request, estimate ' +
-                'where 1=1 ' +
-                'and request.request_id = estimate.request_id ' +
-                'and request.request_id = ? ' +
-                'group by estimate.request_id;';
+                    'from like_request ' +
+                    'where 1=1 ' +
+                    'and like_request.agent_id = ? ' +
+                    'and like_request.request_id = request.request_id), 1, 0 ' +
+                    ') as favorite, ' +
+                    'request.*, ' +
+                    'estimate.* ' +
+                    'from request, estimate ' +
+                    'where 1=1 ' +
+                    'and request.request_id = estimate.request_id ' +
+                    'and request.request_id = ? ' +
+                    'group by estimate.request_id;';
 
-                conn.query(sql, [agentId, agentId,requestId]).then((results) => {
+                conn.query(sql, [agentId, agentId, requestId]).then((results) => {
                     pool.releaseConnection(conn);
 
-                    if(results.length === 0){
+                    if (results.length === 0) {
                         reject("no data");
                         return;
                     }
@@ -364,14 +367,14 @@ class Request {
         })
     }
 
-    getCustomerIdAndToken(requestId){
+    getCustomerIdAndToken(requestId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
                 const sql = 'SELECT cu.customer_id, cu.fcm_token ' +
-                'FROM customer AS cu, request AS req ' +
-                'WHERE cu.customer_id = req.customer_id ' +
-                'AND req.request_id = ?';
+                    'FROM customer AS cu, request AS req ' +
+                    'WHERE cu.customer_id = req.customer_id ' +
+                    'AND req.request_id = ?';
 
                 conn.query(sql, [requestId]).then((results) => {
                     pool.releaseConnection(conn);
@@ -379,7 +382,7 @@ class Request {
                 })
             }).catch((err) => {
 
-                reject({err:err});
+                    reject({err: err});
 
                 }
             )

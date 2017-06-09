@@ -35,6 +35,7 @@ class Customer {
                     pool.releaseConnection(conn);
                     if(results.length == 0) {
                         reject("NO_DATA");
+                        return;
                     }
                     resolve(results[0]);
                 }).catch(error => {
@@ -60,10 +61,10 @@ class Customer {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
-                    reject("fail");
+                    reject('QUERY_ERR');
                 });
             }).catch(error => {
-                reject(error);
+                reject('CONNECTION_ERR');
             });
         });
     }

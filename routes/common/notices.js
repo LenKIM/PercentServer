@@ -1,8 +1,6 @@
-var express = require('express');
-var router = express.Router();
-var Pager = require('../../model/pager');
-var Notice = require('../../model/notice');
-var noticeService = require('../../service/notice');
+const express = require('express');
+const router = express.Router();
+const noticeService = require('../../service/notice');
 
 router.route('/notices')
     .get(showNoticeList)
@@ -13,71 +11,64 @@ router.route('/notices/:noticeId')
     .delete(deleteNotice)
     .put(editNotice);
 
-function showNoticeList(req, res, next) {
-    var page = parseInt(req.query.page) || 1;
-    var count = parseInt(req.query.count) || 30;
-    var keyword = req.query.keyword;
-    var pager = new Pager(page, count, keyword);
+async function showNoticeList(req, res, next) {
+    const page = parseInt(req.query.page) || 1;
+    const count = parseInt(req.query.count) || 30;
+    const keyword = req.query.keyword;
 
-    noticeService.getNotices(pager).then(results => {
-        res.send({msg: 'success', paging : results.paging, data: results.data});
-    }).catch(error => {
-        res.send({msg: 'fail'});
-    });
+    try {
+        const results = await noticeService.getNotices(page, count, keyword);
+        res.send({msg:'SUCCESS', paging : results.paging, data: results.data});
+    } catch(error) {
+        next(error);
+    }
 }
 
-function addNotice(req, res, next) {
-    var body = req.body;
-    var notice = new Notice(
-        null,
-        body.title,
-        body.content,
-        body.type
-    );
-
-    noticeService.addNotice(notice).then(results => {
-        res.send({msg: 'success', status: results});
-    }).catch(error => {
-        res.send({msg: 'fail'});
-    });
+async function addNotice(req, res, next) {
+    try {
+        const results = await noticeService.addNotice(
+            req.body.title,
+            req.body.content,
+            req.body.type
+        );
+        res.send({msg:'SUCCESS'});
+    } catch(error) {
+        next(error);
+    }
 }
 
-function showNoticeDetail(req, res, next) {
-    var noticeId = req.params.noticeId;
-    var notice = new Notice(noticeId);
+async function showNoticeDetail(req, res, next) {
+    const noticeId = req.params.noticeId;
 
-    noticeService.getNotice(notice).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: 'fail'});
-    });
+    try {
+        const results = await noticeService.getNotice(noticeId);
+        res.send({msg:'SUCCESS', paging : results});
+    } catch(error) {
+        next(error);
+    }
 }
 
-function editNotice(req, res, next) {
-    var body = req.body;
-    var notice = new Notice(
-        req.params.noticeId,
-        body.title,
-        body.content,
-        body.type
-    );
-
-    noticeService.updateNotice(notice).then(results => {
-        res.send({msg: 'success', status: results});
-    }).catch(error => {
-        res.send({msg: 'fail'});
-    });
+async function editNotice(req, res, next) {
+    try {
+        const results = await noticeService.updateNotice(
+            req.params.noticeId,
+            req.body.title,
+            req.body.content,
+            req.body.type
+        );
+        res.send({msg:'SUCCESS'});
+    } catch(error) {
+        next(error);
+    }
 }
 
-function deleteNotice(req, res, next) {
-    var noticeId = req.params.noticeId;
-    var notice = new Notice(noticeId);
-
-    noticeService.deleteNotice(notice).then(results => {
-        res.send({msg: 'success', status: results});
-    }).catch(error => {
-        res.send({msg: 'fail'});
-    });
+async function deleteNotice(req, res, next) {
+    try {
+        const results = await noticeService.deleteNotice(req.params.noticeId);
+        res.send({msg:'SUCCESS'});
+    } catch(error) {
+        next(error);
+    }
 }
 
 module.exports = router;
