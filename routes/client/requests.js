@@ -54,7 +54,7 @@ async function reWriteRequest(req, res, next) {
         endTime,
         null,
         null,
-        status
+        '견적접수중'
     );
 
     try {
@@ -68,7 +68,7 @@ async function reWriteRequest(req, res, next) {
         winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감됩니다.');
         var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function (token, requestId) {
             fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
-            requestService.finishRequest(requestId, "견적마감");
+            requestService.finishRequest(requestId, '선택대기중');
             winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감되었습니다.');
         }.bind(null, customerFCMToken, insertRequestId));
         res.send({msg: 'success'});
@@ -204,7 +204,7 @@ async function writeRequest(req, res, next) {
         endTime,
         null,
         body.jobType,
-        body.status,
+        '견적접수중',
         body.region1,
         body.region2,
         body.region3,
@@ -229,7 +229,7 @@ async function writeRequest(req, res, next) {
         winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감됩니다.');
         var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function (token, requestId) {
             fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
-            requestService.finishRequest(requestId, "견적마감");
+            requestService.finishRequest(requestId, '선택대기중');
             winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감되었습니다.');
         }.bind(null, customerFCMToken, insertRequestId));
         res.send({msg: 'success'});
