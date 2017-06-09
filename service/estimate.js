@@ -56,8 +56,8 @@ class Estimate {
     /**
      * 상담사 자신이 견적한
      * 견적서 목록보기
-     * @param request
      * @returns {Promise}
+     * @param agentId
      */
     getEstimatesByAgentId(agentId) {
         return new Promise((resolve, reject) => {
@@ -65,16 +65,16 @@ class Estimate {
                 const sql = 'SELECT * FROM estimate WHERE estimate.agent_id = ?';
                 conn.query(sql, [agentId]).then(results => {
                     pool.releaseConnection(conn);
-                    if(results.length == 0) {
-                        reject("no data");
+                    if(results.length === 0) {
+                        reject("NO_DATA");
                         return;
                     }
                     resolve(results);
                 }).catch(err => {
-                    reject("query error");
+                    reject("QUERY_ERR");
                 });
             }).catch((err) => {
-                reject("connection error");
+                reject("CONNECTION_ERR");
             });
         });
     }
@@ -83,7 +83,6 @@ class Estimate {
      * 요청서 상세 화면에서
      * 모집된 견적서 목록 중
      * 특정 견적서 상세보기
-     * @param estimate
      *
      * [FUNC_REPAYMENT_AMOUNT_PER_MONTH]
      * 원리금 균등 상환
@@ -108,6 +107,8 @@ class Estimate {
      * RETURN results;
      * END $$
      * DELIMITER ;
+     *
+     * @param estimateId
      */
     getEstimateByEstimateId(estimateId) {
         return new Promise((resolve, reject) => {
@@ -115,16 +116,15 @@ class Estimate {
                 const sql = 'SELECT FUNC_REPAYMENT_AMOUNT_PER_MONTH(request.loan_amount, estimate.interest_rate, request.loan_period) as repayment_amount_per_month, estimate.*, agent.*, request.* FROM estimate, agent, request WHERE 1=1 AND estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
                 conn.query(sql, [estimateId]).then(results => {
                     pool.releaseConnection(conn);
-                    if(results.length == 0) {
-                        reject("no data");
-                        return;
+                    if(results.length === 0) {
+                        reject("NO_DATA");
                     }
                     resolve(results);
                 }).catch((err) => {
-                    reject("query error");
+                    reject("QUERY_ERR");
                 });
             }).catch((err) => {
-                reject("connection error");
+                reject("CONNECTION_ERR");
             });
         });
     }

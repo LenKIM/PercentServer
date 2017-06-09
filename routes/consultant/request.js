@@ -60,46 +60,44 @@ async function setRequest(req, res, next) {
     );
 
     try {
-        const addEstimate = await requestService.addEstimateIntoRequest(estimate);
+        await requestService.addEstimateIntoRequest(estimate);
         const countRequest = await requestService.getRequestConsultantByRequestID(body.requestId, agentId);
         const customer = await requestService.getCustomerIdAndToken(body.requestId);
 
-        if(countRequest[0].estimate_count === 5){
-
-            if(customer[0].fcm_token.length === 0){
-                res.status(400).send({err : 'There is no Any fcm_token For Push'});
+        if(countRequest[0].estimate_count >= 1 && countRequest[0].estimate_count < 10) {
+            if (customer[0].fcm_token.length === 0) {
+                next('NO_FCM_TOKEN');
                 return;
             }
+            await fcm.sendNotification(customer[0].fcm_token, '견적서 알림', "현재 견적서가" + countRequest[0].estimate_count + "개 입니다.");
+            console.log(customer[0].customer_id + "에게" + "토큰 번호 :" + customer[0].fcm_token + "으로 " + countRequest[0].estimate_count + "개 알림 전송 완료");
 
-            await fcm.sendNotification(customer[0].fcm_token, '견적서 알림', '현재 견적서가 5개 입니다.');
+            res.send('SUCCESS');
 
-            console.log(customer[0].customer_id + "에게" + "토큰 번호 :" + customer[0].fcm_token + "으로 5개 알림 전송 완료");
+        }else if(countRequest[0].estimate_count === 10) {
 
-            res.send({ msg : 'success', data: addEstimate});
-
-        }else if(countRequest[0].estimate_count === 10){
-
-            if(customer[0].fcm_token.length === 0){
-                res.status(400).send({err : 'no fcm_token'});
+            if (customer[0].fcm_token.length === 0) {
+                next('NO_FCM_TOKEN');
                 return;
             }
 
             await fcm.sendNotification(customer[0].fcm_token, '견적서 알림', '현재 견적서가 10개로 마감되었습니다.');
-            console.log(customer[0].customer_id + "에게" + "토큰 번호 :"+ customer[0].fcm_token + "으로 10개 알림 전송 완료");
+            console.log(customer[0].customer_id + "에게" + "토큰 번호 :" + customer[0].fcm_token + "으로 10개 알림 전송 완료");
 
             requestService.finishRequest(body.requestId, "견적마감");
-            console.log(customer[0].customer_id + "에 대한 " +'견적마감');
+            console.log(customer[0].customer_id + "에 대한 " + '견적마감');
 
             const scheduled = schedule.scheduledJobs;
             if (scheduled[body.requestId.toString()] !== null)
                 scheduled[body.requestId.toString()].cancel();
-            res.send({ msg : 'success', data: addEstimate});
-        } else {
-        res.send({ msg : 'success', data: addEstimate});
+            res.send(`SUCCESS`);
         }
+        // } else {
+        // res.send({ msg : 'success', data: addEstimate});
+        // }
 
     } catch (err){
-        res.send({err:err})
+        next(err)
     }
 }
 
@@ -110,9 +108,9 @@ async function getRequests(req, res, next) {
     try {
         const results = await requestService.getRequestConsultantRequestByStatus(agentId);
 
-        res.send({ msg : 'success', data: results});
+        res.send({ msg : 'SUCCESS', data: results});
     }catch (err){
-        res.send({err:err})
+        next(err)
     }
 }
 
@@ -123,9 +121,9 @@ async function getRequestByRequestId(req, res, next) {
     //TODO 클라이언트단에서 만약 갯수가 2개면 안보인다고 말하기.
     try {
         const results = await requestService.getRequestConsultantByRequestID(requestId, agentId);
-        res.send({msg: 'success', data : results})
+        res.send({msg: 'SUCCESS', data : results})
     }catch (err){
-        res.send({err: err})
+        next(err)
     }
 }
 

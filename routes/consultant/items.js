@@ -24,9 +24,9 @@ function showItemList(req, res, next) {
     const agent = new Agent(agentId);
 
     itemService.getItems(agent, pager).then(results => {
-        res.send({msg:'success', paging : results.paging, data: results.data });
+        res.send({msg:'SUCCESS', paging : results.paging, data: results.data });
     }).catch(err => {
-        res.send({msg: 'failed'});
+        next(err)
     });
 
 }
@@ -35,11 +35,9 @@ function showItemList(req, res, next) {
  * 대출 모집인이 대출 상품 등록 할때 사용하는 API
  */
 function addItem(req, res, next) {
-    //TODO ITEM 내용 확정되면 작성하기
+
     const body = req.body;
-
     const agentId = new Agent(req.params.agentId);
-
     const item = new Item(
         null,
         body.itemBank,
@@ -58,9 +56,9 @@ function addItem(req, res, next) {
     );
 
     itemService.addItem(item, agentId).then(results => {
-        res.send({msg: 'success', status: results})
+        res.send({msg: 'SUCCESS', status: results})
     }).catch(err => {
-        res.send({msg: 'failed', err : err});
+        next(err);
     });
 }
 
@@ -72,9 +70,9 @@ function showDetailItem(req, res, next) {
     const itemId = req.params.itemId;
 
     itemService.getItem(itemId).then(results => {
-        res.send({msg: 'success', data: results});
+        res.send({msg: 'SUCCESS', data: results});
     }).catch(err => {
-        res.send({msg: 'failed'});
+        next(err);
     });
 }
 
@@ -101,9 +99,9 @@ function editItem(req, res, next) {
     );
 
     itemService.updateItem(item).then(results => {
-        res.send({msg: 'success', status: results});
+        res.send({msg: 'SUCCESS', status: results});
     }).catch(err => {
-        res.send({msg: 'failed'});
+        next(err)
     });
 }
 
@@ -115,12 +113,9 @@ function deleteItem(req, res, next) {
     const itemId = req.params.itemId;
 
     itemService.deleteitem(itemId).then(results => {
-        res.send({msg: 'success', status: results});
+        res.send({msg: 'SUCCESS', status: results});
     }).catch(err => {
-        res.send({
-             msg: 'failed',
-             err: err
-        });
+        next(err)
     });
 }
 

@@ -22,8 +22,8 @@ router.route('/estimates/:estimateId')
 async function editRequestStatusByEstimateId(req, res, next) {
     const status = req.body.status;
     const estimateId = parseInt(req.params.estimateId);
-    if (typeof estimateId != 'number' || isNaN(estimateId)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof estimateId !== 'number' || isNaN(estimateId)) {
+        next('WRONG_PARAMETERS');
         return;
     }
 
@@ -34,9 +34,9 @@ async function editRequestStatusByEstimateId(req, res, next) {
         console.log(customerToken);
         const fcmResult = await fcm.sendNotification(customerToken, "고객님 알려드립니다.", "상담사께서 고객의 상담요청을 받았습니다. 전화번호가 곧 공개됩니다.");
         console.log(fcmResult);
-        res.send({msg: "success"});
+        res.send({msg: "SUCCESS"});
     } catch (e) {
-        res.send({msg: e});
+        next(e)
     }
 }
 
@@ -49,11 +49,18 @@ async function editRequestStatusByEstimateId(req, res, next) {
  */
 async function getEstimatesByAgentId(req, res, next) {
     const agentId = req.query.agentId;
+
+    if(typeof agentId === 'undefined'){
+        next('WRONG_PARAMETERS')
+        return;
+    }
+
+
     try {
         const results = await estimateService.getEstimatesByAgentId(agentId);
-        res.send({msg: 'success', data: results});
+        res.send({msg: 'SUCCESS', data: results});
     } catch (error) {
-        res.send({msg: error});
+        next(error)
     }
 }
 
@@ -65,16 +72,16 @@ async function getEstimatesByAgentId(req, res, next) {
  */
 async function getEstimateByEstimateId(req, res, next) {
     const estimateId = parseInt(req.params.estimateId);
-    if (typeof estimateId != 'number' || isNaN(estimateId)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof estimateId !== 'number' || isNaN(estimateId)) {
+        next('WRONG_PARAMETERS');
         return;
     }
 
     try {
         const results = await estimateService.getEstimateByEstimateId(estimateId);
-        res.send({msg: 'success', data: results});
+        res.send({msg: 'SUCCESS', data: results});
     } catch (error) {
-        res.send({msg: error});
+        next(error);
     }
 }
 
