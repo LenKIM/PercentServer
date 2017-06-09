@@ -51,6 +51,11 @@ app.use(function (err, req, res, next) {
 
     // render the error page
     res.status(err.status || 500);
+
+    if (err == 'NO_DATA') {
+        res.status(200);
+    }
+
     res.send({msg: err});
 });
 

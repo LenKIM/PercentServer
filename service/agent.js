@@ -91,8 +91,35 @@ class Agent {
                         reject("NO_FCM_TOKEN");
                         return;
                     }
-                    console.log(results);
                     resolve(results[0].fcm_token);
+                }).catch((err) => reject('QUERY_ERR'));
+            }).catch((err) => {
+                reject('CONNECTION_ERR');
+            });
+        });
+    }
+
+    /**
+     * 모든 상담사의 토큰 가져오기
+     * 배열을 프로미스로 반환
+     * @param agentId
+     * @returns {Promise}
+     */
+    getAgentsToken() {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                const sql = 'SELECT agent.fcm_token FROM agent';
+                conn.query(sql).then(results => {
+                    pool.releaseConnection(conn);
+                    if(results.length === 0) {
+                        reject("NO_FCM_TOKEN");
+                        return;
+                    }
+                    let ret = [];
+                    results.forEach((result) => {
+                        ret.push(result.fcm_token);
+                    });
+                    resolve(ret);
                 }).catch((err) => reject('QUERY_ERR'));
             }).catch((err) => {
                 reject('CONNECTION_ERR');

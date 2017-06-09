@@ -90,7 +90,7 @@ async function setRequest(req, res, next) {
             const scheduled = schedule.scheduledJobs;
             if (scheduled[body.requestId.toString()] !== null)
                 scheduled[body.requestId.toString()].cancel();
-            res.send(`SUCCESS`);
+            res.send('SUCCESS');
         }
         // } else {
         // res.send({ msg : 'success', data: addEstimate});

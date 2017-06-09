@@ -7,7 +7,7 @@ class Estimate {
      * @param request
      * @returns {Promise}
      */
-    /* TODO : 여기서 ERROR를 THROW 해서 APP.JS의 ERROR HANDLER에서 처리하는게 더 효율적일듯... 다 바꿔야 함(나중에 ㅎ).
+    /* ENHANCEMENT : 여기서 ERROR를 THROW 해서 APP.JS의 ERROR HANDLER에서 처리하는게 더 효율적일듯... 다 바꿔야 함(나중에 ㅎ).
      async getEstimatesByRequestId(requestId) {
      try {
      let conn = await pool.getConnection();
