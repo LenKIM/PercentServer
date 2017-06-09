@@ -69,7 +69,7 @@ async function setRequest(req, res, next) {
                 next('NO_FCM_TOKEN');
                 return;
             }
-            await fcm.sendNotification(customer[0].fcm_token, '견적서 알림', "현재 견적서가" + countRequest[0].estimate_count + "개 입니다.");
+            await fcm.sendNotification(customer[0].fcm_token, '새 대출견적이 등록되었습니다.', " 확인해보세요.");
             console.log(customer[0].customer_id + "에게" + "토큰 번호 :" + customer[0].fcm_token + "으로 " + countRequest[0].estimate_count + "개 알림 전송 완료");
 
             res.send('SUCCESS');
@@ -81,7 +81,7 @@ async function setRequest(req, res, next) {
                 return;
             }
 
-            await fcm.sendNotification(customer[0].fcm_token, '견적서 알림', '현재 견적서가 10개로 마감되었습니다.');
+            await fcm.sendNotification(customer[0].fcm_token, '견적등록이 마감되었습니다.', '결과를 확인해보세요.');
             console.log(customer[0].customer_id + "에게" + "토큰 번호 :" + customer[0].fcm_token + "으로 10개 알림 전송 완료");
 
             requestService.finishRequest(body.requestId, "견적마감");

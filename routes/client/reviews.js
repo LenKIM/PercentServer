@@ -34,7 +34,7 @@ router.route('/reviews/calculator/:reviewId')
 function showCollectedReview(req, res, next) {
     var reviewId = parseInt(req.params.reviewId);
     if(typeof reviewId !== 'number' || isNaN(reviewId)){
-        res.send({msg : 'wrong parameters'});
+        next('WRONG_PARAMETERS');
         return;
     }
 
@@ -46,9 +46,9 @@ function showCollectedReview(req, res, next) {
         null
     );
     reviewService.getCollectedReviews(review).then(results => {
-        res.send({msg : 'success', data: results})
+        res.send({msg : 'SUCCESS', data: results})
     }).catch(err => {
-        res.send({msg : 'error', error : err})
+        next(err)
     });
 }
 
@@ -62,9 +62,9 @@ function calculatorByReviewId(req, res, next) {
         null
     );
     reviewService.getEstimateCountAndAvrRate(review).then(results => {
-        res.send({msg : 'success', data: results.data})
+        res.send({msg : 'SUCCESS', data: results.data})
     }).catch(err => {
-        res.send({msg : 'error', error : err})
+        next(err)
     });
 }
 
@@ -73,15 +73,15 @@ function showReviewByReviewId(req, res, next) {
     let reviewId = parseInt(req.params.reviewId);
 
     if(typeof reviewId !== 'number' || isNaN(reviewId)){
-        res.send({msg: 'wrong parameters'});
+        next('WRONG_PARAMETERS');
         return;
     }
 
     // review.getEstimateCountAndAvrRate(review).then()
     reviewService.getReviewsByReviewId(reviewId).then(results => {
-        res.send({msg: 'success', data: results});
+        res.send({msg: 'SUCCESS', data: results});
     }).catch(err => {
-        res.send({msg: 'failed', error : err})
+        next(err)
     });
 }
 
@@ -98,7 +98,7 @@ async function addReview(req, res, next) {
     let score = parseFloat(body.score);
 
     if(typeof requestId !== 'number' || isNaN(requestId)){
-        res.send({msg: 'wrong parameters'});
+        next('WRONG_PARAMETERS');
         return;
     }
 
@@ -119,11 +119,11 @@ try {
     }
 
     await reviewService.addReview(review);
-    res.send('SUCCESS');
-    const reviewReceived =  await FCM.sendNotification(getToken, "리뷰 도착", "채택된 견적서에 리뷰가 도착했습니다.");
 
-    res.send('REVIEW WRITTEN AND PUSH COMPLETE');
-    console.log(reviewReceived);
+
+    const reviewReceived =  await FCM.sendNotification(getToken, "고객이 후기를 남겼습니다.", " 확인해보세요.");
+    res.send('SUCCESS');
+    console.log(reviewReceived + "리뷰 및 푸쉬");
 }catch (err){
     next(err);
 }
@@ -148,9 +148,9 @@ function showReviewDetailByAgent(req, res, next) {
     );
 
     reviewService.getReviewByAgent(agent, pager).then(results => {
-        res.send({msg: 'success', paging: results.paging, data: results.data});
+        res.send({msg: 'SUCCESS', paging: results.paging, data: results.data});
     }).catch(err => {
-        res.send({error: err});
+        next(err);
     });
 }
 
@@ -164,7 +164,7 @@ function showReviewByRequestId(req, res, next) {
     var requestId = parseInt(req.params.requestId);
 
     if(typeof requestId !== 'number' || isNaN(requestId)){
-        next('WRONG PARAMETER');
+        next('WRONG PARAMETERS');
     }
 
     const request = new Request(
@@ -172,7 +172,7 @@ function showReviewByRequestId(req, res, next) {
     );
 
     reviewService.getReviewByRequestId(request).then(results => {
-        res.send({msg: 'success', data: results});
+        res.send({msg: 'SUCCESS', data: results});
     }).catch(err => {
         next(err)
     });
@@ -191,7 +191,7 @@ function showReviewList(req, res, next) {
     const pager = new Pager(page, count, keyword);
 
     reviewService.getReviews(pager).then(results => {
-        res.send({msg: 'success', paging: results.paging, data: results.data});
+        res.send({msg: 'SUCCESS', paging: results.paging, data: results.data});
     }).catch(err => {
         next(err);
     });
