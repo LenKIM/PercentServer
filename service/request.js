@@ -4,8 +4,10 @@ class Request {
     /**
      * 고객이 특정 견적서를 보고 상담을 요청하기
      * (상태와 채택된 견적서 ID 변경)
-     * @param request
      * @returns {Promise}
+     * @param requestId
+     * @param selectedEstimateId
+     * @param status
      */
     editRequestStatusByRequestId(requestId, selectedEstimateId, status) {
         return new Promise((resolve, reject) => {
@@ -35,16 +37,16 @@ class Request {
                 var sql = 'SELECT customer.fcm_token FROM customer WHERE customer.customer_id = (SELECT customer_id FROM request WHERE selected_estimate_id = ?)';
                 conn.query(sql, [estimateId]).then(results => {
                     pool.releaseConnection(conn);
-                    if (results.length == 0) {
-                        reject("no data");
+                    if (results.length === 0) {
+                        reject("NO_DATA");
                         return;
                     }
                     resolve(results[0].fcm_token);
                 }).catch(err => {
-                    reject("query fail");
+                    reject("QUERY_ERR");
                 })
             }).catch(err => {
-                reject("connection fail");
+                reject("CONNECTION_ERR");
             })
         })
     }
@@ -52,8 +54,9 @@ class Request {
     /**
      * 상담사가 고객의 상담 요청을 받고
      * 확인하기 ( 상담 중 상태)
-     * @param request
      * @returns {Promise}
+     * @param estimateId
+     * @param status
      */
     editRequestStatusByEstimateId(estimateId, status) {
         return new Promise((resolve, reject) => {
@@ -61,12 +64,12 @@ class Request {
                 var sql = 'UPDATE request SET status = ? WHERE selected_estimate_id = ?';
                 conn.query(sql, [status, estimateId]).then(results => {
                     pool.releaseConnection(conn);
-                    resolve(results);
+                    resolve('SUCCESS');
                 }).catch(err => {
-                    reject("query fail");
+                    reject("QUERY_ERR");
                 });
             }).catch(err => {
-                reject("connection fail");
+                reject("CONNECTION_ERR");
             });
         });
     }
@@ -74,7 +77,7 @@ class Request {
     finishRequest(requestId, status) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                var sql = 'UPDATE request SET status = ? WHERE request_id = ?';
+                const sql = 'UPDATE request SET status = ? WHERE request_id = ?';
                 conn.query(sql, [status, requestId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
@@ -165,7 +168,7 @@ class Request {
                 var sql = 'SELECT * FROM request left join estimate on request.selected_estimate_id = estimate.estimate_id WHERE 1=1 AND request.request_id = ?';
                 conn.query(sql, [requestId]).then(results => {
                     pool.releaseConnection(conn);
-                    if (results.length == 0) {
+                    if (results.length === 0) {
                         reject("NO_DATA");
                         return;
                     }
@@ -194,7 +197,7 @@ class Request {
                 var sql = 'SELECT count(estimate.estimate_id) AS estimate_count, request.* FROM request LEFT JOIN estimate ON request.request_id = estimate.request_id WHERE request.customer_id = ? ' + additionalWhere + ' GROUP BY estimate.request_id';
                 conn.query(sql, [customerId]).then(results => {
                     pool.releaseConnection(conn);
-                    if (results.length == 0) {
+                    if (results.length === 0) {
                         reject("NO_DATA");
                         return;
                     }
@@ -202,7 +205,6 @@ class Request {
                 }).catch(error => {
                     reject('QUERY_ERR');
                 });
-                ;
             }).catch(error => {
                 reject('CONNECTION_ERR');
             });
@@ -229,7 +231,6 @@ class Request {
                 }).catch(error => {
                     reject('QUERY_ERR');
                 });
-                ;
             }).catch(error => {
                 reject('CONNECTION_ERR');
             });
@@ -277,13 +278,13 @@ class Request {
                     pool.releaseConnection(conn);
 
                     if (results.length === 0) {
-                        reject("no data");
+                        reject("NO_DATA");
                         return;
                     }
                     resolve(results);
-                });
+                }).catch((err) => reject("QUERY_ERR"));
             }).catch((err) => {
-                reject(err);
+                reject('CONNECTION_ERR');
             })
         })
     }
@@ -305,15 +306,15 @@ class Request {
                     pool.releaseConnection(conn);
 
                     if (results.length === 0) {
-                        reject({msg: "No date"});
+                        reject('NO_DATA');
                         return;
                     }
                     console.log(estimate.agentId + "가 " + estimate.requestId + "에 대한 견적서 작성 완료");
                     resolve(results);
-                })
+                }).catch((err) => reject('QUERY_ERR'))
+            }).catch((err) => {
+                reject('CONNECTION_ERR');
             });
-        }).catch((err) => {
-            reject(err);
         })
     }
 
@@ -355,14 +356,16 @@ class Request {
                     pool.releaseConnection(conn);
 
                     if (results.length === 0) {
-                        reject("no data");
+                        reject("NO_DATA");
                         return;
                     }
 
                     resolve(results);
+                }).catch((err) => {
+                    reject('QUERY_ERR')
                 });
             }).catch((err) => {
-                reject(err);
+                reject('CONNECTION_ERR');
             })
         })
     }
@@ -370,26 +373,22 @@ class Request {
     getCustomerIdAndToken(requestId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-
                 const sql = 'SELECT cu.customer_id, cu.fcm_token ' +
                     'FROM customer AS cu, request AS req ' +
                     'WHERE cu.customer_id = req.customer_id ' +
                     'AND req.request_id = ?';
-
                 conn.query(sql, [requestId]).then((results) => {
                     pool.releaseConnection(conn);
                     resolve(results)
+                }).catch((err) => {
+                    reject('QUERY_ERR')
                 })
             }).catch((err) => {
-
-                    reject({err: err});
-
+                    reject('CONNECTION_ERR');
                 }
             )
-        })
+        });
     }
-
 }
-
 
 module.exports = new Request();

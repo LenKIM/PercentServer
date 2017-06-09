@@ -1,24 +1,24 @@
 const pool = require('../config/mysql');
 
-class Item{
-    constructor(){
+class Item {
+    constructor() {
     }
 
-    getItem(itemId){
+    getItem(itemId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 const sql = 'SELECT * FROM item AS it, agent AS ag WHERE it.agent_id = ag.agent_id AND it.item_id =?';
-                conn.query(sql,[itemId]).then(results => {
+                conn.query(sql, [itemId]).then(results => {
                     pool.releaseConnection(conn);
-                    resolve(results);
+                    resolve('QUERY_ERR');
                 });
             }).catch((err) => {
-                reject(err);
+                reject('CONNECTION_ERR');
             });
         });
     }
 
-    getItems(agent, pager){
+    getItems(agent, pager) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
@@ -27,10 +27,10 @@ class Item{
 
                     const totalCount = parseInt(results[0].count);
                     const maxPage = Math.floor(totalCount / pager.count);
-                    const offset = pager.count * (pager.page -1);
+                    const offset = pager.count * (pager.page - 1);
 
                     const sql = 'SELECT * FROM item, agent WHERE item.agent_id = agent.agent_id AND agent.agent_id = ? LIMIT ? OFFSET ?';
-                    conn.query(sql, [agent.agentId , pager.count, offset ]).then(results => {
+                    conn.query(sql, [agent.agentId, pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
 
                         let paging = {
@@ -44,10 +44,12 @@ class Item{
                             paging: paging,
                             data: results
                         });
+                    }).catch(err => {
+                        reject('QUERY_ERR')
                     });
                 });
             }).catch(err => {
-                reject(err);
+                reject('CONNECTION_ERR')
             })
         });
     }
@@ -58,10 +60,11 @@ class Item{
      * @param agent
      * @returns {Promise}
      */
-    addItem(item, agent){
+    addItem(item, agent) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 pool.releaseConnection(conn);
+
                 const sql = 'INSERT INTO item (agent_id, item_bank, item_name, ' +
                     'min_interest_rate, max_interest_rate, interest_rate_type, ' +
                     'repayment_type, overdue_interest_rate_1, overdue_interest_rate_2, ' +
@@ -72,16 +75,18 @@ class Item{
                     item.minInterestrate, item.maxInterestrate, item.interestRateType,
                     item.repaymentType, item.overdueInterestRate01, item.overdueInterestRate02,
                     item.overdueInterestRate03, item.overdueTime01, item.overdueTime02, item.overdueTime03,
-                    item.earlyRepaymentFee ]).then(results => {
+                    item.earlyRepaymentFee]).then(results => {
                     resolve(results);
                 }).catch(err => {
-                    reject(err);
+                    reject('QUERY_ERR');
                 });
+            }).catch(err => {
+                reject('CONNECTION_ERR')
             });
         });
     }
 
-    updateItem(item, agent){
+    updateItem(item, agent) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 pool.releaseConnection(conn);
@@ -92,22 +97,23 @@ class Item{
                     'overdue_interest_rate_3 = ?, overdue_time_1 = ?, overdue_time_2 = ?, ' +
                     'overdue_time_3 = ?, early_repayment_fee = ? WHERE item_id = ?';
 
-                conn.query(sql, [ item.itemBank, item.itemName,
+                conn.query(sql, [item.itemBank, item.itemName,
                     item.minInterestrate, item.maxInterestrate, item.interestRateType,
                     item.repaymentType, item.overdueInterestRate01, item.overdueInterestRate02,
                     item.overdueInterestRate03, item.overdueTime01, item.overdueTime02, item.overdueTime03,
-                    item.earlyRepaymentFee , item.itemId ]).then(results => {
-
+                    item.earlyRepaymentFee, item.itemId]).then(results => {
 
                     resolve(results);
                 }).catch(err => {
-                    reject(err);
+                    reject('QUERY_ERR')
                 });
+            }).catch(err => {
+                reject('CONNECTION_ERR')
             });
         });
     }
 
-    deleteitem(itemId){
+    deleteitem(itemId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 const sql = 'DELETE FROM item WHERE item_id =?';
@@ -115,8 +121,10 @@ class Item{
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
-                    reject(err);
+                    reject('QUERY_ERR');
                 });
+            }).catch(err => {
+                reject('CONNECTION_ERR')
             });
         });
     }

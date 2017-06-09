@@ -11,9 +11,9 @@ function showCompanyList(req, res, next) {
     var company = new Company(null, null, type);
 
     companyService.getCompanies(company).then(results => {
-        res.send({msg: 'success', total: results.count, data: results.data});
+        res.send({msg: 'SUCCESS', total: results.count, data: results.data});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        next(error);
     });
 }
 
@@ -22,9 +22,9 @@ function showCompanyDetail(req, res, next) {
     var company = new Company(companyId);
 
     companyService.getCompany(company).then(results => {
-        res.send({msg: 'success', data: results});
+        res.send({msg: 'SUCCESS', data: results});
     }).catch(error => {
-        res.send({msg: 'failed'});
+        next(error)
     });
 }
 

@@ -10,16 +10,16 @@ async function LikeRequest(req, res, next) {
     const agentId = req.params.agentId;
     const requestId = parseInt(req.params.requestId);
 
-    if (typeof requestId != 'number' || isNaN(requestId)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof requestId !== 'number' || isNaN(requestId)) {
+        next('WRONG_PARAMETERS');
         return;
     }
 
     try {
         const results = await likeService.LikeRequest(agentId, requestId);
-        res.send({msg: 'success'});
+        res.send('SUCCESS');
     } catch (error) {
-        res.send({msg: error});
+        next(error)
     }
 }
 
@@ -27,16 +27,17 @@ async function unLikeRequest(req, res, next) {
     const agentId = req.params.agentId;
     const requestId = parseInt(req.params.requestId);
 
-    if (typeof requestId != 'number' || isNaN(requestId)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof requestId !== 'number' || isNaN(requestId)) {
+        next('WRONG_PARAMETERS');
         return;
     }
 
     try {
         const results = await likeService.unLikeRequest(agentId, requestId);
-        res.send({msg: 'success'});
+        res.send('SUCCESS');
     } catch (error) {
-        res.send({msg: error});
+        next(error)
+
     }
 }
 

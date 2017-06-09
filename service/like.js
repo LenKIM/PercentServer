@@ -14,10 +14,12 @@ class Favorite {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
-                    reject("query fail");
+                    reject("QUERY_ERR");
+                    return;
                 });
             }).catch(err => {
-                reject("connection fail");
+                reject("CONNECTION_ERR");
+                return;
             });
         });
     }
@@ -30,10 +32,12 @@ class Favorite {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
-                    reject("query fail");
+                    reject("QUERY_ERR");
+                    return;
                 });
             }).catch(err => {
-                reject("connection fail");
+                reject("CONNECTION_ERR");
+                return;
             });
         });
     }

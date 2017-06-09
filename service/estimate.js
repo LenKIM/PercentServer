@@ -8,49 +8,49 @@ class Estimate {
      * @returns {Promise}
      */
     /* TODO : 여기서 ERROR를 THROW 해서 APP.JS의 ERROR HANDLER에서 처리하는게 더 효율적일듯... 다 바꿔야 함(나중에 ㅎ).
-    async getEstimatesByRequestId(requestId) {
-        try {
-            let conn = await pool.getConnection();
-            const sql = 'SELECT * FROM estimate, agent WHERE estimate.agent_id = agent.agent_id AND estimate.request_id = ?';
-            let results = await conn.query(sql, [requestId]);
-            if (results.length == 0) {
-                results = 'NO_DATA';
-            }
-            ;
-            return results;
-        } catch (error) {
-            throw error;
-        }
-    }
+     async getEstimatesByRequestId(requestId) {
+     try {
+     let conn = await pool.getConnection();
+     const sql = 'SELECT * FROM estimate, agent WHERE estimate.agent_id = agent.agent_id AND estimate.request_id = ?';
+     let results = await conn.query(sql, [requestId]);
+     if (results.length == 0) {
+     results = 'NO_DATA';
+     }
+     ;
+     return results;
+     } catch (error) {
+     throw error;
+     }
+     }
 
-    // 참고 예제
-    async function doIt() {
-        try {
-            let r1 = await
-            randomTask();
-            let r2 = await
-            randomTask();
-            let sum = await
-            addTask(r1, r2);
-            console.log('Random Numbers : ', r1, r2);
-            console.log('DoIt finish, sum =', sum);
-            return sum;
-        } catch (error) {
-            console.log('Task Failure', error);
-            throw error;
-        }
-    }
+     // 참고 예제
+     async function doIt() {
+     try {
+     let r1 = await
+     randomTask();
+     let r2 = await
+     randomTask();
+     let sum = await
+     addTask(r1, r2);
+     console.log('Random Numbers : ', r1, r2);
+     console.log('DoIt finish, sum =', sum);
+     return sum;
+     } catch (error) {
+     console.log('Task Failure', error);
+     throw error;
+     }
+     }
 
-    async function runTask() {
-        try {
-            let ret = await
-            doIt();
-            console.log('Run Task Ret : ', ret);
-        }
-        catch (error) {
-            console.log('Run Task Error :', error);
-        }
-    }*/
+     async function runTask() {
+     try {
+     let ret = await
+     doIt();
+     console.log('Run Task Ret : ', ret);
+     }
+     catch (error) {
+     console.log('Run Task Error :', error);
+     }
+     }*/
     getEstimatesByRequestId(requestId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
@@ -74,8 +74,8 @@ class Estimate {
     /**
      * 상담사 자신이 견적한
      * 견적서 목록보기
-     * @param request
      * @returns {Promise}
+     * @param agentId
      */
     getEstimatesByAgentId(agentId) {
         return new Promise((resolve, reject) => {
@@ -83,16 +83,16 @@ class Estimate {
                 const sql = 'SELECT * FROM estimate WHERE estimate.agent_id = ?';
                 conn.query(sql, [agentId]).then(results => {
                     pool.releaseConnection(conn);
-                    if (results.length == 0) {
-                        reject("no data");
+                    if (results.length === 0) {
+                        reject("NO_DATA");
                         return;
                     }
                     resolve(results);
                 }).catch(err => {
-                    reject("query error");
+                    reject("QUERY_ERR");
                 });
             }).catch((err) => {
-                reject("connection error");
+                reject("CONNECTION_ERR");
             });
         });
     }
@@ -101,7 +101,6 @@ class Estimate {
      * 요청서 상세 화면에서
      * 모집된 견적서 목록 중
      * 특정 견적서 상세보기
-     * @param estimate
      *
      * [FUNC_REPAYMENT_AMOUNT_PER_MONTH]
      * 원리금 균등 상환
@@ -126,6 +125,8 @@ class Estimate {
      * RETURN results;
      * END $$
      * DELIMITER ;
+     *
+     * @param estimateId
      */
     getEstimateByEstimateId(estimateId) {
         return new Promise((resolve, reject) => {
@@ -133,16 +134,16 @@ class Estimate {
                 const sql = 'SELECT FUNC_REPAYMENT_AMOUNT_PER_MONTH(request.loan_amount, estimate.interest_rate, request.loan_period) as repayment_amount_per_month, estimate.*, agent.*, request.* FROM estimate, agent, request WHERE 1=1 AND estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
                 conn.query(sql, [estimateId]).then(results => {
                     pool.releaseConnection(conn);
-                    if (results.length == 0) {
+                    if (results.length === 0) {
                         reject("NO_DATA");
                         return;
                     }
                     resolve(results[0]);
                 }).catch(error => {
                     reject('QUERY_ERR');
+                }).catch((error) => {
+                    reject("CONNECTION_ERR");
                 });
-            }).catch(error => {
-                reject('CONNECTION_ERR');
             });
         });
     }

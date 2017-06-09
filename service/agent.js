@@ -3,8 +3,8 @@ const pool = require('../config/mysql');
 class Agent {
     /**
      * 모집인 ID로 후기 목록 불러오기
-     * @param agent
      * @returns {Promise}
+     * @param agentId
      */
     getReviewsByAgentId(agentId) {
         return new Promise((resolve, reject) => {
@@ -28,8 +28,8 @@ class Agent {
 
     /**
      * 대출 모집인 상세 정보 불러오기
-     * @param agent
      * @returns {Promise}
+     * @param agentId
      */
     getAgentByAgentId(agentId) {
         return new Promise((resolve, reject) => {
@@ -53,8 +53,8 @@ class Agent {
 
     /**
      * 요청서의 선택된 견적서를 작성한 모집인 토큰 가져오기
-     * @param agent
      * @returns {Promise}
+     * @param requestId
      */
     getAgentTokenByRequestId(requestId) {
         return new Promise((resolve, reject) => {
@@ -62,7 +62,7 @@ class Agent {
                 const sql = 'SELECT agent.fcm_token FROM estimate, request, agent WHERE request.selected_estimate_id = estimate.estimate_id AND estimate.agent_id = agent.agent_id AND request.request_id = ?';
                 conn.query(sql, [requestId]).then(results => {
                     pool.releaseConnection(conn);
-                    if(results.length == 0) {
+                    if(results.length === 0) {
                         reject("NO_FCM_TOKEN");
                         return;
                     }
@@ -88,14 +88,14 @@ class Agent {
                 conn.query(sql, [agentId]).then(results => {
                     pool.releaseConnection(conn);
                     if(results.length === 0) {
-                        reject("no proper fcm token");
+                        reject("NO_FCM_TOKEN");
                         return;
                     }
                     console.log(results);
                     resolve(results[0].fcm_token);
-                });
+                }).catch((err) => reject('QUERY_ERR'));
             }).catch((err) => {
-                reject(err);
+                reject('CONNECTION_ERR');
             });
         });
     }

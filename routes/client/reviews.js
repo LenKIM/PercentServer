@@ -10,7 +10,7 @@ const agentService = require('../../service/agent');
 
 
 router.route('/reviews')
-    .put(addReview)
+    .post(addReview)
     .get(showReviewList);
 
 //클라이언트가 리뷰화면에서 보여지는 부분
@@ -77,23 +77,9 @@ function showReviewByReviewId(req, res, next) {
         return;
     }
 
-    const review = new Review(
-        reviewId,
-        null,
-        null,
-        null,
-        null
-    );
-
-    const pager = new Pager(
-        parseInt(req.query.page) || 1,
-        parseInt(req.query.count)|| 30,
-        null
-    );
-
     // review.getEstimateCountAndAvrRate(review).then()
-    reviewService.getReviewsByReviewId(review, pager).then(results => {
-        res.send({msg: 'success', paging: results.paging, data: results.data});
+    reviewService.getReviewsByReviewId(reviewId).then(results => {
+        res.send({msg: 'success', data: results});
     }).catch(err => {
         res.send({msg: 'failed', error : err})
     });
@@ -109,17 +95,13 @@ async function addReview(req, res, next) {
     const body = req.body;
     let requestId = parseInt(body.requestId);
     let content = body.content;
-    let score = parseInt(body.score);
+    let score = parseFloat(body.score);
 
     if(typeof requestId !== 'number' || isNaN(requestId)){
         res.send({msg: 'wrong parameters'});
         return;
     }
 
-    if(typeof score !== 'number' || isNaN(score)){
-        res.send({msg: 'wrong parameters'});
-        return;
-    }
     const review = new Review(
         null,
         requestId,
@@ -131,17 +113,19 @@ async function addReview(req, res, next) {
 try {
     const getToken = await agentService.getAgentTokenByRequestId(review.requestId);
     console.log(getToken);
-    const results = await reviewService.addReview(review);
-    res.send({
-        msg : 'success',
-        data : results
-        });
+
+    if(typeof getToken === 'undefined' && getToken === null){
+        next(review.requestId + 'ABOUT NO TOKEN')
+    }
+
+    await reviewService.addReview(review);
+    res.send('SUCCESS');
     const reviewReceived =  await FCM.sendNotification(getToken, "리뷰 도착", "채택된 견적서에 리뷰가 도착했습니다.");
 
-    res.send({msg : '리뷰 작성 완료 및 푸시 리뷰 전송 완료'});
+    res.send('REVIEW WRITTEN AND PUSH COMPLETE');
     console.log(reviewReceived);
 }catch (err){
-    console.log(err);
+    next(err);
 }
 
 }
@@ -179,9 +163,8 @@ function showReviewDetailByAgent(req, res, next) {
 function showReviewByRequestId(req, res, next) {
     var requestId = parseInt(req.params.requestId);
 
-    if(typeof requestId != 'number' || isNaN(requestId)){
-        res.send({msg: 'wrong parameters'});
-        return;
+    if(typeof requestId !== 'number' || isNaN(requestId)){
+        next('WRONG PARAMETER');
     }
 
     const request = new Request(
@@ -191,7 +174,7 @@ function showReviewByRequestId(req, res, next) {
     reviewService.getReviewByRequestId(request).then(results => {
         res.send({msg: 'success', data: results});
     }).catch(err => {
-        res.send({msg: err});
+        next(err)
     });
 }
 
@@ -210,7 +193,7 @@ function showReviewList(req, res, next) {
     reviewService.getReviews(pager).then(results => {
         res.send({msg: 'success', paging: results.paging, data: results.data});
     }).catch(err => {
-        res.send({msg: err})
+        next(err);
     });
 }
 

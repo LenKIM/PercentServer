@@ -18,25 +18,24 @@ class Company {
     getCompanies(company) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var where = "";
+                let where = "";
                 if (company.type) {
                     where += 'WHERE type LIKE "%' + company.type + '%"';
                 }
-
-                var countSql = 'SELECT count(*) as count FROM company ' + where;
+                let countSql = 'SELECT count(*) as count FROM company ' + where;
                 conn.query(countSql).then(results => {
-                    var count = parseInt(results[0].count);
-                    var sql = 'SELECT * FROM company ' + where;
+                    const count = parseInt(results[0].count);
+                    const sql = 'SELECT * FROM company ' + where;
                     conn.query(sql).then(results => {
                         pool.releaseConnection(conn);
                         resolve({
                             count: count,
                             data: results
                         });
-                    });
+                    }).catch(err => reject('QUERY_ERR'));
                 });
             }).catch(err => {
-                reject(err);
+                reject('CONNECTION_ERR');
             });
         });
     }

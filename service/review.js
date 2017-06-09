@@ -17,7 +17,7 @@ class Review {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
-                    reject(err);
+                    reject('QUERY_ERR');
                 });
             });
         });
@@ -33,13 +33,28 @@ class Review {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
-                const countSql = 'SELECT count(*) AS count FROM review AS re, agent AS ag, estimate AS es, request AS req WHERE re.request_id = req.request_id AND req.selected_estimate_id = es.request_id AND es.agent_id = ag.agent_id';
-                conn.query(countSql).then(results1 => {
+                const countSql = 'SELECT ' +
+                'count(request.loan_amount * ( ' +
+                        '(SELECT AVG(es.interest_rate) '+
+                'FROM estimate es, request rq ' +
+                'WHERE es.request_id = rq.request_id ' +
+                'AND rq.request_id = request.request_id) - ' +
+                    '(SELECT es.interest_rate ' +
+                'FROM estimate es, request rq ' +
+                'WHERE es.estimate_id = rq.selected_estimate_id '+
+                'AND rq.request_id = request.request_id))) AS count, ' +
+                'estimate.*, ' +
+                'request.*, '+
+                'review.* ' +
+                'FROM estimate, request, review ' +
+                'WHERE estimate.estimate_id = request.selected_estimate_id ' +
+                'AND request.request_id = review.request_id;' ;
 
-                    const totalCount = parseInt(results1[0].count);
+                conn.query(countSql).then(results => {
+                    const totalCount = parseInt(results[0].count);
                     const maxPage = Math.floor(totalCount / pager.count);
                     const offset = pager.count * (pager.page - 1 );
-
+                    //1
                     const AvrSql = 'SELECT '+
                         'request.loan_amount * (' +
                         '(SELECT AVG(es.interest_rate) ' +
@@ -59,6 +74,11 @@ class Review {
 
                     conn.query(AvrSql, [pager.count, offset]).then(results => {
                         pool.releaseConnection(conn);
+
+                        if(results.length ===0){
+                            reject('NO_DATA');
+                        }
+
                         const paging = {
                             total: totalCount,
                             maxPage: maxPage,
@@ -69,13 +89,12 @@ class Review {
                             paging: paging,
                             data: results
                         });
-
-
+                    }).catch((err) => {
+                        reject("QUERY_ERR")
                     });
-
                 });
             }).catch((err) => {
-                reject(err);
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -120,9 +139,11 @@ class Review {
                             data: results
                         });
                     });
+                }).catch((err) => {
+                    reject('QUERY_ERR')
                 });
             }).catch((err) => {
-                reject(err);
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -134,43 +155,27 @@ class Review {
      * @param pager
      * @returns {Promise.<T>}
      */
-    getReviewsByReviewId(review, pager) {
+    getReviewsByReviewId(reviewId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const countSql = 'SELECT count(*) AS count FROM review, request, estimate, agent ' +
-                    'WHERE review.request_id = request.request_id and request.selected_estimate_id = estimate.estimate_id and estimate.agent_id = agent.agent_id and review.review_id = ?';
-                conn.query(countSql, [review.reviewId]).then(results => {
-
-                    const totalCount = parseInt(results[0].count);
-                    const maxPage = Math.floor(totalCount / pager.count);
-                    const offset = pager.count * (pager.page - 1 );
-
                     //대출 request 정보와 리뷰 정보를 보여줌.
+
                     const sql = 'SELECT ag.name, ag.company_name, ag.register_number,' +
                         'req.loan_type, re.content, re.score, re.register_time, req.loan_period,' +
                         'req.region_1, req.region_2, req.region_3, req.apt_name, req.apt_size_supply, req.apt_size_exclusive, req.loan_amount, ' +
                         'req.overdue_record, req.interest_rate_type, req.loan_reason, req.job_type, req.scheduled_time, req.extra ' +
-                        'FROM review AS re, request AS req, estimate AS es, agent AS ag WHERE re.request_id = req.request_id and req.selected_estimate_id = es.estimate_id and es.agent_id = ag.agent_id and re.review_id = ? LIMIT ? OFFSET ?';
-                        console.log(sql);
-                    conn.query(sql, [review.reviewId, pager.count, offset]).then(results => {
-                        pool.releaseConnection(conn);
-                        const paging = {
-                            total: totalCount,
-                            maxPage: maxPage,
-                            page: pager.page,
-                            count: pager.count
-                        };
+                        'FROM review AS re, request AS req, estimate AS es, agent AS ag WHERE re.request_id = req.request_id and req.selected_estimate_id = es.estimate_id and es.agent_id = ag.agent_id and re.review_id = ?';
 
-                        resolve({
-                            paging: paging,
-                            data: results
-                        });
+                    conn.query(sql, [reviewId]).then(results => {
+                        pool.releaseConnection(conn);
+                        resolve(
+                            results[0]
+                        );
                     });
-                });
+                }).catch(err => {reject('QUERY_ERR')});
             }).catch((err) => {
-                reject(err);
+                reject('CONNECTION_ERR');
             });
-        });
     }
 
     /**
@@ -187,14 +192,9 @@ class Review {
                                     'WHERE req.selected_estimate_id = es.estimate_id and re.request_id = req.request_id and re.review_id = ?';
 
                 conn.query(countAndAvr, [review.reviewId]).then(results => {
-                    resolve({
-                        data: results
-                        });
-                    });
-                }).catch((err) =>
-            {
-                    reject(err);
-            });
+                    resolve({results});
+                    }).catch((err) => reject('QUERY_ERR'));
+                }).catch((err) => {reject('CONNECTION_ERR'); } );
         })
     }
 
@@ -237,16 +237,18 @@ class Review {
                     'req.region_1, req.region_2, req.region_3, req.loan_type,' +
                     're.content, re.score, re.register_time ' +
                     'FROM request AS req, agent AS ag, review AS re, estimate AS es ' +
-                    'WHERE re.request_id = req.request_id and req.selected_estimate_id = es.request_id and es.agent_id = ag.agent_id ' +
+                    'WHERE re.request_id = req.request_id and req.selected_estimate_id = es.estimate_id and es.agent_id = ag.agent_id ' +
                     'and req.request_id = ?';
 
                 conn.query(sql,[request.requestId]).then(results => {
                     resolve(
-                        results
+                        results[0]
                     );
+                }).catch(err => {
+                    reject('QUERY_ERR')
                 });
             }).catch((err) => {
-                reject(err);
+                reject('CONNECTION_ERR');
             })
         })
     }
@@ -261,9 +263,9 @@ class Review {
 
                 conn.query(sql,[review.reviewId]).then(results => {
                     resolve(results);
-                });
+                }).catch(err => reject('QUERY_ERR'));
             }).catch((err) => {
-                reject(err);
+                reject('CONNECTION_ERR');
             })
         })
     }
