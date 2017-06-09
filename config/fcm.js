@@ -13,7 +13,7 @@ FCM.prototype.sendNotification = function (targetToken, notiTitle, notiBody) {
 
     return new Promise((resolve, reject) => {
         fcm.send(message, (err, res) => {
-            err ? reject(err) : resolve(res);
+            err ? reject('FCM_ERR') : resolve(res);
         });
     });
 };

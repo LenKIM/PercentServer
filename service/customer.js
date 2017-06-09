@@ -6,18 +6,18 @@ class Customer {
      * @param customer
      * @returns {Promise}
      */
-    addCustomer(customer) {
+    addCustomer(customerId, fcmToken) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var sql = "INSERT INTO customer (customer_id, fcm_token) VALUES (?, ?)";
-                conn.query(sql, [customer.customerId, customer.fcmToken]).then(results => {
+                conn.query(sql, [customerId, fcmToken]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
-                    reject("fail");
+                    reject('QUERY_ERR');
                 });
             }).catch(error => {
-                reject(error);
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -27,22 +27,22 @@ class Customer {
      * @param customer
      * @returns {Promise}
      */
-    getCustomer(customer) {
+    getCustomer(customerId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 var sql = "SELECT * FROM customer WHERE customer_id = ?";
-                conn.query(sql, [customer.customerId]).then(results => {
+                conn.query(sql, [customerId]).then(results => {
                     pool.releaseConnection(conn);
-
                     if(results.length == 0) {
-                        reject("no data");
+                        reject("NO_DATA");
                         return;
                     }
-
-                    resolve(results);
+                    resolve(results[0]);
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
             }).catch(error => {
-                reject(error);
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -61,10 +61,10 @@ class Customer {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
-                    reject("fail");
+                    reject('QUERY_ERR');
                 });
             }).catch(error => {
-                reject(error);
+                reject('CONNECTION_ERR');
             });
         });
     }

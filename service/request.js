@@ -16,11 +16,11 @@ class Request {
                 conn.query(sql, [selectedEstimateId, status, requestId]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
-                }).catch(err => {
-                    reject("QUERY_ERR");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch(err => {
-                reject("CONNECTION_ERR");
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -80,11 +80,11 @@ class Request {
                 const sql = 'UPDATE request SET status = ? WHERE request_id = ?';
                 conn.query(sql, [status, requestId]).then(results => {
                     pool.releaseConnection(conn);
-                    resolve('SUCCESS');
-                }).catch(err => {
+                    resolve(results);
+                }).catch(error => {
                     reject('QUERY_ERR');
                 });
-            }).catch(err => {
+            }).catch(error => {
                 reject('CONNECTION_ERR');
             });
         });
@@ -108,11 +108,11 @@ class Request {
                     request.requestId
                 ]).then(results => {
                     pool.releaseConnection(conn);
-                    resolve({msg:'SUCCESS', data:results});
-                }).catch(err => {
+                    resolve(results);
+                }).catch(error => {
                     reject('QUERY_ERR');
                 });
-            }).catch(err => {
+            }).catch(error => {
                 reject('CONNECTION_ERR');
             });
         });
@@ -147,11 +147,11 @@ class Request {
                     request.aptSizeExclusive
                 ]).then(results => {
                     pool.releaseConnection(conn);
-                    resolve('SUCCESS');
-                }).catch(err => {
+                    resolve(results);
+                }).catch(error => {
                     reject('QUERY_ERR');
                 });
-            }).catch(err => {
+            }).catch(error => {
                 reject('CONNECTION_ERR');
             });
         });
@@ -162,22 +162,21 @@ class Request {
      * @param request
      * @returns {Promise}
      */
-    getRequestByRequestId(request) {
+    getRequestByRequestId(requestId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const sql = 'SELECT * FROM request left join estimate on request.selected_estimate_id = estimate.estimate_id WHERE 1=1 AND request.request_id = ?';
-                conn.query(sql, [request.requestId]).then(results => {
+                var sql = 'SELECT * FROM request left join estimate on request.selected_estimate_id = estimate.estimate_id WHERE 1=1 AND request.request_id = ?';
+                conn.query(sql, [requestId]).then(results => {
                     pool.releaseConnection(conn);
-
                     if (results.length === 0) {
                         reject("NO_DATA");
                         return;
                     }
-                    resolve(results);
-                }).catch(err => {
-                    reject('QUERY_ERR')
+                    resolve(results[0]);
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
+            }).catch(error => {
                 reject('CONNECTION_ERR');
             });
         });
@@ -188,20 +187,25 @@ class Request {
      * @param customer
      * @returns {Promise}
      */
-    getRequestsByCustomerId(customer) {
+    getRequestsByCustomerId(customerId, exceptCompletedRequest) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = 'SELECT * FROM request WHERE customer_id = ?';
-                conn.query(sql, [customer.customerId]).then(results => {
+                let additionalWhere = ' ';
+                if (exceptCompletedRequest) {
+                    additionalWhere += 'AND STATUS != "대출실행완료"';
+                }
+                var sql = 'SELECT count(estimate.estimate_id) AS estimate_count, request.* FROM request LEFT JOIN estimate ON request.request_id = estimate.request_id WHERE request.customer_id = ? ' + additionalWhere + ' GROUP BY estimate.request_id';
+                conn.query(sql, [customerId]).then(results => {
                     pool.releaseConnection(conn);
-
                     if (results.length === 0) {
                         reject("NO_DATA");
                         return;
                     }
                     resolve(results);
-                }).catch((err) => reject('QUERY_ERR'));
-            }).catch((err) => {
+                }).catch(error => {
+                    reject('QUERY_ERR');
+                });
+            }).catch(error => {
                 reject('CONNECTION_ERR');
             });
         });
@@ -213,20 +217,21 @@ class Request {
      * @param customer
      * @returns {Promise}
      */
-    getRequestCountAndStatusByCustomerId(customer) {
+    getRequestCountAndStatusByCustomerId(customerId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = 'SELECT status, count(status) as count FROM request WHERE customer_id = ? group by status';
-                conn.query(sql, [customer.customerId]).then(results => {
+                var sql = 'SELECT (SELECT count(status) as count FROM request WHERE status = "대출실행완료" AND customer_id = ? ) AS completed_count, (SELECT count(status) as count FROM request WHERE status != "대출실행완료" AND customer_id = ? ) AS uncompleted_count';
+                conn.query(sql, [customerId, customerId]).then(results => {
                     pool.releaseConnection(conn);
-
-                    if (results.length === 0) {
+                    if (results[0].completed_count == 0 && results[0].uncompleted_count == 0) {
                         reject("NO_DATA");
                         return;
                     }
-                    resolve(results);
-                }).catch(err => reject('QUERY_ERR'));
-            }).catch((err) => {
+                    resolve(results[0]);
+                }).catch(error => {
+                    reject('QUERY_ERR');
+                });
+            }).catch(error => {
                 reject('CONNECTION_ERR');
             });
         });
@@ -382,10 +387,8 @@ class Request {
                     reject('CONNECTION_ERR');
                 }
             )
-        })
+        });
     }
-
 }
-
 
 module.exports = new Request();

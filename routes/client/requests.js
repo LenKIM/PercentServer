@@ -20,6 +20,7 @@ router.route('/requests/:requestId')
     .get(getRequestByRequestId)
     .put(editRequestStatusByRequestId)
     .post(reWriteRequest);
+
 /**
  * 요청 다시하기
  * (특정 요청서와 같은 내용의 요청서를
@@ -29,10 +30,9 @@ router.route('/requests/:requestId')
  * @param next
  */
 async function reWriteRequest(req, res, next) {
-    const status = req.body.status;
     const requestId = parseInt(req.params.requestId);
     if (typeof requestId != 'number' || isNaN(requestId)) {
-        res.send({msg: 'wrong parameters'});
+        next('WRONG_PARAMETERS');
         return;
     }
 
@@ -54,26 +54,26 @@ async function reWriteRequest(req, res, next) {
         endTime,
         null,
         null,
-        status
+        '견적접수중'
     );
 
     try {
         const ret1 = await requestService.reWriteRequest(request);
         const insertRequestId = ret1.insertId;
         const ret2 = await requestService.getRequestByRequestId(new Request(insertRequestId));
-        const customerId = ret2[0].customer_id;
+        const customerId = ret2.customer_id;
         const ret3 = await customerService.getCustomer(new Customer(customerId));
-        const customerFCMToken = ret3[0].fcm_token;
+        const customerFCMToken = ret3.fcm_token;
 
-        winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감됩니다.');
-        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function(token, requestId) {
+        winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감됩니다.');
+        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function (token, requestId) {
             fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
-            requestService.finishRequest(requestId, "견적마감");
-            winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감되었습니다.');
+            requestService.finishRequest(requestId, '선택대기중');
+            winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감되었습니다.');
         }.bind(null, customerFCMToken, insertRequestId));
-        res.send({msg: 'success'});
+        res.send({msg: 'SUCCESS'});
     } catch (err) {
-        res.send(err);
+        next(err);
     }
 }
 
@@ -89,11 +89,11 @@ async function editRequestStatusByRequestId(req, res, next) {
     const body = req.body;
     const requestId = parseInt(req.params.requestId);
     const selectedEstimatedId = parseInt(body.selectedEstimateId);
-    const status = body.status;
+    const status = '상담중';
 
-    if (typeof requestId != 'number' || isNaN(requestId) ||
-        typeof selectedEstimatedId != 'number' || isNaN(selectedEstimatedId)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof requestId !== 'number' || isNaN(requestId) ||
+        typeof selectedEstimatedId !== 'number' || isNaN(selectedEstimatedId)) {
+        next('WRONG_PARAMETERS');
         return;
     }
 
@@ -101,9 +101,9 @@ async function editRequestStatusByRequestId(req, res, next) {
         const editResult = await requestService.editRequestStatusByRequestId(requestId, selectedEstimatedId, status);
         const agentToken = await agentService.getAgentTokenByRequestId(requestId);
         const fcmResult = await fcm.sendNotification(agentToken, "상담사님, 알려드립니다.", requestId + "번 요청서가 상담을 원합니다.");
-        res.send({msg: 'success'});
-    } catch (err) {
-        res.send({msg: err});
+        res.send({msg: 'SUCCESS'});
+    } catch (error) {
+        next(error);
     }
 }
 
@@ -113,20 +113,19 @@ async function editRequestStatusByRequestId(req, res, next) {
  * @param res
  * @param next
  */
-function getRequestByRequestId(req, res, next) {
+async function getRequestByRequestId(req, res, next) {
     const requestId = parseInt(req.params.requestId);
     if (typeof requestId != 'number' || isNaN(requestId)) {
-        res.send({msg: 'wrong parameters'});
+        next('WRONG_PARAMETERS');
         return;
     }
 
-    const request = new Request(requestId);
-
-    requestService.getRequestByRequestId(request).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+    try {
+        const results = await requestService.getRequestByRequestId(requestId);
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 /**
@@ -136,14 +135,16 @@ function getRequestByRequestId(req, res, next) {
  * @param res
  * @param next
  */
-function getRequestsByCustomerId(req, res, next) {
-    const customer = new Customer(req.query.customerId);
+async function getRequestsByCustomerId(req, res, next) {
+    const customerId = req.query.customerId;
+    const exceptCompletedRequest = req.query.exceptCompletedRequest == 'true' ? true : false;
 
-    requestService.getRequestsByCustomerId(customer).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+    try {
+        const results = await requestService.getRequestsByCustomerId(customerId, exceptCompletedRequest);
+        res.send({msg: 'SUCCESS', data: results});
+    } catch (error) {
+        next(error);
+    }
 }
 
 /**
@@ -153,14 +154,15 @@ function getRequestsByCustomerId(req, res, next) {
  * @param res
  * @param next
  */
-function getRequestCountAndStatusByCustomerId(req, res, next) {
-    const customer = new Customer(req.query.customerId);
+async function getRequestCountAndStatusByCustomerId(req, res, next) {
+    const customerId = req.query.customerId;
 
-    requestService.getRequestCountAndStatusByCustomerId(customer).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+    try {
+        const results = await requestService.getRequestCountAndStatusByCustomerId(customerId);
+        res.send({msg: 'SUCCESS', data: results});
+    } catch (error) {
+        next(error);
+    }
 }
 /**
  * 요청서 작성하기
@@ -176,11 +178,11 @@ async function writeRequest(req, res, next) {
     const aptSizeSupply = parseFloat(body.aptSizeSupply);
     const aptSizeExclusive = parseFloat(body.aptSizeExclusive);
 
-    if (typeof loanAmount != 'number' || isNaN(loanAmount) ||
-        typeof aptPrice != 'number' || isNaN(aptPrice) ||
-        typeof aptSizeSupply != 'number' || isNaN(aptSizeSupply) ||
-        typeof aptSizeExclusive != 'number' || isNaN(aptSizeExclusive)) {
-        res.send({msg: 'wrong parameters'});
+    if (typeof loanAmount !== 'number' || isNaN(loanAmount) ||
+        typeof aptPrice !== 'number' || isNaN(aptPrice) ||
+        typeof aptSizeSupply !== 'number' || isNaN(aptSizeSupply) ||
+        typeof aptSizeExclusive !== 'number' || isNaN(aptSizeExclusive)) {
+        next('WRONG_PARAMETERS');
         return;
     }
 
@@ -202,7 +204,7 @@ async function writeRequest(req, res, next) {
         endTime,
         null,
         body.jobType,
-        body.status,
+        '견적접수중',
         body.region1,
         body.region2,
         body.region3,
@@ -223,16 +225,16 @@ async function writeRequest(req, res, next) {
         const ret2 = await customerService.editCustomer(customer);
         const ret3 = await customerService.getCustomer(customer);
         const insertRequestId = ret1.insertId;
-        const customerFCMToken = ret3[0].fcm_token;
-        winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감됩니다.');
-        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function(token, requestId) {
+        const customerFCMToken = ret3.fcm_token;
+        winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감됩니다.');
+        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function (token, requestId) {
             fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
-            requestService.finishRequest(requestId, "견적마감");
-            winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감되었습니다.');
+            requestService.finishRequest(requestId, '선택대기중');
+            winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감되었습니다.');
         }.bind(null, customerFCMToken, insertRequestId));
-        res.send({msg: 'success'});
+        res.send({msg: 'SUCCESS'});
     } catch (err) {
-        res.send({msg: err});
+        next(err);
     }
 }
 

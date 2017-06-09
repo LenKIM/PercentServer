@@ -5,12 +5,13 @@ var faqService = require('../../service/faq');
 router.route('/faqs')
     .get(showFAQList);
 
-function showFAQList(req, res, next) {
-    faqService.getFAQs().then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+async function showFAQList(req, res, next) {
+    try {
+        const results = await faqService.getFAQs();
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 module.exports = router;

@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const Agent = require('../../model/agent');
 const agentService = require('../../service/agent');
 
 router.route('/agents/:agentId')
@@ -15,14 +14,15 @@ router.route('/agents/:agentId/reviews')
  * @param res
  * @param next
  */
-function getReviewsByAgentId(req, res, next) {
+async function getReviewsByAgentId(req, res, next) {
     const agentId = req.params.agentId;
 
-    agentService.getReviewsByAgentId(agentId).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+    try {
+        const results = await agentService.getReviewsByAgentId(agentId);
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 /**
@@ -31,14 +31,15 @@ function getReviewsByAgentId(req, res, next) {
  * @param res
  * @param next
  */
-function getAgentByAgentId(req, res, next) {
+async function getAgentByAgentId(req, res, next) {
     const agentId = req.params.agentId;
 
-    agentService.getAgentByAgentId(agentId).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+    try {
+        const results = await agentService.getAgentByAgentId(agentId);
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 module.exports = router;

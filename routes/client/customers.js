@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../../model/customer');
 const customerService = require('../../service/customer');
 
 router.route('/customers')
@@ -16,22 +15,13 @@ router.route('/customers/:customerId')
  * @param res
  * @param next
  */
-function addCustomer(req, res, next) {
-    const body = req.body;
-    const customer = new Customer(
-        body.customerId,
-        null,
-        null,
-        null,
-        null,
-        body.fcmToken
-    );
-
-    customerService.addCustomer(customer).then(results => {
-        res.send({msg: 'success'});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+async function addCustomer(req, res, next) {
+    try {
+        const addResult = await customerService.addCustomer(req.body.customerId, req.body.fcmToken);
+        res.send({msg:'SUCCESS'});
+    } catch(error) {
+        next(error);
+    }
 }
 
 /**
@@ -40,16 +30,13 @@ function addCustomer(req, res, next) {
  * @param res
  * @param next
  */
-function getCustomer(req, res, next) {
-    const customer = new Customer(
-        req.params.customerId
-    );
-
-    customerService.getCustomer(customer).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+async function getCustomer(req, res, next) {
+    try {
+        const results = await customerService.getCustomer(req.params.customerId)
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 module.exports = router;

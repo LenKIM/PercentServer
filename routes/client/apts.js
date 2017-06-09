@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const Apt = require('../../model/apt');
 const aptService = require('../../service/apt');
 
 router.route('/apts/regions1/')
@@ -24,12 +23,13 @@ router.route('/apts/regions1/:region1/regions2/:region2/regions3/:region3/aptNam
  * @param res
  * @param next
  */
-function getRegions1(req, res, next) {
-    aptService.getRegions1().then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+async function getRegions1(req, res, next) {
+    try {
+        const results = await aptService.getRegions1();
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 /**
@@ -38,13 +38,13 @@ function getRegions1(req, res, next) {
  * @param res
  * @param next
  */
-function getRegions2(req, res, next) {
-    const apt = new Apt(null, req.params.region1);
-    aptService.getRegions2(apt).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+async function getRegions2(req, res, next) {
+    try {
+        const results = await aptService.getRegions2(req.params.region1);
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 /**
@@ -53,13 +53,16 @@ function getRegions2(req, res, next) {
  * @param res
  * @param next
  */
-function getRegions3(req, res, next) {
-    const apt = new Apt(null, req.params.region1, req.params.region2);
-    aptService.getRegions3(apt).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+async function getRegions3(req, res, next) {
+    try {
+        const results = await aptService.getRegions3(
+            req.params.region1,
+            req.params.region2
+        );
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 /**
@@ -68,13 +71,17 @@ function getRegions3(req, res, next) {
  * @param res
  * @param next
  */
-function getAptNames(req, res, next) {
-    const apt = new Apt(null, req.params.region1, req.params.region2, req.params.region3);
-    aptService.getAptNames(apt).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+async function getAptNames(req, res, next) {
+    try {
+        const results = await aptService.getAptNames(
+            req.params.region1,
+            req.params.region2,
+            req.params.region3
+        );
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 /**
@@ -83,13 +90,18 @@ function getAptNames(req, res, next) {
  * @param res
  * @param next
  */
-function getAptInfo(req, res, next) {
-    const apt = new Apt(null, req.params.region1, req.params.region2, req.params.region3, req.params.aptName);
-    aptService.getAptInfo(apt).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+async function getAptInfo(req, res, next) {
+    try {
+        const results = await aptService.getAptInfo(
+            req.params.region1,
+            req.params.region2,
+            req.params.region3,
+            req.params.aptName
+        );
+        res.send({msg:'SUCCESS', data: results});
+    } catch(error) {
+        next(error);
+    }
 }
 
 module.exports = router;
