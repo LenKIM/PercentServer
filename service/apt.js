@@ -11,18 +11,15 @@ class Apt {
                 const sql = 'SELECT distinct(region_1) FROM apt';
                 conn.query(sql, []).then(results => {
                     pool.releaseConnection(conn);
-
-                    if (results.length == 0) {
-                        reject("no data");
-                        return;
+                    if(results.length == 0) {
+                        reject("NO_DATA");
                     }
-
                     resolve(results);
-                }).catch((err) => {
-                    reject("sql err");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
-                reject("connection err");
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -32,24 +29,21 @@ class Apt {
      * @param apt
      * @returns {Promise}
      */
-    getRegions2(apt) {
+    getRegions2(region1) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 const sql = 'SELECT distinct(region_2) FROM apt WHERE region_1 = ?';
-                conn.query(sql, [apt.region1]).then(results => {
+                conn.query(sql, [region1]).then(results => {
                     pool.releaseConnection(conn);
-
-                    if (results.length == 0) {
-                        reject("no data");
-                        return;
+                    if(results.length == 0) {
+                        reject("NO_DATA");
                     }
-
                     resolve(results);
-                }).catch((err) => {
-                    reject("sql err");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
-                reject("connection err");
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -59,24 +53,21 @@ class Apt {
      * @param apt
      * @returns {Promise}
      */
-    getRegions3(apt) {
+    getRegions3(region1, region2) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 const sql = 'SELECT distinct(region_3) FROM apt WHERE region_1 = ? AND region_2 = ?';
-                conn.query(sql, [apt.region1, apt.region2]).then(results => {
+                conn.query(sql, [region1, region2]).then(results => {
                     pool.releaseConnection(conn);
-
-                    if (results.length == 0) {
-                        reject("no data");
-                        return;
+                    if(results.length == 0) {
+                        reject("NO_DATA");
                     }
-
                     resolve(results);
-                }).catch((err) => {
-                    reject("sql err");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
-                reject("connection err");
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -86,24 +77,21 @@ class Apt {
      * @param apt
      * @returns {Promise}
      */
-    getAptNames(apt) {
+    getAptNames(region1, region2, region3) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 const sql = 'SELECT distinct(apt_name) FROM apt WHERE region_1 = ? AND region_2 = ? AND region_3 = ?';
-                conn.query(sql, [apt.region1, apt.region2, apt.region3]).then(results => {
+                conn.query(sql, [region1, region2, region3]).then(results => {
                     pool.releaseConnection(conn);
-
-                    if (results.length == 0) {
-                        reject("no data");
-                        return;
+                    if(results.length == 0) {
+                        reject("NO_DATA");
                     }
-
                     resolve(results);
-                }).catch((err) => {
-                    reject("sql err");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
-                reject("connection err");
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }
@@ -113,24 +101,21 @@ class Apt {
      * @param apt
      * @returns {Promise}
      */
-    getAptInfo(apt) {
+    getAptInfo(region1, region2, region3, aptName) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 const sql = 'SELECT * FROM apt WHERE region_1 = ? AND region_2 = ? AND region_3 = ? AND apt_name = ?';
-                conn.query(sql, [apt.region1, apt.region2, apt.region3, apt.aptName]).then(results => {
+                conn.query(sql, [region1, region2, region3, aptName]).then(results => {
                     pool.releaseConnection(conn);
-
-                    if (results.length == 0) {
-                        reject("no data");
-                        return;
+                    if(results.length == 0) {
+                        reject("NO_DATA");
                     }
-
                     resolve(results);
-                }).catch((err) => {
-                    reject("sql err");
+                }).catch(error => {
+                    reject('QUERY_ERR');
                 });
-            }).catch((err) => {
-                reject("connection err");
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }

@@ -184,22 +184,25 @@ class Request {
      * @param customer
      * @returns {Promise}
      */
-    getRequestsByCustomerId(customer) {
+    getRequestsByCustomerId(customerId, exceptCompletedRequest) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = 'SELECT * FROM request WHERE customer_id = ?';
-                conn.query(sql, [customer.customerId]).then(results => {
+                let additionalWhere = ' ';
+                if(exceptCompletedRequest) {
+                    additionalWhere += 'AND STATUS != "대출실행완료"';
+                }
+                var sql = 'SELECT * FROM request WHERE customer_id = ?' + additionalWhere;
+                conn.query(sql, [customerId]).then(results => {
                     pool.releaseConnection(conn);
-
-                    if (results.length == 0) {
-                        reject("no data");
-                        return;
+                    if(results.length == 0) {
+                        reject("NO_DATA");
                     }
-
                     resolve(results);
-                });
-            }).catch((err) => {
-                reject(err);
+                }).catch(error => {
+                    reject('QUERY_ERR');
+                });;
+            }).catch(error => {
+                reject('CONNECTION_ERR');
             });
         });
     }

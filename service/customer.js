@@ -39,7 +39,7 @@ class Customer {
                     resolve(results[0]);
                 }).catch(error => {
                     reject('QUERY_ERR');
-                });;
+                });
             }).catch(error => {
                 reject('CONNECTION_ERR');
             });

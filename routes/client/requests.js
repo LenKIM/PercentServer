@@ -65,11 +65,11 @@ async function reWriteRequest(req, res, next) {
         const ret3 = await customerService.getCustomer(new Customer(customerId));
         const customerFCMToken = ret3[0].fcm_token;
 
-        winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감됩니다.');
-        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function(token, requestId) {
+        winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감됩니다.');
+        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function (token, requestId) {
             fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
             requestService.finishRequest(requestId, "견적마감");
-            winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감되었습니다.');
+            winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감되었습니다.');
         }.bind(null, customerFCMToken, insertRequestId));
         res.send({msg: 'success'});
     } catch (err) {
@@ -136,14 +136,16 @@ function getRequestByRequestId(req, res, next) {
  * @param res
  * @param next
  */
-function getRequestsByCustomerId(req, res, next) {
-    const customer = new Customer(req.query.customerId);
+async function getRequestsByCustomerId(req, res, next) {
+    const customerId = req.query.customerId;
+    const exceptCompletedRequest = req.query.exceptCompletedRequest == 'true' ? true : false;
 
-    requestService.getRequestsByCustomerId(customer).then(results => {
-        res.send({msg: 'success', data: results});
-    }).catch(error => {
-        res.send({msg: error});
-    });
+    try {
+        const results = await requestService.getRequestsByCustomerId(customerId, exceptCompletedRequest);
+        res.send({msg: 'SUCCESS', data: results});
+    } catch (error) {
+        next(error);
+    }
 }
 
 /**
@@ -224,11 +226,11 @@ async function writeRequest(req, res, next) {
         const ret3 = await customerService.getCustomer(customer);
         const insertRequestId = ret1.insertId;
         const customerFCMToken = ret3[0].fcm_token;
-        winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감됩니다.');
-        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function(token, requestId) {
+        winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감됩니다.');
+        var j = schedule.scheduleJob(insertRequestId.toString(), endTime, function (token, requestId) {
             fcm.sendNotification(token, "고객님의 견적이 마감되었습니다.", "내용 없음");
             requestService.finishRequest(requestId, "견적마감");
-            winston.log('info', insertRequestId + '번 요청이 ' + endTime +'에 마감되었습니다.');
+            winston.log('info', insertRequestId + '번 요청이 ' + endTime + '에 마감되었습니다.');
         }.bind(null, customerFCMToken, insertRequestId));
         res.send({msg: 'success'});
     } catch (err) {
