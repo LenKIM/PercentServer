@@ -1,5 +1,6 @@
 /**
  * Created by len on 2017. 6. 6..
+ * 컨설턴드가 어떤 요청서에 대한 견적성을 작성하는 부분
  */
 const express = require('express');
 const router = express.Router();
@@ -41,6 +42,7 @@ async function setRequest(req, res, next) {
     const body = req.body;
 
     const estimate = new Estimate(
+        body.fixedLoanAmount,
         null,
         body.requestId,
         agentId,
