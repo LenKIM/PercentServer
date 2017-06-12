@@ -165,7 +165,7 @@ class Request {
     getRequestByRequestId(requestId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                var sql = 'SELECT * FROM request left join estimate on request.selected_estimate_id = estimate.estimate_id WHERE 1=1 AND request.request_id = ?';
+                var sql = 'SELECT request.*, estimate.*, customer.* FROM request LEFT JOIN estimate ON request.selected_estimate_id = estimate.estimate_id INNER JOIN customer ON request.customer_id = customer.customer_id WHERE request.request_id = ?';
                 conn.query(sql, [requestId]).then(results => {
                     pool.releaseConnection(conn);
                     if (results.length === 0) {
