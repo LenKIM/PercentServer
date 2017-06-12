@@ -251,7 +251,7 @@ class Request {
     // WHERE es.request_id = req.selected_estimate_id AND req.request_id = li.request_id;
 
     /**
-     *
+     * 모집인 아이디에 따라 요청서를 가져온다.
      * @returns {Promise}
      * @param agentId
      */
@@ -289,17 +289,17 @@ class Request {
         })
     }
 
-    addEstimateIntoRequest(estimate) {
+     addEstimateIntoRequest(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
 
-                const sql = "INSERT INTO estimate (request_id, agent_id, item_bank," +
+                const sql = "INSERT INTO estimate (fixed_loan_amount,request_id, agent_id, item_bank," +
                     "item_name, interest_rate, interest_rate_type, repayment_type, " +
                     "overdue_interest_rate_1, overdue_inertest_rate_2, overdue_inertest_rate_3," +
                     "overdue_time_1,overdue_time_2,overdue_time_3,early_repayment_fee) " +
-                    "VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-                conn.query(sql, [estimate.requestId, estimate.agentId, estimate.itemBank,
+                conn.query(sql, [estimate.fixedLoanAmount,estimate.requestId, estimate.agentId, estimate.itemBank,
                     estimate.itemName, estimate.interestRate, estimate.interestRateType,
                     estimate.repaymentType, estimate.overdueInterestRate01, estimate.overdueInterestRate02,
                     estimate.overdueInterestRate03, estimate.overdueTime01, estimate.overdueTime02, estimate.overdueTime03, estimate.earlyRepaymentFee]).then((results) => {
@@ -311,7 +311,7 @@ class Request {
                     }
                     console.log(estimate.agentId + "가 " + estimate.requestId + "에 대한 견적서 작성 완료");
                     resolve(results);
-                }).catch((err) => reject('QUERY_ERR'))
+                }).catch((err) => reject("QUERY_ERR"))
             }).catch((err) => {
                 reject('CONNECTION_ERR');
             });

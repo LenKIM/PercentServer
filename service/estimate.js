@@ -117,7 +117,7 @@ class Estimate {
      * CREATE FUNCTION hellomoney.FUNC_REPAYMENT_AMOUNT_PER_MONTH(loan_amount INT, interest_rate FLOAT, loan_period INT) RETURNS FLOAT
      * BEGIN
      * DECLARE results FLOAT DEFAULT -1;
-     * SET @A = loan_amount;
+     * SET @A = fixed_loan_amount;
      * SET @b = (( interest_rate / 100) / 12);
      * SET @n = loan_period*12;
      * SET @ret = @A*@b*POW(1+@b,@n) / (POW(1+@b,@n)-1);
@@ -131,7 +131,7 @@ class Estimate {
     getEstimateByEstimateId(estimateId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const sql = 'SELECT FUNC_REPAYMENT_AMOUNT_PER_MONTH(request.loan_amount, estimate.interest_rate, request.loan_period) as repayment_amount_per_month, estimate.*, agent.*, request.* FROM estimate, agent, request WHERE 1=1 AND estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
+                const sql = 'SELECT FUNC_REPAYMENT_AMOUNT_PER_MONTH(estimate.fixed_loan_amount, estimate.interest_rate, request.loan_period) as repayment_amount_per_month, estimate.*, agent.*, request.* FROM estimate, agent, request WHERE 1=1 AND estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
                 conn.query(sql, [estimateId]).then(results => {
                     pool.releaseConnection(conn);
                     if (results.length === 0) {
