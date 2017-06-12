@@ -34,7 +34,7 @@ class Review {
             pool.getConnection().then((conn) => {
 
                 const countSql = 'SELECT ' +
-                'count(request.loan_amount * ( ' +
+                'count(estimate.fixed_loan_amount * ( ' +
                         '(SELECT AVG(es.interest_rate) '+
                 'FROM estimate es, request rq ' +
                 'WHERE es.request_id = rq.request_id ' +
@@ -56,7 +56,7 @@ class Review {
                     const offset = pager.count * (pager.page - 1 );
                     //1
                     const AvrSql = 'SELECT '+
-                        'request.loan_amount * (' +
+                        'estimate.fixed_loan_amount * (' +
                         '(SELECT AVG(es.interest_rate) ' +
                         'FROM estimate es, request rq ' +
                         'WHERE es.request_id = rq.request_id ' +
@@ -151,9 +151,8 @@ class Review {
     /**
      *
      * Review_id에 의한 모든 리뷰 정보 목록 가져오기
-     * @param review
-     * @param pager
      * @returns {Promise.<T>}
+     * @param reviewId
      */
     getReviewsByReviewId(reviewId) {
         return new Promise((resolve, reject) => {

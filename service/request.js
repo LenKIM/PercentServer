@@ -159,8 +159,8 @@ class Request {
 
     /**
      * 특정 요청서 상세보기
-     * @param request
      * @returns {Promise}
+     * @param requestId
      */
     getRequestByRequestId(requestId) {
         return new Promise((resolve, reject) => {

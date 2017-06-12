@@ -114,7 +114,7 @@ class Estimate {
      *
      * DELIMITER $$
      * DROP FUNCTION IF EXISTS hellomoney.FUNC_REPAYMENT_AMOUNT_PER_MONTH$$
-     * CREATE FUNCTION hellomoney.FUNC_REPAYMENT_AMOUNT_PER_MONTH(loan_amount INT, interest_rate FLOAT, loan_period INT) RETURNS FLOAT
+     * CREATE FUNCTION hellomoney.FUNC_REPAYMENT_AMOUNT_PER_MONTH(fixed_loan_amount INT, interest_rate FLOAT, loan_period INT) RETURNS FLOAT
      * BEGIN
      * DECLARE results FLOAT DEFAULT -1;
      * SET @A = fixed_loan_amount;

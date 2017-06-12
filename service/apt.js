@@ -27,8 +27,8 @@ class Apt {
 
     /**
      * 시/군/구 목록 불러오기
-     * @param apt
      * @returns {Promise}
+     * @param region1
      */
     getRegions2(region1) {
         return new Promise((resolve, reject) => {
@@ -52,8 +52,9 @@ class Apt {
 
     /**
      * 읍/면/동 목록 불러오기
-     * @param apt
      * @returns {Promise}
+     * @param region1
+     * @param region2
      */
     getRegions3(region1, region2) {
         return new Promise((resolve, reject) => {
@@ -77,8 +78,10 @@ class Apt {
 
     /**
      * 아파트 이름 목록 불러오기
-     * @param apt
      * @returns {Promise}
+     * @param region1
+     * @param region2
+     * @param region3
      */
     getAptNames(region1, region2, region3) {
         return new Promise((resolve, reject) => {
@@ -102,8 +105,11 @@ class Apt {
 
     /**
      * 특정 아파트 정보 목록 불러오기
-     * @param apt
      * @returns {Promise}
+     * @param region1
+     * @param region2
+     * @param region3
+     * @param aptName
      */
     getAptInfo(region1, region2, region3, aptName) {
         return new Promise((resolve, reject) => {
