@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "aws-sdk": "^2.67.0",
     "body-parser": "~1.17.1",
     "cheerio": "^1.0.0-rc.1",
     "cheerio-tableparser": "^1.0.1",
