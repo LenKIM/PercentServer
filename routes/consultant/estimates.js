@@ -66,6 +66,7 @@ async function getEstimatesByAgentId(req, res, next) {
 }
 
 /**
+ * TODO : 내 견적서가 선택된거라면 고객의 전화번호 공개되게끔 쿼리 수정해야 함.
  * 특정 견적서 상세보기
  * @param req
  * @param res

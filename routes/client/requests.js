@@ -116,7 +116,6 @@ async function editRequestStatusByRequestId(req, res, next) {
  * @param next
  */
 async function getRequestByRequestId(req, res, next) {
-
     const requestId = parseInt(req.params.requestId);
     if (typeof requestId != 'number' || isNaN(requestId)) {
         next('WRONG_PARAMETERS');

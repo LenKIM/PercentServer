@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const requestService = require('../../service/request');
-const Estimate = require('../../model/esimate');
+const Estimate = require('../../model/estimate');
 const fcm = require('../../config/fcm');
 const schedule = require('node-schedule');
 

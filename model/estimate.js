@@ -15,7 +15,7 @@ class Estimate {
                 overdueTime1,
                 overdueTime2,
                 overdueTime3,
-                earlyRepaymentFee,) {
+                earlyRepaymentFee) {
         this.fixedLoanAmount = fixedLoanAmount;
         this.estimateId = estimateId;
         this.requestId = requestId;

@@ -24,48 +24,40 @@ router.route('/reviews/request/:requestId')
 router.route('/reviews/:reviewId')
     .get(showReviewByReviewId);
 
-
 router.route('/reviews/collected/:reviewId')
-    .get(showCollectedReview);
+    .get(getEstimatesInterestByReviewId);
 
 router.route('/reviews/calculator/:reviewId')
-    .get(calculatorByReviewId);
+    .get(getEstimatesCountAndAverageInterests);
 
-function showCollectedReview(req, res, next) {
+async function getEstimatesInterestByReviewId(req, res, next) {
     var reviewId = parseInt(req.params.reviewId);
     if(typeof reviewId !== 'number' || isNaN(reviewId)){
         next('WRONG_PARAMETERS');
         return;
     }
 
-    const review = new Review(
-        reviewId,
-        null,
-        null,
-        null,
-        null
-    );
-    reviewService.getCollectedReviews(review).then(results => {
-        res.send({msg : 'SUCCESS', data: results})
-    }).catch(err => {
-        next(err)
-    });
+    try {
+        const results = await reviewService.getEstimatesInterestByReviewId(reviewId);
+        res.send({msg : 'SUCCESS', data: results});
+    } catch (error) {
+        next(error);
+    }
 }
 
-function calculatorByReviewId(req, res, next) {
+async function getEstimatesCountAndAverageInterests(req, res, next) {
+    var reviewId = parseInt(req.params.reviewId);
+    if(typeof reviewId !== 'number' || isNaN(reviewId)){
+        next('WRONG_PARAMETERS');
+        return;
+    }
 
-    const review = new Review(
-        req.params.reviewId,
-        null,
-        null,
-        null,
-        null
-    );
-    reviewService.getEstimateCountAndAvrRate(review).then(results => {
-        res.send({msg : 'SUCCESS', data: results.data})
-    }).catch(err => {
-        next(err)
-    });
+    try {
+        const results = await reviewService.getEstimatesCountAndAverageInterests(reviewId);
+        res.send({msg : 'SUCCESS', data: results});
+    } catch (error) {
+        next(error);
+    }
 }
 
 function showReviewByReviewId(req, res, next) {
