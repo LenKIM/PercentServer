@@ -4,6 +4,8 @@
 const LocalStrategy = require('passport-local').Strategy;
 const pool = require('./mysql');
 
+
+
 module.exports = function(passport) {
 
     /**
