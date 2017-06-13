@@ -1,9 +1,10 @@
 const FCM = require('fcm-node');
 const serverKey = 'AAAAniVF9Xs:APA91bG-Bdhj8GKH4o-hTAGBNCUcXay98SVNNxsAC2bs41NLMs9uj9osWbZcQM66Pi-Oi1m4tgZgBFb6rt9W8YFDUZ3C__xANuMNaAGyLusrpmfKtzemkL9oUh0BjtkzVBi4Nalb9Jw2';
 const fcm = new FCM(serverKey);
+const winston = require('winston');
 
-// TODO : 푸시가 안간다고 앞의 작업들이 취소되면 안된다... ㅠ 고쳐야 함.(TRY CATCH)
 // NotRegistered 관련 : https://stackoverflow.com/questions/26718115/gcm-error-not-registered
+// TODO : 앱을 지웠다 깔면 토큰을 업데이트 하거나 지우게
 FCM.prototype.sendNotification = function (targetToken, notiTitle, notiBody) {
     const message = {
         to: targetToken,
@@ -15,7 +16,10 @@ FCM.prototype.sendNotification = function (targetToken, notiTitle, notiBody) {
 
     return new Promise((resolve, reject) => {
         fcm.send(message, (err, res) => {
-            err ? reject('FCM_ERR') : resolve(res);
+            if(err) {
+                winston.log('info', 'FCM SEND NOTIFICATION ERROR : ' + err);
+            }
+            resolve(res);
         });
     });
 };
@@ -31,7 +35,10 @@ FCM.prototype.sendMulticastNotification = function (targetTokens, notiTitle, not
 
     return new Promise((resolve, reject) => {
         fcm.send(message, (err, res) => {
-            err ? reject('FCM_ERR') : resolve(res);
+            if(err) {
+                winston.log('info', 'FCM SEND MULTICAST NOTIFICATION ERROR :' + err);
+            }
+            resolve(res);
         });
     });
 }
