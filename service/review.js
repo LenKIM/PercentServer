@@ -194,25 +194,20 @@ class Review {
     }
 
     /**
-     * request_id에 해당하는 리뷰 불러오기
+     * request_id에 해당하는 상담사 정보 불러오기
      * @param request
      * @returns {Promise}
      */
     getReviewByRequestId(request) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-
-                const sql = 'SELECT ag.name, ag.company_name, ag.register_number,' +
-                    'req.region_1, req.region_2, req.region_3, req.loan_type,' +
-                    're.content, re.score, re.register_time ' +
-                    'FROM request AS req, agent AS ag, review AS re, estimate AS es ' +
-                    'WHERE re.request_id = req.request_id and req.selected_estimate_id = es.estimate_id and es.agent_id = ag.agent_id ' +
-                    'and req.request_id = ?';
-
+                const sql = 'SELECT agent.* FROM request, estimate, agent WHERE request.selected_estimate_id = estimate.estimate_id AND estimate.agent_id = agent.agent_id AND request.request_id = ?';
                 conn.query(sql, [request.requestId]).then(results => {
-                    resolve(
-                        results[0]
-                    );
+                    if (results.length === 0) {
+                        reject('NO_DATA');
+                        return;
+                    }
+                    resolve(results[0]);
                 }).catch(err => {
                     reject('QUERY_ERR')
                 });

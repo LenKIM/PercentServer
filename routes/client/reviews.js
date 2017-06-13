@@ -13,8 +13,7 @@ router.route('/reviews')
     .post(addReview)
     .get(showReviewList);
 
-//클라이언트가 리뷰화면에서 보여지는 부분
-router.route('/reviews/agent/:requestId')
+router.route('/reviews/agents/:requestId')
     .get(showReviewByRequestId);
 
 router.route('/reviews/request/:requestId')
