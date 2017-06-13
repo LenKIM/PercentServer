@@ -32,7 +32,7 @@ class Review {
     getReviews(page, count, keyword) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const countSql = 'SELECT COUNT(*) FROM estimate, request, review, agent WHERE estimate.estimate_id = request.selected_estimate_id AND request.request_id = review.request_id AND estimate.agent_id = agent.agent_id';
+                const countSql = 'SELECT COUNT(*) as count FROM estimate, request, review, agent WHERE estimate.estimate_id = request.selected_estimate_id AND request.request_id = review.request_id AND estimate.agent_id = agent.agent_id';
                 conn.query(countSql).then(results => {
                     const totalCount = parseInt(results[0].count);
                     const maxPage = Math.floor(totalCount / count);
