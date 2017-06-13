@@ -32,14 +32,14 @@ router.route('/reviews/calculator/:reviewId')
 
 async function getEstimatesInterestByReviewId(req, res, next) {
     var reviewId = parseInt(req.params.reviewId);
-    if(typeof reviewId !== 'number' || isNaN(reviewId)){
+    if (typeof reviewId !== 'number' || isNaN(reviewId)) {
         next('WRONG_PARAMETERS');
         return;
     }
 
     try {
         const results = await reviewService.getEstimatesInterestByReviewId(reviewId);
-        res.send({msg : 'SUCCESS', data: results});
+        res.send({msg: 'SUCCESS', data: results});
     } catch (error) {
         next(error);
     }
@@ -47,14 +47,14 @@ async function getEstimatesInterestByReviewId(req, res, next) {
 
 async function getEstimatesCountAndAverageInterests(req, res, next) {
     var reviewId = parseInt(req.params.reviewId);
-    if(typeof reviewId !== 'number' || isNaN(reviewId)){
+    if (typeof reviewId !== 'number' || isNaN(reviewId)) {
         next('WRONG_PARAMETERS');
         return;
     }
 
     try {
         const results = await reviewService.getEstimatesCountAndAverageInterests(reviewId);
-        res.send({msg : 'SUCCESS', data: results});
+        res.send({msg: 'SUCCESS', data: results});
     } catch (error) {
         next(error);
     }
@@ -64,7 +64,7 @@ function showReviewByReviewId(req, res, next) {
 
     let reviewId = parseInt(req.params.reviewId);
 
-    if(typeof reviewId !== 'number' || isNaN(reviewId)){
+    if (typeof reviewId !== 'number' || isNaN(reviewId)) {
         next('WRONG_PARAMETERS');
         return;
     }
@@ -89,7 +89,7 @@ async function addReview(req, res, next) {
     let content = body.content;
     let score = parseFloat(body.score);
 
-    if(typeof requestId !== 'number' || isNaN(requestId)){
+    if (typeof requestId !== 'number' || isNaN(requestId)) {
         next('WRONG_PARAMETERS');
         return;
     }
@@ -102,23 +102,23 @@ async function addReview(req, res, next) {
         null
     );
 
-try {
-    const getToken = await agentService.getAgentTokenByRequestId(review.requestId);
-    console.log(getToken);
+    try {
+        const getToken = await agentService.getAgentTokenByRequestId(review.requestId);
+        console.log(getToken);
 
-    if(typeof getToken === 'undefined' && getToken === null){
-        next(review.requestId + 'ABOUT NO TOKEN')
+        if (typeof getToken === 'undefined' && getToken === null) {
+            next(review.requestId + 'ABOUT NO TOKEN')
+        }
+
+        await reviewService.addReview(review);
+
+
+        const reviewReceived = await FCM.sendNotification(getToken, "고객이 후기를 남겼습니다.", " 확인해보세요.");
+        res.send('SUCCESS');
+        console.log(reviewReceived + "리뷰 및 푸쉬");
+    } catch (err) {
+        next(err);
     }
-
-    await reviewService.addReview(review);
-
-
-    const reviewReceived =  await FCM.sendNotification(getToken, "고객이 후기를 남겼습니다.", " 확인해보세요.");
-    res.send('SUCCESS');
-    console.log(reviewReceived + "리뷰 및 푸쉬");
-}catch (err){
-    next(err);
-}
 
 }
 
@@ -155,7 +155,7 @@ function showReviewDetailByAgent(req, res, next) {
 function showReviewByRequestId(req, res, next) {
     var requestId = parseInt(req.params.requestId);
 
-    if(typeof requestId !== 'number' || isNaN(requestId)){
+    if (typeof requestId !== 'number' || isNaN(requestId)) {
         next('WRONG PARAMETERS');
     }
 
@@ -176,17 +176,17 @@ function showReviewByRequestId(req, res, next) {
  * @param res
  * @param next
  */
-function showReviewList(req, res, next) {
+async function showReviewList(req, res, next) {
     const page = parseInt(req.query.page) || 1;
     const count = parseInt(req.query.count) || 30;
     const keyword = req.query.keyword;
-    const pager = new Pager(page, count, keyword);
 
-    reviewService.getReviews(pager).then(results => {
+    try {
+        const results = await reviewService.getReviews(page, count, keyword);
         res.send({msg: 'SUCCESS', paging: results.paging, data: results.data});
-    }).catch(err => {
-        next(err);
-    });
+    } catch (error) {
+        next(error);
+    }
 }
 
 module.exports = router;

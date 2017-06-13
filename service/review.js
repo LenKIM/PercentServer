@@ -29,61 +29,26 @@ class Review {
      * @returns {Promise}
      */
 
-    getReviews(pager) {
+    getReviews(page, count, keyword) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-
-                const countSql = 'SELECT ' +
-                    'count(estimate.fixed_loan_amount * ( ' +
-                    '(SELECT AVG(es.interest_rate) ' +
-                    'FROM estimate es, request rq ' +
-                    'WHERE es.request_id = rq.request_id ' +
-                    'AND rq.request_id = request.request_id) - ' +
-                    '(SELECT es.interest_rate ' +
-                    'FROM estimate es, request rq ' +
-                    'WHERE es.estimate_id = rq.selected_estimate_id ' +
-                    'AND rq.request_id = request.request_id))) AS count, ' +
-                    'estimate.*, ' +
-                    'request.*, ' +
-                    'review.* ' +
-                    'FROM estimate, request, review ' +
-                    'WHERE estimate.estimate_id = request.selected_estimate_id ' +
-                    'AND request.request_id = review.request_id;';
-
+                const countSql = 'SELECT COUNT(*) FROM estimate, request, review, agent WHERE estimate.estimate_id = request.selected_estimate_id AND request.request_id = review.request_id AND estimate.agent_id = agent.agent_id';
                 conn.query(countSql).then(results => {
                     const totalCount = parseInt(results[0].count);
-                    const maxPage = Math.floor(totalCount / pager.count);
-                    const offset = pager.count * (pager.page - 1 );
-                    //1
-                    const AvrSql = 'SELECT ' +
-                        'estimate.fixed_loan_amount * (' +
-                        '(SELECT AVG(es.interest_rate) ' +
-                        'FROM estimate es, request rq ' +
-                        'WHERE es.request_id = rq.request_id ' +
-                        'AND rq.request_id = request.request_id) - ' +
-                        '(SELECT es.interest_rate ' +
-                        'FROM estimate es, request rq ' +
-                        'WHERE es.estimate_id = rq.selected_estimate_id ' +
-                        'AND rq.request_id = request.request_id)) AS benefit, ' +
-                        'estimate.*,' +
-                        'request.*,' +
-                        'review.* ' +
-                        'FROM estimate, request, review ' +
-                        'WHERE estimate.estimate_id = request.selected_estimate_id ' +
-                        'AND request.request_id = review.request_id LIMIT ? OFFSET ?';
-
-                    conn.query(AvrSql, [pager.count, offset]).then(results => {
+                    const maxPage = Math.floor(totalCount / count);
+                    const offset = count * (page - 1 );
+                    const AvrSql = 'SELECT estimate.fixed_loan_amount * ((SELECT AVG(es.interest_rate) FROM estimate es, request rq WHERE es.request_id = rq.request_id AND rq.request_id = request.request_id) - (SELECT es.interest_rate FROM estimate es, request rq WHERE es.estimate_id = rq.selected_estimate_id AND rq.request_id = request.request_id)) AS benefit, estimate.*, request.*, review.*, agent.* FROM estimate, request, review, agent WHERE estimate.estimate_id = request.selected_estimate_id AND request.request_id = review.request_id AND estimate.agent_id = agent.agent_id LIMIT ? OFFSET ?';
+                    conn.query(AvrSql, [count, offset]).then(results => {
                         pool.releaseConnection(conn);
-
                         if (results.length === 0) {
                             reject('NO_DATA');
+                            return;
                         }
-
                         const paging = {
                             total: totalCount,
                             maxPage: maxPage,
-                            page: pager.page,
-                            count: pager.count
+                            page: page,
+                            count: count
                         };
                         resolve({
                             paging: paging,
@@ -92,7 +57,10 @@ class Review {
                     }).catch((err) => {
                         reject("QUERY_ERR")
                     });
+                }).catch((err) => {
+                    reject("QUERY_ERR")
                 });
+                ;
             }).catch((err) => {
                 reject('CONNECTION_ERR');
             });
