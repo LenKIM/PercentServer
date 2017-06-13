@@ -9,16 +9,18 @@ class Review {
      * @param review
      * @returns {Promise}
      */
-    addReview(review) {
+    addReview(requestId, content, score) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 const sql = 'INSERT INTO review (request_id, content, score) VALUES (?,?,?)';
-                conn.query(sql, [review.requestId, review.content, review.score]).then(results => {
+                conn.query(sql, [requestId, content, score]).then(results => {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
                     reject('QUERY_ERR');
                 });
+            }).catch((err) => {
+                reject('CONNECTION_ERR');
             });
         });
     }

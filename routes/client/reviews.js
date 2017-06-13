@@ -82,37 +82,24 @@ async function showReviewByReviewId(req, res, next) {
  */
 async function addReview(req, res, next) {
     const body = req.body;
-    let requestId = parseInt(body.requestId);
-    let content = body.content;
-    let score = parseFloat(body.score);
+    const requestId = parseInt(body.requestId);
+    const content = body.content;
+    const score = parseFloat(body.score);
 
-    if (typeof requestId !== 'number' || isNaN(requestId)) {
+    if (typeof requestId !== 'number'
+        || isNaN(requestId)
+        || typeof score !== 'number'
+        || isNaN(score)
+    ) {
         next('WRONG_PARAMETERS');
         return;
     }
 
-    const review = new Review(
-        null,
-        requestId,
-        content,
-        score,
-        null
-    );
-
     try {
-        const getToken = await agentService.getAgentTokenByRequestId(review.requestId);
-        console.log(getToken);
-
-        if (typeof getToken === 'undefined' && getToken === null) {
-            next(review.requestId + 'ABOUT NO TOKEN')
-        }
-
-        await reviewService.addReview(review);
-
-
-        const reviewReceived = await FCM.sendNotification(getToken, "고객이 후기를 남겼습니다.", " 확인해보세요.");
-        res.send('SUCCESS');
-        console.log(reviewReceived + "리뷰 및 푸쉬");
+        const agentToken = await agentService.getAgentTokenByRequestId(requestId);
+        const addResult = await reviewService.addReview(requestId, content, score);
+        const reviewReceived = await FCM.sendNotification(agentToken, "고객이 후기를 남겼습니다.", " 확인해보세요.");
+        res.send({msg: 'SUCCESS'});
     } catch (err) {
         next(err);
     }
