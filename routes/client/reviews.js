@@ -60,21 +60,19 @@ async function getEstimatesCountAndAverageInterests(req, res, next) {
     }
 }
 
-function showReviewByReviewId(req, res, next) {
-
-    let reviewId = parseInt(req.params.reviewId);
-
+async function showReviewByReviewId(req, res, next) {
+    const reviewId = parseInt(req.params.reviewId);
     if (typeof reviewId !== 'number' || isNaN(reviewId)) {
         next('WRONG_PARAMETERS');
         return;
     }
 
-    // review.getEstimateCountAndAvrRate(review).then()
-    reviewService.getReviewsByReviewId(reviewId).then(results => {
+    try {
+        const results = await reviewService.getReviewsByReviewId(reviewId);
         res.send({msg: 'SUCCESS', data: results});
-    }).catch(err => {
-        next(err)
-    });
+    } catch (error) {
+        next(error);
+    }
 }
 
 /**

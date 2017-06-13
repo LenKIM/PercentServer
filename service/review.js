@@ -125,25 +125,20 @@ class Review {
     getReviewsByReviewId(reviewId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                //대출 request 정보와 리뷰 정보를 보여줌.
-
-                const sql = 'SELECT ag.name, ag.company_name, ag.register_number,' +
-                    'req.loan_type, re.content, re.score, re.register_time, req.loan_period,' +
-                    'req.region_1, req.region_2, req.region_3, req.apt_name, req.apt_size_supply, req.apt_size_exclusive, req.loan_amount, ' +
-                    'req.overdue_record, req.interest_rate_type, req.loan_reason, req.job_type, req.scheduled_time, req.extra ' +
-                    'FROM review AS re, request AS req, estimate AS es, agent AS ag WHERE re.request_id = req.request_id and req.selected_estimate_id = es.estimate_id and es.agent_id = ag.agent_id and re.review_id = ?';
-
+                const sql = 'SELECT review.*, estimate.*, request.*, agent.* FROM estimate, request, review, agent WHERE estimate.estimate_id = request.selected_estimate_id AND request.request_id = review.request_id AND estimate.agent_id = agent.agent_id AND review.review_id = ?';
                 conn.query(sql, [reviewId]).then(results => {
                     pool.releaseConnection(conn);
-                    resolve(
-                        results[0]
-                    );
+                    if (results.length === 0) {
+                        reject('NO_DATA');
+                        return;
+                    }
+                    resolve(results[0]);
+                }).catch((err) => {
+                    reject('QUERY_ERR')
                 });
-            }).catch(err => {
-                reject('QUERY_ERR')
+            }).catch((err) => {
+                reject('CONNECTION_ERR');
             });
-        }).catch((err) => {
-            reject('CONNECTION_ERR');
         });
     }
 
