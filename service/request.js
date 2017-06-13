@@ -194,7 +194,7 @@ class Request {
                 if (exceptCompletedRequest) {
                     additionalWhere += 'AND STATUS != "대출실행완료"';
                 }
-                var sql = 'SELECT count(estimate.estimate_id) AS estimate_count, request.* FROM request LEFT JOIN estimate ON request.request_id = estimate.request_id WHERE request.customer_id = ? ' + additionalWhere + ' GROUP BY estimate.request_id';
+                var sql = 'SELECT count(estimate.estimate_id) AS estimate_count, request.* FROM request LEFT JOIN estimate ON request.request_id = estimate.request_id WHERE request.customer_id = ? ' + additionalWhere + ' GROUP BY request.request_id';
                 conn.query(sql, [customerId]).then(results => {
                     pool.releaseConnection(conn);
                     if (results.length === 0) {
