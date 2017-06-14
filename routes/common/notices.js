@@ -42,7 +42,7 @@ async function showNoticeDetail(req, res, next) {
 
     try {
         const results = await noticeService.getNotice(noticeId);
-        res.send({msg:'SUCCESS', paging : results});
+        res.send({msg:'SUCCESS', data : results});
     } catch(error) {
         next(error);
     }
