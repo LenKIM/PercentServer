@@ -178,13 +178,9 @@ async function writeRequest(req, res, next) {
     const customerId = body.customerId;
     const loanAmount = parseInt(body.loanAmount);
     const aptPrice = parseInt(body.aptPrice);
-    const aptSizeSupply = parseFloat(body.aptSizeSupply);
-    const aptSizeExclusive = parseFloat(body.aptSizeExclusive);
 
     if (typeof loanAmount !== 'number' || isNaN(loanAmount) ||
-        typeof aptPrice !== 'number' || isNaN(aptPrice) ||
-        typeof aptSizeSupply !== 'number' || isNaN(aptSizeSupply) ||
-        typeof aptSizeExclusive !== 'number' || isNaN(aptSizeExclusive)) {
+        typeof aptPrice !== 'number' || isNaN(aptPrice)) {
         next('WRONG_PARAMETERS');
         return;
     }
@@ -214,8 +210,8 @@ async function writeRequest(req, res, next) {
         body.aptName,
         body.aptKBId,
         aptPrice,
-        aptSizeSupply,
-        aptSizeExclusive
+        body.aptSizeSupply,
+        body.aptSizeExclusive
     );
 
     const customer = new Customer(
