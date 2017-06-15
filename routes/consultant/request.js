@@ -74,7 +74,7 @@ async function setRequest(req, res, next) {
             await fcm.sendNotification(customer[0].fcm_token, '새 대출견적이 등록되었습니다.', " 확인해보세요.");
             console.log(customer[0].customer_id + "에게" + "토큰 번호 :" + customer[0].fcm_token + "으로 " + countRequest[0].estimate_count + "개 알림 전송 완료");
 
-            res.send('SUCCESS');
+            res.send({msg: 'SUCCESS'});
 
         }else if(countRequest[0].estimate_count === 10) {
 
@@ -92,7 +92,7 @@ async function setRequest(req, res, next) {
             const scheduled = schedule.scheduledJobs;
             if (scheduled[body.requestId.toString()] !== null)
                 scheduled[body.requestId.toString()].cancel();
-            res.send('SUCCESS');
+            res.send({msg: 'SUCCESS'});
         } else {
             next('ESTIMATE_COUNT_EXCEED');
         }
