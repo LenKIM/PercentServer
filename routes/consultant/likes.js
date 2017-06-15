@@ -17,7 +17,7 @@ async function LikeRequest(req, res, next) {
 
     try {
         const results = await likeService.LikeRequest(agentId, requestId);
-        res.send('SUCCESS');
+        res.send({msg:'SUCCESS'});
     } catch (error) {
         next(error)
     }
@@ -34,7 +34,7 @@ async function unLikeRequest(req, res, next) {
 
     try {
         const results = await likeService.unLikeRequest(agentId, requestId);
-        res.send('SUCCESS');
+        res.send({msg:'SUCCESS'});
     } catch (error) {
         next(error)
     }
