@@ -270,7 +270,7 @@ class Request {
                     'request.*, ' +
                     'estimate.* ' +
                     'from request ' +
-                    'left join estimate on request.request_id = estimate.request_id' +
+                    'left join estimate on request.request_id = estimate.request_id ' +
                     'group by request.request_id ';
 
                 conn.query(sql, [agentId]).then((results) => {
