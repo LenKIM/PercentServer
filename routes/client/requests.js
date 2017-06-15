@@ -244,7 +244,9 @@ async function writeRequest(req, res, next) {
  * startHour부터 endHour까지 영업시간
  * 현재시간으로부터 elapseHour만큼 뒤의 시간을 반환
  * 영업시간이 아니라면 그 다음날로 넘긴다.
- * CF) RDS MYSQL PARAMETERS GROUP의 TIME_ZONE을 SEOUL로 바꿔야 한다.
+ * CF1) RDS MYSQL PARAMETERS GROUP의 TIME_ZONE을 SEOUL로 바꿔야 한다.
+ * CF2) EC2의 TIMEZONE도 한국으로 바꿔야 한다
+ * http://ora-sysdba.tistory.com/entry/Cloud-Computing-Amazon-EC2-%EC%9D%B8%EC%8A%A4%ED%84%B4%EC%8A%A4%EC%9D%98-TIMEZONE-%EB%B3%80%EA%B2%BD
  * @param startHour
  * @param endHour
  * @param elapseHour
