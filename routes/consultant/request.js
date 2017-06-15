@@ -93,23 +93,19 @@ async function setRequest(req, res, next) {
             if (scheduled[body.requestId.toString()] !== null)
                 scheduled[body.requestId.toString()].cancel();
             res.send('SUCCESS');
+        } else {
+            next('ESTIMATE_COUNT_EXCEED');
         }
-        // } else {
-        // res.send({ msg : 'success', data: addEstimate});
-        // }
-
     } catch (err){
-        next(err)
+        next(err);
     }
 }
 
 async function getRequests(req, res, next) {
-
     const agentId = req.params.agentId;
 
     try {
         const results = await requestService.getRequestConsultantRequestByStatus(agentId);
-
         res.send({ msg : 'SUCCESS', data: results});
     }catch (err){
         next(err)
