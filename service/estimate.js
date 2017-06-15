@@ -80,7 +80,7 @@ class Estimate {
     getEstimatesByAgentId(agentId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const sql = 'SELECT * FROM estimate WHERE estimate.agent_id = ?';
+                const sql = 'SELECT * FROM estimate, request WHERE request.request_id = estimate.request_id and estimate.agent_id = ?';
                 conn.query(sql, [agentId]).then(results => {
                     pool.releaseConnection(conn);
                     if (results.length === 0) {
