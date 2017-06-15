@@ -269,9 +269,8 @@ class Request {
                     'and like_request.request_id = request.request_id), 1, 0) as favorite, ' +
                     'request.*, ' +
                     'estimate.* ' +
-                    'from request, estimate ' +
-                    'where 1=1 ' +
-                    'and request.request_id = estimate.request_id ' +
+                    'from request ' +
+                    'left join estimate on request.request_id = estimate.request_id' +
                     'group by request.request_id ';
 
                 conn.query(sql, [agentId]).then((results) => {
