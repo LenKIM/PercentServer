@@ -295,7 +295,7 @@ class Request {
 
                 const sql = "INSERT INTO estimate (fixed_loan_amount,request_id, agent_id, item_bank," +
                     "item_name, interest_rate, interest_rate_type, repayment_type, " +
-                    "overdue_interest_rate_1, overdue_inertest_rate_2, overdue_inertest_rate_3," +
+                    "overdue_interest_rate_1, overdue_interest_rate_2, overdue_interest_rate_3," +
                     "overdue_time_1,overdue_time_2,overdue_time_3,early_repayment_fee) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
