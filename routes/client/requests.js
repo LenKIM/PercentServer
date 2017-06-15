@@ -244,6 +244,7 @@ async function writeRequest(req, res, next) {
  * startHour부터 endHour까지 영업시간
  * 현재시간으로부터 elapseHour만큼 뒤의 시간을 반환
  * 영업시간이 아니라면 그 다음날로 넘긴다.
+ * CF) RDS MYSQL PARAMETERS GROUP의 TIME_ZONE을 SEOUL로 바꿔야 한다.
  * @param startHour
  * @param endHour
  * @param elapseHour
