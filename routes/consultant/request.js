@@ -113,10 +113,9 @@ async function getRequests(req, res, next) {
 }
 
 async function getRequestByRequestId(req, res, next) {
-
     const requestId = req.params.requestId;
     const agentId = req.params.agentId;
-    //TODO 클라이언트단에서 만약 갯수가 2개면 안보인다고 말하기.
+
     try {
         const results = await requestService.getRequestConsultantByRequestID(requestId, agentId);
         res.send({msg: 'SUCCESS', data : results})

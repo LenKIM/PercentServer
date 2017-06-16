@@ -12,9 +12,10 @@ router.route('/estimates/:estimateId')
     .put(editRequestStatusByEstimateId);
 
 /**
- * TODO : 필요없는듯
- * 상담사가 고객의 상담 요청을 확인하기.
- * 요청서 상태를 변경하고 해당 고객에게 푸시 보내기.
+ * 요청서의 상태를 변경하기
+ * 상담중 => 심사중
+ * 심사중 => 승인완료
+ * 승인완료 => 대출실행완료
  * @param req
  * @param res
  * @param next
@@ -30,11 +31,8 @@ async function editRequestStatusByEstimateId(req, res, next) {
 
     try {
         const editResult = await requestService.editRequestStatusByEstimateId(estimateId, status);
-        console.log(editResult);
         const customerToken = await requestService.getCustomerTokenByEstimateId(estimateId);
-        console.log(customerToken);
         const fcmResult = await fcm.sendNotification(customerToken, "고객님 알려드립니다.", "상담사께서 고객의 상담요청을 받았습니다. 전화번호가 곧 공개됩니다.");
-        console.log(fcmResult);
         res.send({msg: "SUCCESS"});
     } catch (e) {
         next(e)
@@ -51,8 +49,8 @@ async function editRequestStatusByEstimateId(req, res, next) {
 async function getEstimatesByAgentId(req, res, next) {
     const agentId = req.query.agentId;
 
-    if(typeof agentId === 'undefined'){
-        next('WRONG_PARAMETERS');
+    if (typeof agentId === 'undefined') {
+        next('WRONG_PARAMETERS')
         return;
     }
 
