@@ -6,7 +6,8 @@ router.route('/customers')
     .post(addCustomer);
 
 router.route('/customers/:customerId')
-    .get(getCustomer);
+    .get(getCustomer)
+    .put(updateCustomerFcmToken);
 
 /**
  * 고객 추가하기
@@ -35,6 +36,22 @@ async function getCustomer(req, res, next) {
         const results = await customerService.getCustomer(req.params.customerId)
         res.send({msg:'SUCCESS', data: results});
     } catch(error) {
+        next(error);
+    }
+}
+
+/**
+ * FCM TOKEN 업데이트
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise.<void>}
+ */
+async function updateCustomerFcmToken(req, res, next) {
+    try {
+        const results = await customerService.updateCustomerFcmToken(req.params.customerId, req.body.fcmToken);
+        res.send({msg:'SUCCESS'});
+    } catch (error) {
         next(error);
     }
 }

@@ -68,6 +68,22 @@ class Customer {
             });
         });
     }
+
+    updateCustomerFcmToken(customerId, fcmToken) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection().then((conn) => {
+                var sql = 'UPDATE customer SET fcm_token = ? WHERE customer_id = ?';
+                conn.query(sql, [fcmToken, customerId]).then(results => {
+                    pool.releaseConnection(conn);
+                    resolve(results);
+                }).catch(error => {
+                    reject('QUERY_ERR');
+                });
+            }).catch(error => {
+                reject('CONNECTION_ERR');
+            });
+        });
+    }
 }
 
 module.exports = new Customer();
