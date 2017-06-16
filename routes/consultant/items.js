@@ -5,7 +5,7 @@ const Item = require('../../model/item');
 const itemService = require('../../service/item');
 
 router.route('/items')
-    .get(getItemsByAgentId)
+    .get(getItemsByAgentIdAndLoanType)
     .post(addItem);
 
 router.route('/items/:itemId')
@@ -16,13 +16,14 @@ router.route('/items/:itemId')
 /**
  * 대출 상품 리스트 목록 조회
  */
-async function getItemsByAgentId(req, res, next) {
+async function getItemsByAgentIdAndLoanType(req, res, next) {
     const page = parseInt(req.query.page) || 1;
     const count = parseInt(req.query.count) || 30;
     const agentId = req.query.agentId;
+    const loanType = req.query.loanType;
 
     try {
-        const results = await itemService.getItems(agentId, page, count);
+        const results = await itemService.getItems(agentId, loanType, page, count);
         res.send({msg: 'SUCCESS', paging : results.paging, data: results.data });
     } catch (error) {
         next(error);

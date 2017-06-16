@@ -17,16 +17,16 @@ class Item {
         });
     }
 
-    getItems(agentId, page, count) {
+    getItems(agentId, loanType, page, count) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const countSql = 'SELECT count(*) as count FROM item, agent WHERE item.agent_id = agent.agent_id AND agent.agent_id = ?';
-                conn.query(countSql, [agentId]).then(results => {
+                const countSql = 'SELECT count(*) as count FROM item WHERE item.agent_id = ? AND item.loan_type = ?';
+                conn.query(countSql, [agentId, loanType]).then(results => {
                     const totalCount = parseInt(results[0].count);
                     const maxPage = Math.floor(totalCount / count);
                     const offset = count * (page - 1);
-                    const sql = 'SELECT * FROM item, agent WHERE item.agent_id = agent.agent_id AND agent.agent_id = ? LIMIT ? OFFSET ?';
-                    conn.query(sql, [agentId, count, offset]).then(results => {
+                    const sql = 'SELECT count(*) as count FROM item WHERE item.agent_id = ? AND item.loan_type = ? LIMIT ? OFFSET ?';
+                    conn.query(sql, [agentId, loanType, count, offset]).then(results => {
                         pool.releaseConnection(conn);
                         let paging = {
                             total: totalCount,
