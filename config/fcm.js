@@ -4,7 +4,6 @@ const fcm = new FCM(serverKey);
 const winston = require('winston');
 
 // NotRegistered 관련 : https://stackoverflow.com/questions/26718115/gcm-error-not-registered
-// TODO : 앱을 지웠다 깔면 토큰을 업데이트 하거나 지우게
 FCM.prototype.sendNotification = function (targetToken, notiTitle, notiBody) {
     const message = {
         to: targetToken,

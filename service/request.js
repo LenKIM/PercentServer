@@ -34,7 +34,7 @@ class Request {
     getCustomerTokenByEstimateId(estimateId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                var sql = 'SELECT customer.fcm_token FROM customer WHERE customer.customer_id = (SELECT customer_id FROM request WHERE selected_estimate_id = ?)';
+                var sql = 'SELECT customer.fcm_token FROM customer, request WHERE customer.customer_id = request.customer_id AND request.selected_estimate_id = ?';
                 conn.query(sql, [estimateId]).then(results => {
                     pool.releaseConnection(conn);
                     if (results.length === 0) {
@@ -52,8 +52,7 @@ class Request {
     }
 
     /**
-     * 상담사가 고객의 상담 요청을 받고
-     * 확인하기 ( 상담 중 상태)
+     * 요청서 상태 변경하기
      * @returns {Promise}
      * @param estimateId
      * @param status
