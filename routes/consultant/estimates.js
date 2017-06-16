@@ -52,7 +52,7 @@ async function getEstimatesByAgentId(req, res, next) {
     const agentId = req.query.agentId;
 
     if(typeof agentId === 'undefined'){
-        next('WRONG_PARAMETERS')
+        next('WRONG_PARAMETERS');
         return;
     }
 
