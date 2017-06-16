@@ -25,7 +25,7 @@ class Item {
                     const totalCount = parseInt(results[0].count);
                     const maxPage = Math.floor(totalCount / count);
                     const offset = count * (page - 1);
-                    const sql = 'SELECT count(*) as count FROM item WHERE item.agent_id = ? AND item.loan_type = ? LIMIT ? OFFSET ?';
+                    const sql = 'SELECT * FROM item WHERE item.agent_id = ? AND item.loan_type = ? LIMIT ? OFFSET ?';
                     conn.query(sql, [agentId, loanType, count, offset]).then(results => {
                         pool.releaseConnection(conn);
                         let paging = {
