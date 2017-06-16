@@ -241,9 +241,12 @@ async function doIt() {
                     }
                 }
             }
+            request.end();
         }
     } catch (err) {
         console.log("Fail : " + err);
         throw err;
     }
 }
+
+doIt();
