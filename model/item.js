@@ -6,30 +6,31 @@ class Item {
                 maxInterestRate,
                 interestRateType,
                 repaymentType,
-                overdueInterestRate01,
-                overdueInterestRate02,
-                overdueInterestRate03,
-                overdueTime01,
-                overdueTime02,
-                overdueTime03,
-                earlyRepaymentFee) {
+                overdueInterestRate1,
+                overdueInterestRate2,
+                overdueInterestRate3,
+                overdueTime1,
+                overdueTime2,
+                overdueTime3,
+                earlyRepaymentFee,
+                loanType
+    ) {
         this.itemId = itemId;
-        //agent_id 외래키로 존재한다.
         this.itemBank = itemBank;
         this.itemName = itemName;
-        this.minInterestrate = minInterestRate;
-        this.maxInterestrate = maxInterestRate;
+        this.minInterestRate = minInterestRate;
+        this.maxInterestRate = maxInterestRate;
         this.interestRateType = interestRateType;
         this.repaymentType = repaymentType;
-        this.overdueInterestRate01 = overdueInterestRate01;
-        this.overdueInterestRate02 = overdueInterestRate02;
-        this.overdueInterestRate03 = overdueInterestRate03;
-        this.overdueTime01 = overdueTime01;
-        this.overdueTime02 = overdueTime02;
-        this.overdueTime03 = overdueTime03;
+        this.overdueInterestRate1 = overdueInterestRate1;
+        this.overdueInterestRate2 = overdueInterestRate2;
+        this.overdueInterestRate3 = overdueInterestRate3;
+        this.overdueTime1 = overdueTime1;
+        this.overdueTime2 = overdueTime2;
+        this.overdueTime3 = overdueTime3;
         this.earlyRepaymentFee = earlyRepaymentFee;
+        this.loanType = loanType;
     }
-
 }
 
 

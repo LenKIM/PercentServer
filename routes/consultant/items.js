@@ -41,17 +41,18 @@ async function addItem(req, res, next) {
         null,
         body.itemBank,
         body.itemName,
-        body.minInterestrate,
-        body.maxInterestrate,
+        body.minInterestRate,
+        body.maxInterestRate,
         body.interestRateType,
         body.repaymentType,
-        body.overdueInterestRate01,
-        body.overdueInterestRate02,
-        body.overdueInterestRate03,
-        body.overdueTime01,
-        body.overdueTime02,
-        body.overdueTime03,
-        body.earlyRepaymentFee
+        body.overdueInterestRate1,
+        body.overdueInterestRate2,
+        body.overdueInterestRate3,
+        body.overdueTime1,
+        body.overdueTime2,
+        body.overdueTime3,
+        body.earlyRepaymentFee,
+        body.loanType,
     );
 
     try {
@@ -85,17 +86,18 @@ async function editItem(req, res, next) {
         req.params.itemId,
         body.itemBank,
         body.itemName,
-        body.minInterestrate,
-        body.maxInterestrate,
+        body.minInterestRate,
+        body.maxInterestRate,
         body.interestRateType,
         body.repaymentType,
-        body.overdueInterestRate01,
-        body.overdueInterestRate02,
-        body.overdueInterestRate03,
-        body.overdueTime01,
-        body.overdueTime02,
-        body.overdueTime03,
-        body.earlyRepaymentFee
+        body.overdueInterestRate1,
+        body.overdueInterestRate2,
+        body.overdueInterestRate3,
+        body.overdueTime1,
+        body.overdueTime2,
+        body.overdueTime3,
+        body.earlyRepaymentFee,
+        body.loanType
     );
 
     try {

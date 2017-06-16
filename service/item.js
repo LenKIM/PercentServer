@@ -60,22 +60,23 @@ class Item {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 pool.releaseConnection(conn);
-                const sql = 'INSERT INTO item (agent_id, item_bank, item_name, min_interest_rate, max_interest_rate, interest_rate_type, repayment_type, overdue_interest_rate_1, overdue_interest_rate_2, overdue_interest_rate_3, overdue_time_1, overdue_time_2, overdue_time_3, early_repayment_fee) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+                const sql = 'INSERT INTO item (agent_id, item_bank, item_name, min_interest_rate, max_interest_rate, interest_rate_type, repayment_type, overdue_interest_rate_1, overdue_interest_rate_2, overdue_interest_rate_3, overdue_time_1, overdue_time_2, overdue_time_3, early_repayment_fee, loan_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 conn.query(sql, [
                     agent.agentId,
                     item.itemBank,
                     item.itemName,
-                    item.minInterestrate,
-                    item.maxInterestrate,
+                    item.minInterestRate,
+                    item.maxInterestRate,
                     item.interestRateType,
                     item.repaymentType,
-                    item.overdueInterestRate01,
-                    item.overdueInterestRate02,
-                    item.overdueInterestRate03,
-                    item.overdueTime01,
-                    item.overdueTime02,
-                    item.overdueTime03,
-                    item.earlyRepaymentFee
+                    item.overdueInterestRate1,
+                    item.overdueInterestRate2,
+                    item.overdueInterestRate3,
+                    item.overdueTime1,
+                    item.overdueTime2,
+                    item.overdueTime3,
+                    item.earlyRepaymentFee,
+                    item.loanType
                 ]).then(results => {
                     resolve(results);
                 }).catch(err => {
@@ -91,21 +92,22 @@ class Item {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
                 pool.releaseConnection(conn);
-                const sql = 'UPDATE item SET item_bank = ?, item_name = ?, min_interest_rate = ?, max_interest_rate = ?, interest_rate_type = ?, repayment_type = ?, overdue_interest_rate_1 = ?, overdue_interest_rate_2 = ?, overdue_interest_rate_3 = ?, overdue_time_1 = ?, overdue_time_2 = ?, overdue_time_3 = ?, early_repayment_fee = ? WHERE item_id = ?';
+                const sql = 'UPDATE item SET item_bank = ?, item_name = ?, min_interest_rate = ?, max_interest_rate = ?, interest_rate_type = ?, repayment_type = ?, overdue_interest_rate_1 = ?, overdue_interest_rate_2 = ?, overdue_interest_rate_3 = ?, overdue_time_1 = ?, overdue_time_2 = ?, overdue_time_3 = ?, early_repayment_fee = ?, loan_type = ? WHERE item_id = ?';
                 conn.query(sql, [
                     item.itemBank,
                     item.itemName,
-                    item.minInterestrate,
-                    item.maxInterestrate,
+                    item.minInterestRate,
+                    item.maxInterestRate,
                     item.interestRateType,
                     item.repaymentType,
-                    item.overdueInterestRate01,
-                    item.overdueInterestRate02,
-                    item.overdueInterestRate03,
-                    item.overdueTime01,
-                    item.overdueTime02,
-                    item.overdueTime03,
+                    item.overdueInterestRate1,
+                    item.overdueInterestRate2,
+                    item.overdueInterestRate3,
+                    item.overdueTime1,
+                    item.overdueTime2,
+                    item.overdueTime3,
                     item.earlyRepaymentFee,
+                    item.loanType,
                     item.itemId
                 ]).then(results => {
                     resolve(results);
