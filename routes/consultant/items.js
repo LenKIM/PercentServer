@@ -52,7 +52,7 @@ async function addItem(req, res, next) {
         body.overdueTime2,
         body.overdueTime3,
         body.earlyRepaymentFee,
-        body.loanType,
+        body.loanType
     );
 
     try {
