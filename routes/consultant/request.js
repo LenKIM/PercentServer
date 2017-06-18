@@ -42,8 +42,8 @@ async function setRequest(req, res, next) {
     const body = req.body;
 
     const estimate = new Estimate(
-        body.fixedLoanAmount,
         null,
+        body.fixedLoanAmount,
         body.requestId,
         agentId,
         null,
