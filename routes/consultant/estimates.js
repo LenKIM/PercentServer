@@ -32,7 +32,20 @@ async function editRequestStatusByEstimateId(req, res, next) {
     try {
         const editResult = await requestService.editRequestStatusByEstimateId(estimateId, status);
         const customerToken = await requestService.getCustomerTokenByEstimateId(estimateId);
-        const fcmResult = await fcm.sendNotification(customerToken, "고객님 알려드립니다.", "상담사께서 고객의 상담요청을 받았습니다. 전화번호가 곧 공개됩니다.");
+        let title = "고객님 알려드립니다.";
+        let content;
+        switch (status) {
+            case "심사중":
+                content = "대출 심사 중입니다.";
+                break;
+            case "승인완료":
+                content = "대출이 승인되었습니다.";
+                break;
+            case "대출실행완료":
+                content = "대출이 실행되었습니다.";
+                break;
+        }
+        const fcmResult = await fcm.sendNotification(customerToken, title, content);
         res.send({msg: "SUCCESS"});
     } catch (e) {
         next(e)
