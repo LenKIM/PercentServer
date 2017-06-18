@@ -62,24 +62,28 @@ async function setRequest(req, res, next) {
     );
 
     try {
-        const addResults = await requestService.addEstimateIntoRequest(estimate);
-        console.log(addResults);
+        const addResults = await requestService. addEstimateIntoRequest(estimate);
         const countRequest = await requestService.getRequestConsultantByRequestID(body.requestId, agentId);
-        console.log(countRequest);
         const customer = await requestService.getCustomerIdAndToken(body.requestId);
-        console.log(customer);
+        if(countRequest.estimate_count >= 1 && countRequest.estimate_count < 10) {
 
-        if(countRequest[0].estimate_count >= 1 && countRequest[0].estimate_count < 10) {
-            if (customer[0].fcm_token.length === 0) {
+            if (customer[0].fcm_token.length == 0) {
                 next('NO_FCM_TOKEN');
                 return;
             }
-            await fcm.sendNotification(customer[0].fcm_token, '새 대출견적이 등록되었습니다.', " 확인해보세요.");
-            console.log(customer[0].customer_id + "에게" + "토큰 번호 :" + customer[0].fcm_token + "으로 " + countRequest[0].estimate_count + "개 알림 전송 완료");
+            const result = await fcm.sendNotification(customer[0].fcm_token, '새 대출견적이 등록되었습니다.', " 확인해보세요.");
+            // FCM 없을 때 반환 NULL로 되고
+            // 아래와 같은 에러 발생함
+            /*
+             info: FCM SEND NOTIFICATION ERROR :
+             {"multicast_id":5775297949462949018,"success":0,"failure":1,"canonical_ids":0,"results":[{"error":"InvalidRegistration"}]}
+             */
+            console.log(result);
+            console.log(customer[0].customer_id + "에게" + "토큰 번호 :" + customer[0].fcm_token + "으로 " + countRequest.estimate_count + "개 알림 전송 완료");
 
             res.send({msg: 'SUCCESS'});
 
-        }else if(countRequest[0].estimate_count === 10) {
+        }else if(countRequest.estimate_count == 10) {
 
             if (customer[0].fcm_token.length === 0) {
                 next('NO_FCM_TOKEN');

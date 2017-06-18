@@ -278,14 +278,45 @@ class Request {
         })
     }
 
+    // ss Estimate {
+    // constructor(estimateId,
+    //             fixedLoanAmount,
+    //             requestId,
+    //             agentId,
+    //             registerTime,
+    //             itemBank,
+    //             itemName,
+    //             interestRate,
+    //             interestRateType,
+    //             repaymentType,
+    //             overdueInterestRate1,
+    //             overdueInterestRate2,
+    //             overdueInterestRate3,
+    //             overdueTime1,
+    //             overdueTime2,
+    //             overdueTime3,
+    //             earlyRepaymentFee) {
+
      addEstimateIntoRequest(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-
-                const sql = "INSERT INTO estimate (fixed_loan_amount,request_id, agent_id, item_bank," +
-                    "item_name, interest_rate, interest_rate_type, repayment_type, " +
-                    "overdue_interest_rate_1, overdue_interest_rate_2, overdue_interest_rate_3," +
-                    "overdue_time_1,overdue_time_2,overdue_time_3,early_repayment_fee) " +
+                console.log("GGGGG");
+                const sql = "INSERT INTO estimate (" +
+                    "fixed_loan_amount," +
+                    "request_id," +
+                    "agent_id," +
+                    "item_bank," +
+                    "item_name," +
+                    "interest_rate," +
+                    "interest_rate_type," +
+                    "repayment_type," +
+                    "overdue_interest_rate_1," +
+                    "overdue_interest_rate_2," +
+                    "overdue_interest_rate_3," +
+                    "overdue_time_1," +
+                    "overdue_time_2," +
+                    "overdue_time_3," +
+                    "early_repayment_fee) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
                 conn.query(sql, [
                     estimate.fixedLoanAmount,
@@ -312,7 +343,7 @@ class Request {
                     }
                     console.log(estimate.agentId + "가 " + estimate.requestId + "에 대한 견적서 작성 완료");
                     resolve(results);
-                }).catch((err) => reject("QUERY_ERR"))
+                }).catch((err) => reject("QUERY_ERR" + err))
             }).catch((err) => {
                 reject('CONNECTION_ERR');
             });
@@ -337,7 +368,7 @@ class Request {
                     }
                     resolve(results[0]);
                 }).catch((err) => {
-                    reject('QUERY_ERR')
+                    reject('QUERY_ERR' + err)
                 });
             }).catch((err) => {
                 reject('CONNECTION_ERR');
