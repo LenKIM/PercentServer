@@ -10,6 +10,10 @@ FCM.prototype.sendNotification = function (targetToken, notiTitle, notiBody) {
         notification: {
             title: notiTitle,
             body: notiBody
+        },
+        data : {
+            title: notiTitle,
+            body: notiBody
         }
     };
 
@@ -27,6 +31,10 @@ FCM.prototype.sendMulticastNotification = function (targetTokens, notiTitle, not
     const message = {
         registration_ids: targetTokens,
         notification: {
+            title: notiTitle,
+            body: notiBody
+        },
+        data : {
             title: notiTitle,
             body: notiBody
         }
