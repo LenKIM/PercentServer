@@ -287,11 +287,23 @@ class Request {
                     "overdue_interest_rate_1, overdue_interest_rate_2, overdue_interest_rate_3," +
                     "overdue_time_1,overdue_time_2,overdue_time_3,early_repayment_fee) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-                conn.query(sql, [estimate.fixedLoanAmount,estimate.requestId, estimate.agentId, estimate.itemBank,
-                    estimate.itemName, estimate.interestRate, estimate.interestRateType,
-                    estimate.repaymentType, estimate.overdueInterestRate01, estimate.overdueInterestRate02,
-                    estimate.overdueInterestRate03, estimate.overdueTime01, estimate.overdueTime02, estimate.overdueTime03, estimate.earlyRepaymentFee]).then((results) => {
+                conn.query(sql, [
+                    estimate.fixedLoanAmount,
+                    estimate.requestId,
+                    estimate.agentId,
+                    estimate.itemBank,
+                    estimate.itemName,
+                    estimate.interestRate,
+                    estimate.interestRateType,
+                    estimate.repaymentType,
+                    estimate.overdueInterestRate1,
+                    estimate.overdueInterestRate2,
+                    estimate.overdueInterestRate3,
+                    estimate.overdueTime1,
+                    estimate.overdueTime2,
+                    estimate.overdueTime3,
+                    estimate.earlyRepaymentFee
+                ]).then((results) => {
                     pool.releaseConnection(conn);
 
                     if (results.length === 0) {

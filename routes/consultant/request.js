@@ -52,19 +52,22 @@ async function setRequest(req, res, next) {
         body.interestRate,
         body.interestRateType,
         body.repaymentType,
-        body.overdueInterestRate01,
-        body.overdueInterestRate02,
-        body.overdueInterestRate03,
-        body.overdueTime01,
-        body.overdueTime02,
-        body.overdueTime03,
+        body.overdueInterestRate1,
+        body.overdueInterestRate2,
+        body.overdueInterestRate3,
+        body.overdueTime1,
+        body.overdueTime2,
+        body.overdueTime3,
         body.earlyRepaymentFee
     );
 
     try {
-        await requestService.addEstimateIntoRequest(estimate);
+        const addResults = await requestService.addEstimateIntoRequest(estimate);
+        console.log(addResults);
         const countRequest = await requestService.getRequestConsultantByRequestID(body.requestId, agentId);
+        console.log(countRequest);
         const customer = await requestService.getCustomerIdAndToken(body.requestId);
+        console.log(customer);
 
         if(countRequest[0].estimate_count >= 1 && countRequest[0].estimate_count < 10) {
             if (customer[0].fcm_token.length === 0) {
