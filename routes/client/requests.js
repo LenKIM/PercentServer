@@ -141,9 +141,10 @@ async function getRequestByRequestId(req, res, next) {
 async function getRequestsByCustomerId(req, res, next) {
     const customerId = req.query.customerId;
     const exceptCompletedRequest = req.query.exceptCompletedRequest == 'true' ? true : false;
+    const limitCount = parseInt(req.query.limitCount) || null;
 
     try {
-        const results = await requestService.getRequestsByCustomerId(customerId, exceptCompletedRequest);
+        const results = await requestService.getRequestsByCustomerId(customerId, exceptCompletedRequest, limitCount);
         res.send({msg: 'SUCCESS', data: results});
     } catch (error) {
         next(error);

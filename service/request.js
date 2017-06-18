@@ -186,14 +186,19 @@ class Request {
      * @param customer
      * @returns {Promise}
      */
-    getRequestsByCustomerId(customerId, exceptCompletedRequest) {
+    getRequestsByCustomerId(customerId, exceptCompletedRequest, limitCount) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
                 let additionalWhere = ' ';
                 if (exceptCompletedRequest) {
                     additionalWhere += 'AND STATUS != "대출실행완료"';
                 }
-                var sql = 'SELECT count(estimate.estimate_id) AS estimate_count, request.* FROM request LEFT JOIN estimate ON request.request_id = estimate.request_id WHERE request.customer_id = ? ' + additionalWhere + ' GROUP BY request.request_id';
+                let additionalLimit = ' ';
+                if (limitCount) {
+                    additionalLimit += 'LIMIT ' + limitCount;
+                }
+
+                var sql = 'SELECT count(estimate.estimate_id) AS estimate_count, request.* FROM request LEFT JOIN estimate ON request.request_id = estimate.request_id WHERE request.customer_id = ? ' + additionalWhere + ' GROUP BY request.request_id ORDER BY request.register_time DESC ' + additionalLimit;
                 conn.query(sql, [customerId]).then(results => {
                     pool.releaseConnection(conn);
                     if (results.length === 0) {
