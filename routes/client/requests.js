@@ -36,7 +36,7 @@ async function reWriteRequest(req, res, next) {
         return;
     }
 
-    const endTime = getElapsedTimeInOfficeHours(9, 18, 3);
+    const endTime = getElapsedTimeInOfficeHours(9, 18, 1);
 
     const request = new Request(
         requestId,
@@ -186,7 +186,7 @@ async function writeRequest(req, res, next) {
         return;
     }
 
-    const endTime = getElapsedTimeInOfficeHours(9, 18, 3);
+    const endTime = getElapsedTimeInOfficeHours(9, 18, 1);
 
     const request = new Request(
         null,
