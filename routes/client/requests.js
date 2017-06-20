@@ -186,7 +186,8 @@ async function writeRequest(req, res, next) {
         return;
     }
 
-    const endTime = getElapsedTimeInOfficeHours(9, 18, 1);
+    let currentTime = new Date();
+    const endTime = currentTime.setHours(currentTime.getHours() + 1);
 
     const request = new Request(
         null,
