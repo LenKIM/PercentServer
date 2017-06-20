@@ -6,11 +6,11 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "async": "^2.4.1",
     "body-parser": "~1.17.1",
     "cheerio": "^1.0.0-rc.1",
     "cheerio-tableparser": "^1.0.1",
     "cookie-parser": "~1.4.3",
-    "debug": "~2.6.3",
     "express": "~4.15.2",
     "fcm-node": "^1.2.0",
     "morgan": "~1.8.1",
@@ -21,7 +21,6 @@
     "promise-mysql": "^3.0.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.1",
-    "sequelize": "^3.30.4",
     "serve-favicon": "~2.4.2",
     "winston": "^2.3.1"
   }

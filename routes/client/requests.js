@@ -36,7 +36,7 @@ async function reWriteRequest(req, res, next) {
         return;
     }
 
-    const endTime = getElapsedTimeInOfficeHours(9, 18, 1);
+    // const endTime = getElapsedTimeInOfficeHours(9, 9, 1);
 
     const request = new Request(
         requestId,
@@ -278,21 +278,23 @@ function getElapsedTimeInOfficeHours(startHour, endHour, elapseHour) {
 
     // 현재시간이 업무 시간 전이면
     // 업무시작시간 3시간 뒤 반환
-    if (currentTime < todayStartTime) {
-        ret = todayStartTime;
-        ret.setHours(ret.getHours() + elapseHour);
-    } else if (currentTime >= todayStartTime && currentTime < todayThresholdTime) {
-        // 3시간 뒤 시간이 오늘 업무 마감 시간을 넘어서지 않는다면
-        // 3시간 뒤 시간을 반환
+    // if (currentTime < todayStartTime) {
         ret = currentTime;
         ret.setHours(ret.getHours() + elapseHour);
-    } else if (currentTime > todayThresholdTime) {
+    // }
+    // else if (currentTime >= todayStartTime && currentTime < todayThresholdTime) {
+        // 3시간 뒤 시간이 오늘 업무 마감 시간을 넘어서지 않는다면
+        // 3시간 뒤 시간을 반환
+        // ret = currentTime;
+
+        // ret.setHours(ret.getHours() + elapseHour);
+    // } else if (currentTime > todayThresholdTime) {
         // 3시간 뒤 시간이 오늘 업무 마감 시간을 넘어서면
         // 차이만큼을 내일 시작업무시간부터 더해서 반환
-        var diff = todayEndTime.getTime() - currentTime.getTime();
-        ret = tomorrowStartTime.getTime() - diff;
-        ret = new Date(ret);
-    }
+        // var diff = todayEndTime.getTime() - currentTime.getTime();
+        // ret = tomorrowStartTime.getTime() - diff;
+        // ret = new Date(ret);
+    // }
 
     return ret;
 }

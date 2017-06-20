@@ -7,9 +7,6 @@ const schedule = require('node-schedule');
 
 "use strict";
 
-
-
-
 function getMiddle(big) {
     return new Promise((resolve, reject) => {
 
@@ -48,7 +45,7 @@ function getMiddle(big) {
         })
     });
 }
- // 결과값은 시군구
+
 function getSmall(r, r1) {
 
     return new Promise((resolve, reject) => {
@@ -87,7 +84,7 @@ function getSmall(r, r1) {
         })
     })
 }
- // 결과 => 읍면동
+
 function getApt(r3, r1, r2) {
     return new Promise((resolve, reject) => {
         const options = {
@@ -135,7 +132,7 @@ function getApt(r3, r1, r2) {
         })
     })
 }
- // 결과 => 단지 이름, 고유 KB 부동산 ID
+
 function getPrice(apt_name, apt_value) {
     return new Promise((resolve, reject) => {
 
@@ -220,8 +217,6 @@ function getPrice(apt_name, apt_value) {
 
     });
 }
- // 결과 => 아파트 면적별 시세
-
 // var rule = new schedule.RecurrenceRule();
 // rule.dayOfWeek = [0];
 // rule.hour = 1;
@@ -231,44 +226,74 @@ function getPrice(apt_name, apt_value) {
 //
 // });
 
-async function doIt() {
+const region_1 = ["서울특별시", "경기도", "인천광역시",
+    "부산광역시", "대전광역시", "대구광역시",
+    "광주광역시", "울산광역시", "강원도",
+    "충청남도", "충청북도", "경상남도",
+    "경상북도", "전라남도", "전라북도",
+    "제주특별자치도", "세종특별자치시"];
 
+// var p1 = Promise.resolve(3);
+// var p2 = 1337;
+// var p3 = new Promise((resolve, reject) => {
+//     setTimeout(resolve, 100, 'foo');
+// });
+//
+// Promise.all([p1, p2, p3]).then(values => {
+//     console.log(values); // [3, 1337, "foo"]
+// });
 
-    const region_1 = ["서울특별시", "경기도", "인천광역시",
-        "부산광역시", "대전광역시", "대구광역시",
-        "광주광역시", "울산광역시", "강원도",
-        "충청남도", "충청북도", "경상남도",
-        "경상북도", "전라남도", "전라북도",
-        "제주특별자치도", "세종특별자치시"];
+Promise.all(region_1).then(values => {
+    doIt(values);
+});
+
+async function doIt(region_1) {
 
     try {
-        for (let o = 0; o < region_1.length; o++) {
-            let r1 = await getMiddle(region_1[o]);
-            console.log(r1[0][0] + "대지역에 대한 길이는 ? " + region_1.length);
-            for (let i = 0; i < r1.length; i++) {
-                let r2 = await getSmall(r1[i][0], r1[i][1]);
-                console.log("확인 중지역 : " + r1[i][0]);
-                for (let i2 = 0; i2 < r2.length; i2++) {
-                    console.log("소지역 :" + r2[0][0] + "중지역 : " + r2[0][2] + "대지역 : " + r2[0][1]);
-                    console.log("확인 소 지역" + r2[i2][0]);
-                    // small = r2[0][0] big= r2[0][1]  mid = r2[0][2]
-                    let r3 = await getApt(r2[i2][0], r2[i2][1], r2[i2][2]);
-                    for (let i3 = 0; i3 < r3.length; i3++) {
-                        // /r3[i2][0] => 아파트 이름 // r3[i2][1] => 아파트 정보
-                        let priceAndSize = await getPrice(r3[i3][0], r3[i3][1]);
-                        console.log("가격과 사이즈의 길이는? " + priceAndSize.length);
-                        for (let i4 = 0; i4 < priceAndSize.length; i4++) {
-                            pool.getConnection().then(conn => {
-                                var sql = 'INSERT INTO apt (region_1, region_2, region_3, apt_name, apt_kb_id, apt_size_supply, apt_size_exclusive, apt_price) ' +
-                                    'VALUES (?,?,?,?,?,?,?,?)';
-                                conn.query(sql, [r2[i2][0], r2[i2][1], r2[i2][2], r3[i3][0], r3[i3][1], priceAndSize[i4][0], priceAndSize[i4][1], parseInt((priceAndSize[i4][2]).replace(",", ""))]).then(results => {
-                                    console.log(results);
-                                    pool.releaseConnection(conn);
-                                }).catch(err => {
-                                    console.log("에러 발생 : " + err);
-                                });
+        let r1 = await getMiddle(region_1);
+
+        console.log(r1[0][0] + "대지역에 대한 길이는 ? " + region_1.length);
+
+        for (let i = 0; i < r1.length; i++) {
+
+            let r2 = await getSmall(r1[i][0], r1[i][1]);
+
+            console.log("확인 중지역 : " + r1[i][0]);
+
+            for (let i2 = 0; i2 < r2.length; i2++) {
+
+                console.log("소지역 :" + r2[0][0] + "중지역 : " + r2[0][2] + "대지역 : " + r2[0][1]);
+                console.log("확인 소 지역" + r2[i2][0]);
+
+                // small = r2[0][0] big= r2[0][1]  mid = r2[0][2]
+                let r3 = await getApt(r2[i2][0], r2[i2][1], r2[i2][2]);
+
+
+                for (let i3 = 0; i3 < r3.length; i3++) {
+
+                    // /r3[i2][0] => 아파트 이름 // r3[i2][1] => 아파트 정보
+
+                    let priceAndSize = await getPrice(r3[i3][0], r3[i3][1]);
+
+                    console.log("가격과 사이즈의 길이는? " + priceAndSize.length);
+
+                    for (let i4 = 0; i4 < priceAndSize.length; i4++) {
+
+                        pool.getConnection().then(conn => {
+
+                            var sql = 'INSERT INTO apt (region_1, region_2, region_3, apt_name, apt_kb_id, apt_size_supply, apt_size_exclusive, apt_price) ' +
+                                'VALUES (?,?,?,?,?,?,?,?)';
+
+                            conn.query(sql, [r2[i2][0], r2[i2][1], r2[i2][2], r3[i3][0], r3[i3][1], priceAndSize[i4][0], priceAndSize[i4][1], parseInt((priceAndSize[i4][2]).replace(",", ""))]).then(results => {
+
+                                console.log(results);
+
+                                pool.releaseConnection(conn);
+
+                            }).catch(err => {
+                                console.log("에러 발생 : " + err);
                             });
-                        }
+                        });
                     }
                 }
             }
@@ -278,5 +303,3 @@ async function doIt() {
         throw err;
     }
 }
-
-// doIt();

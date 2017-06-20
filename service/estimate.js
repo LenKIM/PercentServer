@@ -80,7 +80,7 @@ class Estimate {
     getEstimatesByAgentId(agentId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const sql = 'SELECT * FROM estimate, request WHERE request.request_id = estimate.request_id and estimate.agent_id = ? ORDER BY estimate.register_time DESC';
+                const sql = 'SELECT * FROM estimate, request, customer WHERE request.request_id = estimate.request_id and estimate.agent_id = ? ORDER BY estimate.register_time DESC';
                 conn.query(sql, [agentId]).then(results => {
                     pool.releaseConnection(conn);
                     if (results.length === 0) {
@@ -131,7 +131,7 @@ class Estimate {
     getEstimateByEstimateId(estimateId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const sql = 'SELECT FUNC_REPAYMENT_AMOUNT_PER_MONTH(estimate.fixed_loan_amount, estimate.interest_rate, request.loan_period) as repayment_amount_per_month, estimate.*, agent.*, request.* FROM estimate, agent, request WHERE 1=1 AND estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
+                const sql = 'SELECT FUNC_REPAYMENT_AMOUNT_PER_MONTH(estimate.fixed_loan_amount, estimate.interest_rate, request.loan_period) as repayment_amount_per_month, estimate.*, agent.*, request.*, customer.* FROM estimate, agent, request, customer WHERE 1=1 and request.customer_id = customer.customer_id  AND estimate.agent_id = agent.agent_id AND estimate.request_id = request.request_id AND estimate.estimate_id = ?';
                 conn.query(sql, [estimateId]).then(results => {
                     pool.releaseConnection(conn);
                     if (results.length === 0) {

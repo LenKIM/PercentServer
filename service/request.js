@@ -300,7 +300,6 @@ class Request {
      addEstimateIntoRequest(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                console.log("GGGGG");
                 const sql = "INSERT INTO estimate (" +
                     "fixed_loan_amount," +
                     "request_id," +
