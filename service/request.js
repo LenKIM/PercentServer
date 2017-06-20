@@ -17,6 +17,7 @@ class Request {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -43,6 +44,7 @@ class Request {
                     }
                     resolve(results[0].fcm_token);
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject("QUERY_ERR");
                 })
             }).catch(err => {
@@ -65,6 +67,7 @@ class Request {
                     pool.releaseConnection(conn);
                     resolve('SUCCESS');
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject("QUERY_ERR");
                 });
             }).catch(err => {
@@ -81,6 +84,7 @@ class Request {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -109,6 +113,7 @@ class Request {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -148,6 +153,7 @@ class Request {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -173,6 +179,7 @@ class Request {
                     }
                     resolve(results[0]);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -207,6 +214,7 @@ class Request {
                     }
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -233,6 +241,7 @@ class Request {
                     }
                     resolve(results[0]);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -262,7 +271,7 @@ class Request {
     getRequestConsultantRequestByStatus(agentId) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                const sql = 'select count(estimate.estimate_id) as count, if((select like_request.register_time from like_request  where 1=1  and like_request.agent_id = ? and like_request.request_id = request.request_id), 1, 0) as favorite, request.request_id, request.customer_id, request.selected_estimate_id, request.loan_type, request.loan_amount, request.scheduled_time, request.overdue_record, request.interest_rate_type, request.loan_period, request.loan_reason, request.register_time, request.start_time, request.end_time, request.extra, request.job_type, request.status, request.region_1, request.region_2, request.region_3, request.apt_name, request.apt_kb_id, request.apt_price, request.apt_size_supply, request.apt_size_exclusive, estimate.estimate_id, estimate.agent_id, estimate.item_bank, estimate.item_name, estimate.interest_rate, estimate.repayment_type, estimate.overdue_interest_rate_1, estimate.overdue_interest_rate_2, estimate.overdue_interest_rate_3, estimate.overdue_time_1, estimate.overdue_time_2, estimate.overdue_time_3, estimate.early_repayment_fee, estimate.fixed_loan_amount from request  left join estimate on request.request_id = estimate.request_id where request.status = ? group by request.request_id order by favorite desc, request.end_time asc';
+                const sql = 'select count(estimate.estimate_id) as count, if((select like_request.register_time from like_request  where 1=1  and like_request.agent_id = ? and like_request.request_id = request.request_id), 1, 0) as favorite, request.request_id, request.customer_id, request.selected_estimate_id, request.loan_type, request.loan_amount, request.scheduled_time, request.overdue_record, request.interest_rate_type, request.loan_period, request.loan_reason, request.register_time, request.start_time, request.end_time, request.extra, request.job_type, request.status, request.region_1, request.region_2, request.region_3, request.apt_name, request.apt_kb_id, request.apt_price, request.apt_size_supply, request.apt_size_exclusive, estimate.estimate_id, estimate.agent_id, estimate.item_bank, estimate.item_name, estimate.interest_rate, estimate.repayment_type, estimate.overdue_interest_rate_1, estimate.overdue_interest_rate_2, estimate.overdue_interest_rate_3, estimate.overdue_time_1, estimate.overdue_time_2, estimate.overdue_time_3, estimate.early_repayment_fee, estimate.fixed_loan_amount from request  left join estimate on request.request_id = estimate.request_id where request.status = ? group by request.request_id order by favorite desc, request.register_time desc';
                 conn.query(sql, [agentId, '견적접수중']).then((results) => {
                     pool.releaseConnection(conn);
 
@@ -271,36 +280,19 @@ class Request {
                         return;
                     }
                     resolve(results);
-                }).catch((err) => reject("QUERY_ERR"));
+                }).catch((err) => {
+                    pool.releaseConnection(conn);
+                    reject("QUERY_ERR");
+                });
             }).catch((err) => {
                 reject('CONNECTION_ERR');
             })
         })
     }
 
-    // ss Estimate {
-    // constructor(estimateId,
-    //             fixedLoanAmount,
-    //             requestId,
-    //             agentId,
-    //             registerTime,
-    //             itemBank,
-    //             itemName,
-    //             interestRate,
-    //             interestRateType,
-    //             repaymentType,
-    //             overdueInterestRate1,
-    //             overdueInterestRate2,
-    //             overdueInterestRate3,
-    //             overdueTime1,
-    //             overdueTime2,
-    //             overdueTime3,
-    //             earlyRepaymentFee) {
-
-     addEstimateIntoRequest(estimate) {
+    addEstimateIntoRequest(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-                console.log("GGGGG");
                 const sql = "INSERT INTO estimate (" +
                     "fixed_loan_amount," +
                     "request_id," +
@@ -343,7 +335,10 @@ class Request {
                     }
                     console.log(estimate.agentId + "가 " + estimate.requestId + "에 대한 견적서 작성 완료");
                     resolve(results);
-                }).catch((err) => reject("QUERY_ERR" + err))
+                }).catch((err) => {
+                    pool.releaseConnection(conn);
+                    reject("QUERY_ERR");
+                });
             }).catch((err) => {
                 reject('CONNECTION_ERR');
             });
@@ -368,7 +363,8 @@ class Request {
                     }
                     resolve(results[0]);
                 }).catch((err) => {
-                    reject('QUERY_ERR' + err)
+                    pool.releaseConnection(conn);
+                    reject('QUERY_ERR');
                 });
             }).catch((err) => {
                 reject('CONNECTION_ERR');
@@ -387,7 +383,8 @@ class Request {
                     pool.releaseConnection(conn);
                     resolve(results)
                 }).catch((err) => {
-                    reject('QUERY_ERR')
+                    pool.releaseConnection(conn);
+                    reject('QUERY_ERR');
                 })
             }).catch((err) => {
                     reject('CONNECTION_ERR');

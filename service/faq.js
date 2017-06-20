@@ -17,6 +17,7 @@ class FAQ {
                     }
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {

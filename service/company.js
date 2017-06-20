@@ -13,6 +13,7 @@ class Company {
                     }
                     resolve(results[0]);
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(err => {
@@ -43,9 +44,11 @@ class Company {
                             data: results
                         });
                     }).catch(err => {
+                        pool.releaseConnection(conn);
                         reject('QUERY_ERR');
                     });
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(err => {

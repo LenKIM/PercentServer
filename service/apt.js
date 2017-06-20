@@ -17,6 +17,7 @@ class Apt {
                     }
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -42,6 +43,7 @@ class Apt {
                     }
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -68,6 +70,7 @@ class Apt {
                     }
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -95,6 +98,7 @@ class Apt {
                     }
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -123,6 +127,7 @@ class Apt {
                     }
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {

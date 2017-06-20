@@ -14,6 +14,7 @@ class Favorite {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject("QUERY_ERR");
                     return;
                 });
@@ -32,6 +33,7 @@ class Favorite {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject("QUERY_ERR");
                     return;
                 });

@@ -18,6 +18,7 @@ class Agent {
                     }
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -43,6 +44,7 @@ class Agent {
                     }
                     resolve(results[0]);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -68,6 +70,7 @@ class Agent {
                     }
                     resolve(results[0].fcm_token);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -92,7 +95,10 @@ class Agent {
                         return;
                     }
                     resolve(results[0].fcm_token);
-                }).catch((err) => reject('QUERY_ERR'));
+                }).catch((err) => {
+                    pool.releaseConnection(conn);
+                    reject('QUERY_ERR');
+                });
             }).catch((err) => {
                 reject('CONNECTION_ERR');
             });
@@ -119,7 +125,10 @@ class Agent {
                         ret.push(result.fcm_token);
                     });
                     resolve(ret);
-                }).catch((err) => reject('QUERY_ERR'));
+                }).catch((err) => {
+                    pool.releaseConnection(conn);
+                    reject('QUERY_ERR');
+                });
             }).catch((err) => {
                 reject('CONNECTION_ERR');
             });
