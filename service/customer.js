@@ -14,6 +14,7 @@ class Customer {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -39,6 +40,7 @@ class Customer {
                     }
                     resolve(results[0]);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -61,6 +63,7 @@ class Customer {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -77,6 +80,7 @@ class Customer {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {

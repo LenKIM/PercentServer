@@ -9,6 +9,7 @@ class Item {
                     pool.releaseConnection(conn);
                     resolve(results[0]);
                 }).catch((err) => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch((err) => {
@@ -39,9 +40,11 @@ class Item {
                             data: results
                         });
                     }).catch(err => {
+                        pool.releaseConnection(conn);
                         reject('QUERY_ERR')
                     });
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR')
                 });
             }).catch(err => {
@@ -59,7 +62,6 @@ class Item {
     addItem(item, agent) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                pool.releaseConnection(conn);
                 const sql = 'INSERT INTO item (agent_id, item_bank, item_name, min_interest_rate, max_interest_rate, interest_rate_type, repayment_type, overdue_interest_rate_1, overdue_interest_rate_2, overdue_interest_rate_3, overdue_time_1, overdue_time_2, overdue_time_3, early_repayment_fee, loan_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 conn.query(sql, [
                     agent.agentId,
@@ -78,8 +80,10 @@ class Item {
                     item.earlyRepaymentFee,
                     item.loanType
                 ]).then(results => {
+                    pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(err => {
@@ -91,7 +95,6 @@ class Item {
     updateItem(item) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then(conn => {
-                pool.releaseConnection(conn);
                 const sql = 'UPDATE item SET item_bank = ?, item_name = ?, min_interest_rate = ?, max_interest_rate = ?, interest_rate_type = ?, repayment_type = ?, overdue_interest_rate_1 = ?, overdue_interest_rate_2 = ?, overdue_interest_rate_3 = ?, overdue_time_1 = ?, overdue_time_2 = ?, overdue_time_3 = ?, early_repayment_fee = ?, loan_type = ? WHERE item_id = ?';
                 conn.query(sql, [
                     item.itemBank,
@@ -110,8 +113,10 @@ class Item {
                     item.loanType,
                     item.itemId
                 ]).then(results => {
+                    pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(err => {
@@ -128,6 +133,7 @@ class Item {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(err => {

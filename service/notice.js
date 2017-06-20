@@ -9,6 +9,7 @@ class Notice {
                     pool.releaseConnection(conn);
                     resolve(results[0]);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -50,9 +51,11 @@ class Notice {
                             data: results
                         });
                     }).catch(error => {
+                        pool.releaseConnection(conn);
                         reject('QUERY_ERR');
                     });
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -69,6 +72,7 @@ class Notice {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -85,6 +89,7 @@ class Notice {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {
@@ -101,6 +106,7 @@ class Notice {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(error => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch(error => {

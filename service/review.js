@@ -17,6 +17,7 @@ class Review {
                     pool.releaseConnection(conn);
                     resolve(results);
                 }).catch(err => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch((err) => {
@@ -57,9 +58,11 @@ class Review {
                             data: results
                         });
                     }).catch((err) => {
+                        pool.releaseConnection(conn);
                         reject("QUERY_ERR")
                     });
                 }).catch((err) => {
+                    pool.releaseConnection(conn);
                     reject("QUERY_ERR")
                 });
                 ;
@@ -110,6 +113,7 @@ class Review {
                         });
                     });
                 }).catch((err) => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR')
                 });
             }).catch((err) => {
@@ -136,7 +140,8 @@ class Review {
                     }
                     resolve(results[0]);
                 }).catch((err) => {
-                    reject('QUERY_ERR')
+                    pool.releaseConnection(conn);
+                    reject('QUERY_ERR');
                 });
             }).catch((err) => {
                 reject('CONNECTION_ERR');
@@ -155,12 +160,14 @@ class Review {
             pool.getConnection().then((conn) => {
                 const countAndAvr = 'SELECT COUNT(estimate.estimate_id) AS count, AVG(estimate.interest_rate) AS average FROM estimate, request, review WHERE estimate.request_id = request.request_id AND request.request_id = review.request_id AND review.review_id = ?';
                 conn.query(countAndAvr, [reviewId]).then(results => {
+                    pool.releaseConnection(conn);
                     if (results.length === 0) {
                         reject('NO_DATA');
                         return;
                     }
                     resolve(results[0]);
                 }).catch((err) => {
+                    pool.releaseConnection(conn);
                     reject('QUERY_ERR');
                 });
             }).catch((err) => {
@@ -185,14 +192,18 @@ class Review {
                     'and re.review_id = ?';
 
                 conn.query(sql, [review.reviewId]).then(results => {
+                    pool.releaseConnection(conn);
                     resolve({
                         data: results
                     });
+                }).catch((err) => {
+                    pool.releaseConnection(conn);
+                    reject('QUERY_ERR');
                 });
             }).catch((err) => {
-                reject(err);
-            })
-        })
+                reject('CONNECTION_ERR');
+            });
+        });
     }
 
     /**
@@ -205,13 +216,15 @@ class Review {
             pool.getConnection().then((conn) => {
                 const sql = 'SELECT agent.* FROM request, estimate, agent WHERE request.selected_estimate_id = estimate.estimate_id AND estimate.agent_id = agent.agent_id AND request.request_id = ?';
                 conn.query(sql, [request.requestId]).then(results => {
+                    pool.releaseConnection(conn);
                     if (results.length === 0) {
                         reject('NO_DATA');
                         return;
                     }
                     resolve(results[0]);
                 }).catch(err => {
-                    reject('QUERY_ERR')
+                    pool.releaseConnection(conn);
+                    reject('QUERY_ERR');
                 });
             }).catch((err) => {
                 reject('CONNECTION_ERR');
@@ -224,12 +237,16 @@ class Review {
             pool.getConnection().then((conn) => {
                 const sql = 'SELECT estimate.interest_rate FROM estimate, request, review WHERE estimate.request_id = request.request_id AND request.request_id = review.request_id AND review.review_id = ?';
                 conn.query(sql, [reviewId]).then(results => {
+                    pool.releaseConnection(conn);
                     if (results.length === 0) {
                         reject('NO_DATA');
                         return;
                     }
                     resolve(results);
-                }).catch(err => reject('QUERY_ERR'));
+                }).catch(err => {
+                    pool.releaseConnection(conn);
+                    reject('QUERY_ERR');
+                });
             }).catch((err) => {
                 reject('CONNECTION_ERR');
             });

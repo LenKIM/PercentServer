@@ -5,9 +5,9 @@
 var mysql =  require('promise-mysql');
 
 var dbConfig = {
-    host : 'localhost',
+    host : 'hellomoney2.cj0dugpahfcd.ap-northeast-2.rds.amazonaws.com',
     user : 'root',
-    password : '111111',
+    password : 'hello1234',
     port : '3306',
     database : 'hellomoney'
 };
