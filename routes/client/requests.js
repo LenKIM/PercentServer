@@ -187,7 +187,8 @@ async function writeRequest(req, res, next) {
     }
 
     let currentTime = new Date();
-    const endTime = currentTime.setHours(currentTime.getHours() + 1);
+    let endTime = currentTime.setHours(currentTime.getHours() + 1);
+    endTime = new Date(endTime);
 
     const request = new Request(
         null,
