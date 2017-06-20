@@ -290,14 +290,25 @@ class Request {
         })
     }
 
-     addEstimateIntoRequest(estimate) {
+    addEstimateIntoRequest(estimate) {
         return new Promise((resolve, reject) => {
             pool.getConnection().then((conn) => {
-
-                const sql = "INSERT INTO estimate (fixed_loan_amount,request_id, agent_id, item_bank," +
-                    "item_name, interest_rate, interest_rate_type, repayment_type, " +
-                    "overdue_interest_rate_1, overdue_interest_rate_2, overdue_interest_rate_3," +
-                    "overdue_time_1,overdue_time_2,overdue_time_3,early_repayment_fee) " +
+                const sql = "INSERT INTO estimate (" +
+                    "fixed_loan_amount," +
+                    "request_id," +
+                    "agent_id," +
+                    "item_bank," +
+                    "item_name," +
+                    "interest_rate," +
+                    "interest_rate_type," +
+                    "repayment_type," +
+                    "overdue_interest_rate_1," +
+                    "overdue_interest_rate_2," +
+                    "overdue_interest_rate_3," +
+                    "overdue_time_1," +
+                    "overdue_time_2," +
+                    "overdue_time_3," +
+                    "early_repayment_fee) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
                 conn.query(sql, [
                     estimate.fixedLoanAmount,
@@ -353,7 +364,7 @@ class Request {
                     resolve(results[0]);
                 }).catch((err) => {
                     pool.releaseConnection(conn);
-                    reject('QUERY_ERR')
+                    reject('QUERY_ERR');
                 });
             }).catch((err) => {
                 reject('CONNECTION_ERR');

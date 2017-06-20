@@ -5,8 +5,9 @@ const cheerioTableparser = require('cheerio-tableparser');
 const pool = require('./config/mysql');
 const schedule = require('node-schedule');
 
-
 "use strict";
+
+
 
 
 function getMiddle(big) {
@@ -276,7 +277,7 @@ async function doIt() {
                                 var sql = 'INSERT INTO apt (region_1, region_2, region_3, apt_name, apt_kb_id, apt_size_supply, apt_size_exclusive, apt_price) ' +
                                     'VALUES (?,?,?,?,?,?,?,?)';
 
-                                conn.query(sql, [r2[i2][1], r2[i2][2], r2[i2][0], r3[i3][0], r3[i3][1], priceAndSize[i4][0], priceAndSize[i4][1], parseInt((priceAndSize[i4][2]).replace(",", ""))]).then(results => {
+                                conn.query(sql, [r2[i2][0], r2[i2][1], r2[i2][2], r3[i3][0], r3[i3][1], priceAndSize[i4][0], priceAndSize[i4][1], parseInt((priceAndSize[i4][2]).replace(",", ""))]).then(results => {
 
                                     console.log(results);
 
